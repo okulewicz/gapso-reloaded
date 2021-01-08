@@ -8,8 +8,8 @@ import java.util.OptionalDouble;
 
 public class SimpleBounds extends Bounds {
 
-    private double[] lowerBounds;
-    private double[] upperBounds;
+    private final double[] lowerBounds;
+    private final double[] upperBounds;
 
     public SimpleBounds(double[] lowerBounds, double[] upperBounds) {
         this.lowerBounds = Arrays.copyOf(lowerBounds, lowerBounds.length);
