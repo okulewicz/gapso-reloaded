@@ -14,20 +14,38 @@ import java.util.List;
 public class SimpleSquareModelTest {
 
     @Test
-    public void getOptimumLocation() {
-        Function squareFunction = new Function() {
+    public void getConvexOptimumLocation() {
+        Function convexSquareFunction = new Function() {
             @Override
             public double getValue(double[] x) {
                 return 2 * x[0] * x[0] + 3 * x[0] + 4 * x[1] * x[1] - 3 * x[1] + 1;
             }
         };
-        List<Sample> sampleList = getSamples(squareFunction);
+        List<Sample> sampleList = getSamples(convexSquareFunction);
         Bounds bounds = SimpleBounds.createBoundsFromSamples(sampleList);
         Model model = new SimpleSquareModel();
         double[] optimumLocation = model.getOptimumLocation(sampleList, bounds);
         Assert.assertArrayEquals(new double[]{
                 Math.min(Math.max(-0.75, bounds.getLower()[0]), bounds.getUpper()[0]),
                 Math.min(Math.max(0.375, bounds.getLower()[1]), bounds.getUpper()[1])
+        }, optimumLocation, 1e-2);
+    }
+
+    @Test
+    public void getConcaveOptimumLocation() {
+        Function concaveSquareFunction = new Function() {
+            @Override
+            public double getValue(double[] x) {
+                return -2 * x[0] * x[0] + 3 * x[0] - 4 * x[1] * x[1] - 3 * x[1] + 1;
+            }
+        };
+        List<Sample> sampleList = getSamples(concaveSquareFunction);
+        Bounds bounds = SimpleBounds.createBoundsFromSamples(sampleList);
+        Model model = new SimpleSquareModel();
+        double[] optimumLocation = model.getOptimumLocation(sampleList, bounds);
+        Assert.assertArrayEquals(new double[]{
+                bounds.getUpper()[0],
+                bounds.getUpper()[1]
         }, optimumLocation, 1e-2);
     }
 
