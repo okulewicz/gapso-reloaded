@@ -1,0 +1,62 @@
+package pl.edu.pw.mini.gapso.model;
+
+import org.apache.commons.math3.linear.SingularMatrixException;
+import org.apache.commons.math3.stat.regression.OLSMultipleLinearRegression;
+import pl.edu.pw.mini.gapso.bounds.Bounds;
+import pl.edu.pw.mini.gapso.sample.Sample;
+
+import java.util.List;
+
+public class LinearModel extends Model {
+    @Override
+    public double[] getOptimumLocation(List<Sample> samples, Bounds bounds) {
+        if (samples == null || samples.isEmpty())
+            return null;
+        if (samples.size() < getMinSamplesCount(samples.get(0).getX().length))
+            return null;
+        int dim = samples.get(0).getX().length;
+        OLSMultipleLinearRegression olslm = putDataIntoModel(samples, dim);
+
+        try {
+            return computeLinearModelOptimum(bounds, dim, olslm);
+        } catch (SingularMatrixException ex) {
+            return null;
+        }
+    }
+
+    private double[] computeLinearModelOptimum(Bounds bounds, int dim, OLSMultipleLinearRegression olslm) {
+        double[] modelOptimumLocation;
+        modelOptimumLocation = new double[dim];
+        double[] ba = olslm.estimateRegressionParameters();
+        for (int i = 0; i < dim; i++) {
+            if (ba[i + 1] > 1e-8) {
+                modelOptimumLocation[i] = bounds.getLower()[i];
+            } else if (ba[i + 1] < -1e-8) {
+                modelOptimumLocation[i] = bounds.getUpper()[i];
+            } else {
+                modelOptimumLocation[i] = (bounds.getUpper()[i] + bounds.getLower()[i]) / 2.0;
+            }
+        }
+        return modelOptimumLocation;
+    }
+
+    private OLSMultipleLinearRegression putDataIntoModel(List<Sample> samples, int dim) {
+        OLSMultipleLinearRegression olslm = new OLSMultipleLinearRegression();
+        int samplesCount = samples.size();
+        double[] y = new double[samplesCount];
+        double[][] x = new double[samplesCount][];
+
+        for (int i = 0; i < samplesCount; ++i) {
+            y[i] = samples.get(i).getY();
+            x[i] = new double[dim];
+            System.arraycopy(samples.get(i).getX(), 0, x[i], 0, dim);
+        }
+        olslm.newSampleData(y, x);
+        return olslm;
+    }
+
+    @Override
+    protected int getMinSamplesCount(int dim) {
+        return dim;
+    }
+}

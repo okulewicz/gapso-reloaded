@@ -1,0 +1,17 @@
+plugins {
+    id 'java'
+}
+
+group 'pl.edu.pw.mini.gapso'
+version '0.1-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
