@@ -50,6 +50,24 @@ public class SimpleSquareModelTest {
     }
 
     @Test
+    public void getLinearOptimumLocation() {
+        Function linear = new Function() {
+            @Override
+            public double getValue(double[] x) {
+                return 3 * x[0] + 3 * x[1] + 1;
+            }
+        };
+        List<Sample> sampleList = getSamples(linear);
+        Bounds bounds = SimpleBounds.createBoundsFromSamples(sampleList);
+        Model model = new SimpleSquareModel();
+        double[] optimumLocation = model.getOptimumLocation(sampleList, bounds);
+        Assert.assertArrayEquals(new double[]{
+                bounds.getLower()[0],
+                bounds.getLower()[1]
+        }, optimumLocation, 1e-2);
+    }
+
+    @Test
     public void getMinSamplesCount() {
         Model model = new SimpleSquareModel();
         Assert.assertEquals(5, model.getMinSamplesCount(2));
