@@ -14,15 +14,20 @@ public class SimpleSquareModel extends Model {
         boundedPeak = new double[dim];
         double[] ba = olslm.estimateRegressionParameters();
         for (int i = 0; i < dim; i++) {
-            if (ba[i + dim + 1] > 0) {
-                boundedPeak[i] += getBoundedCoordinate(bounds, -ba[i + 1] / ba[i + dim + 1] / 2.0, i);
-            } else if (ba[i + dim + 1] == 0) {
-                boundedPeak[i] += getBoundedCoordinate(bounds, ba[i + 1] > 0 ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY, i);
-            } else if (linearCutValue(ba[i + dim + 1], ba[i + 1], bounds.getLower()[i])
-                    < linearCutValue(ba[i + dim + 1], ba[i + 1], bounds.getUpper()[i])) {
-                boundedPeak[i] += bounds.getLower()[i];
+            //needs to be significantly positive
+            final double ai = ba[i + dim + 1];
+            final double bi = ba[i + 1];
+            final double loweri = bounds.getLower()[i];
+            final double upperi = bounds.getUpper()[i];
+            if (ai > 1e-8) {
+                boundedPeak[i] += getBoundedCoordinate(-bi / ai / 2.0, loweri, upperi);
             } else {
-                boundedPeak[i] += bounds.getUpper()[i];
+                if (linearCutValue(ai, bi, loweri)
+                        < linearCutValue(ai, bi, upperi)) {
+                    boundedPeak[i] += loweri;
+                } else {
+                    boundedPeak[i] += upperi;
+                }
             }
         }
         return boundedPeak;
@@ -32,10 +37,12 @@ public class SimpleSquareModel extends Model {
         return a * x * x + b * x;
     }
 
-    private double getBoundedCoordinate(Bounds bounds, double value, int dimension) {
-        if (value < bounds.getLower()[dimension])
-            return bounds.getLower()[dimension];
-        return Math.min(value, bounds.getUpper()[dimension]);
+    private double getBoundedCoordinate(double value, double lowerBound, double upperBound) {
+        return Math.min(
+                Math.max(
+                        value,
+                        lowerBound),
+                upperBound);
     }
 
     @Override
