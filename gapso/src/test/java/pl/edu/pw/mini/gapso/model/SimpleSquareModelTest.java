@@ -4,9 +4,10 @@ import org.junit.Assert;
 import org.junit.Test;
 import pl.edu.pw.mini.gapso.bounds.Bounds;
 import pl.edu.pw.mini.gapso.bounds.SimpleBounds;
-import pl.edu.pw.mini.gapso.function.Function;
+import pl.edu.pw.mini.gapso.function.*;
 import pl.edu.pw.mini.gapso.sample.Sample;
 import pl.edu.pw.mini.gapso.sample.SingleSample;
+import pl.edu.pw.mini.gapso.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,30 +16,21 @@ public class SimpleSquareModelTest {
 
     @Test
     public void getConvexOptimumLocation() {
-        Function convexSquareFunction = new Function() {
-            @Override
-            public double getValue(double[] x) {
-                return 2 * x[0] * x[0] + 3 * x[0] + 4 * x[1] * x[1] - 3 * x[1] + 1;
-            }
-        };
+        FunctionWhiteBox convexSquareFunction = new ConvexSeparableSquareFunction();
+        double[] expectedOptimumLocation = convexSquareFunction.getOptimumLocation();
         List<Sample> sampleList = getSamples(convexSquareFunction);
         Bounds bounds = SimpleBounds.createBoundsFromSamples(sampleList);
         Model model = new SimpleSquareModel();
         double[] optimumLocation = model.getOptimumLocation(sampleList, bounds);
         Assert.assertArrayEquals(new double[]{
-                Math.min(Math.max(-0.75, bounds.getLower()[0]), bounds.getUpper()[0]),
-                Math.min(Math.max(0.375, bounds.getLower()[1]), bounds.getUpper()[1])
+                Utils.getBoundedValue(bounds, 0, expectedOptimumLocation),
+                Utils.getBoundedValue(bounds, 1, expectedOptimumLocation)
         }, optimumLocation, 1e-2);
     }
 
     @Test
     public void getConcaveOptimumLocation() {
-        Function concaveSquareFunction = new Function() {
-            @Override
-            public double getValue(double[] x) {
-                return -2 * x[0] * x[0] + 3 * x[0] - 4 * x[1] * x[1] - 3 * x[1] + 1;
-            }
-        };
+        Function concaveSquareFunction = new ConcaveSeparableSquareFunction();
         List<Sample> sampleList = getSamples(concaveSquareFunction);
         Bounds bounds = SimpleBounds.createBoundsFromSamples(sampleList);
         Model model = new SimpleSquareModel();
@@ -51,19 +43,14 @@ public class SimpleSquareModelTest {
 
     @Test
     public void getLinearOptimumLocation() {
-        Function linear = new Function() {
-            @Override
-            public double getValue(double[] x) {
-                return 3 * x[0] + 3 * x[1] + 1;
-            }
-        };
+        Function linear = new SlopedLinearFunction();
         List<Sample> sampleList = getSamples(linear);
         Bounds bounds = SimpleBounds.createBoundsFromSamples(sampleList);
         Model model = new SimpleSquareModel();
         double[] optimumLocation = model.getOptimumLocation(sampleList, bounds);
         Assert.assertArrayEquals(new double[]{
                 bounds.getLower()[0],
-                bounds.getLower()[1]
+                bounds.getUpper()[1]
         }, optimumLocation, 1e-2);
     }
 

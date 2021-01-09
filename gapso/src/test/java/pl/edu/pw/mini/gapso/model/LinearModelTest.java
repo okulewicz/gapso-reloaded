@@ -5,8 +5,12 @@ import org.junit.Test;
 import pl.edu.pw.mini.gapso.bounds.Bounds;
 import pl.edu.pw.mini.gapso.bounds.SimpleBounds;
 import pl.edu.pw.mini.gapso.function.Function;
+import pl.edu.pw.mini.gapso.function.FunctionWhiteBox;
+import pl.edu.pw.mini.gapso.function.PartiallyFlatLinearFunction;
+import pl.edu.pw.mini.gapso.function.SlopedLinearFunction;
 import pl.edu.pw.mini.gapso.sample.Sample;
 import pl.edu.pw.mini.gapso.sample.SingleSample;
+import pl.edu.pw.mini.gapso.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,32 +19,30 @@ public class LinearModelTest {
 
     @Test
     public void getOptimumLocationForSlopedFunction() {
-        Function slopedLinearFunction = new Function() {
-            @Override
-            public double getValue(double[] x) {
-                return 2 * x[0] - 3 * x[1] + 1;
-            }
-        };
+        FunctionWhiteBox slopedLinearFunction = new SlopedLinearFunction();
+        double[] expectedOptimumLocation = slopedLinearFunction.getOptimumLocation();
         List<Sample> sampleList = getSamples(slopedLinearFunction);
         Bounds bounds = SimpleBounds.createBoundsFromSamples(sampleList);
         Model model = new LinearModel();
         double[] optimumLocation = model.getOptimumLocation(sampleList, bounds);
-        Assert.assertArrayEquals(new double[]{0.0, 1.0}, optimumLocation, 0.0);
+        Assert.assertArrayEquals(new double[]{
+                Utils.getBoundedValue(bounds, 0, expectedOptimumLocation),
+                Utils.getBoundedValue(bounds, 1, expectedOptimumLocation)
+        }, optimumLocation, 1e-2);
     }
 
     @Test
     public void getOptimumLocationForPartiallyFlatFunction() {
-        Function partiallyFlatLinearFunction = new Function() {
-            @Override
-            public double getValue(double[] x) {
-                return -2 * x[0] + 1;
-            }
-        };
+        FunctionWhiteBox partiallyFlatLinearFunction = new PartiallyFlatLinearFunction();
+        double[] expectedOptimumLocation = partiallyFlatLinearFunction.getOptimumLocation();
         List<Sample> sampleList = getSamples(partiallyFlatLinearFunction);
         Bounds bounds = SimpleBounds.createBoundsFromSamples(sampleList);
         Model model = new LinearModel();
         double[] optimumLocation = model.getOptimumLocation(sampleList, bounds);
-        Assert.assertArrayEquals(new double[]{1.0, 0.5}, optimumLocation, 0.0);
+        Assert.assertArrayEquals(new double[]{
+                Utils.getBoundedValue(bounds, 0, expectedOptimumLocation),
+                Utils.getBoundedValue(bounds, 1, expectedOptimumLocation)
+        }, optimumLocation, 1e-2);
     }
 
     private List<Sample> getSamples(Function function) {
@@ -62,7 +64,7 @@ public class LinearModelTest {
 
     @Test
     public void getMinSamplesCount() {
-        Model model = new SimpleSquareModel();
+        Model model = new LinearModel();
         Assert.assertEquals(3, model.getMinSamplesCount(2));
     }
 

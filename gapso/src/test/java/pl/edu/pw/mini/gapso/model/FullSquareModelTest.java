@@ -4,7 +4,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import pl.edu.pw.mini.gapso.bounds.Bounds;
 import pl.edu.pw.mini.gapso.bounds.SimpleBounds;
+import pl.edu.pw.mini.gapso.function.ConvexSquareFunction;
 import pl.edu.pw.mini.gapso.function.Function;
+import pl.edu.pw.mini.gapso.function.FunctionWhiteBox;
 import pl.edu.pw.mini.gapso.sample.Sample;
 import pl.edu.pw.mini.gapso.sample.SingleSample;
 
@@ -15,22 +17,8 @@ public class FullSquareModelTest {
 
     @Test
     public void getConvexOptimumLocation() {
-        Function convexSquareFunction = new Function() {
-            @Override
-            public double getValue(double[] x) {
-                return
-                        +1 * x[0] * x[0]
-                                + 2 * x[0] * x[1]
-                                + 5 * x[1] * x[1]
-                                - 2 * x[0]
-                                - 4 * x[1]
-                                + 1;
-            }
-        };
-        final double[] expectedOptimumLocation = {
-                0.75,
-                0.25
-        };
+        FunctionWhiteBox convexSquareFunction = new ConvexSquareFunction();
+        final double[] expectedOptimumLocation = convexSquareFunction.getOptimumLocation();
         double optValue = convexSquareFunction.getValue(expectedOptimumLocation);
         final double delta = 0.01;
         for (double deltax = -delta; deltax <= delta; deltax += 2 * delta)
