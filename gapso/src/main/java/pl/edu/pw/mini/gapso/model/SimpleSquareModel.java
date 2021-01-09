@@ -9,7 +9,7 @@ import java.util.List;
 public class SimpleSquareModel extends Model {
 
     @Override
-    protected double[] computeLinearModelOptimum(Bounds bounds, int dim, OLSMultipleLinearRegression olslm) {
+    protected double[] computeLinearModelOptimum(OLSMultipleLinearRegression olslm, Bounds bounds, int dim) {
         double[] boundedPeak;
         boundedPeak = new double[dim];
         double[] ba = olslm.estimateRegressionParameters();

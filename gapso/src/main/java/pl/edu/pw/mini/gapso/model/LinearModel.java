@@ -9,7 +9,7 @@ import java.util.List;
 public class LinearModel extends Model {
 
     @Override
-    protected double[] computeLinearModelOptimum(Bounds bounds, int dim, OLSMultipleLinearRegression olslm) {
+    protected double[] computeLinearModelOptimum(OLSMultipleLinearRegression olslm, Bounds bounds, int dim) {
         double[] modelOptimumLocation;
         modelOptimumLocation = new double[dim];
         double[] ba = olslm.estimateRegressionParameters();

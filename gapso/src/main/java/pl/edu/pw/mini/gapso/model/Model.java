@@ -17,13 +17,13 @@ public abstract class Model {
         OLSMultipleLinearRegression olslm = putDataIntoModel(samples, dim);
 
         try {
-            return computeLinearModelOptimum(bounds, dim, olslm);
+            return computeLinearModelOptimum(olslm, bounds, dim);
         } catch (SingularMatrixException ex) {
             return null;
         }
     }
 
-    protected abstract double[] computeLinearModelOptimum(Bounds bounds, int dim, OLSMultipleLinearRegression olslm);
+    protected abstract double[] computeLinearModelOptimum(OLSMultipleLinearRegression olslm, Bounds bounds, int dim);
 
     protected abstract OLSMultipleLinearRegression putDataIntoModel(List<Sample> samples, int dim);
 
