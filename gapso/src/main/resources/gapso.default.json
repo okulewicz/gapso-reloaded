@@ -1,0 +1,15 @@
+{
+  "seed": 1,
+  "moves": [
+    {
+      "name": "DE/rand/1/bin",
+      "isAdaptable": true,
+      "initialWeight": 1000,
+      "minimalAmount": 1,
+      "parameters": {
+        "crossProb": 0.9,
+        "scale": 0.5
+      }
+    }
+  ]
+}
