@@ -4,6 +4,7 @@ import pl.edu.pw.mini.gapso.optimizer.Particle;
 
 import java.util.List;
 import java.util.OptionalDouble;
+import java.util.function.Supplier;
 import java.util.stream.DoubleStream;
 
 public class MaxPopulationDistanceRestart extends RestartObserver {
@@ -20,9 +21,9 @@ public class MaxPopulationDistanceRestart extends RestartObserver {
         int dim = particleList.get(0).getBest().getX().length;
         for (int i = 0; i < dim; ++i) {
             int finalI = i;
-            DoubleStream locationsInDim = particleList.stream().mapToDouble(p -> p.getBest().getX()[finalI]);
-            OptionalDouble minOpt = locationsInDim.min();
-            OptionalDouble maxOpt = locationsInDim.max();
+            Supplier<DoubleStream> valuesInDimSupplier = () -> particleList.stream().mapToDouble(p -> p.getBest().getX()[finalI]);
+            OptionalDouble minOpt = valuesInDimSupplier.get().min();
+            OptionalDouble maxOpt = valuesInDimSupplier.get().max();
             if (minOpt.isPresent() && maxOpt.isPresent()) {
                 if (maxOpt.getAsDouble() - minOpt.getAsDouble() < _threshold) {
                     return true;
