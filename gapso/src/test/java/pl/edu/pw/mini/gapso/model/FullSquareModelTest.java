@@ -27,15 +27,17 @@ public class FullSquareModelTest {
                                 + 1;
             }
         };
-        double optValue = convexSquareFunction.getValue(new double[]{
+        final double[] expectedOptimumLocation = {
                 0.75,
                 0.25
-        });
-        for (double deltax = -0.01; deltax <= 0.01; deltax += 0.02)
-            for (double deltay = -0.01; deltay <= 0.01; deltay += 0.02) {
+        };
+        double optValue = convexSquareFunction.getValue(expectedOptimumLocation);
+        final double delta = 0.01;
+        for (double deltax = -delta; deltax <= delta; deltax += 2 * delta)
+            for (double deltay = -delta; deltay <= delta; deltay += 2 * delta) {
                 double suboptValue = convexSquareFunction.getValue(new double[]{
-                        0.75 + deltax,
-                        0.25 + deltay
+                        expectedOptimumLocation[0] + deltax,
+                        expectedOptimumLocation[1] + deltay
                 });
                 Assert.assertTrue(suboptValue > optValue);
             }
@@ -43,10 +45,7 @@ public class FullSquareModelTest {
         Bounds bounds = SimpleBounds.createBoundsFromSamples(sampleList);
         Model model = new FullSquareModel();
         double[] optimumLocation = model.getOptimumLocation(sampleList, bounds);
-        Assert.assertArrayEquals(new double[]{
-                0.25,
-                0.75
-        }, optimumLocation, 1e-2);
+        Assert.assertArrayEquals(expectedOptimumLocation, optimumLocation, 1e-2);
     }
 
     private List<Sample> getSamples(Function function) {
