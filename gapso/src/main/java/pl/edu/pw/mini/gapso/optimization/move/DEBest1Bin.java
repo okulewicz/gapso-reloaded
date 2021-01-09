@@ -1,8 +1,16 @@
 package pl.edu.pw.mini.gapso.optimization.move;
 
 import pl.edu.pw.mini.gapso.generator.Generator;
+import pl.edu.pw.mini.gapso.optimizer.Particle;
 
-public class DEBest1Bin {
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Stream;
+
+public class DEBest1Bin extends Move {
+    private final double _scale;
+    private final double _crossProb;
+
     public double[] getDESample(double[] current, double[] best, double[] diffVector1, double[] diffVector2, double scale, double crossProb) {
         final int dim = current.length;
         double[] tryX = new double[dim];
@@ -17,5 +25,39 @@ public class DEBest1Bin {
             }
         }
         return tryX;
+    }
+
+    public DEBest1Bin(double scale, double crossProb) {
+        _scale = scale;
+        _crossProb = crossProb;
+    }
+
+    @Override
+    public double[] getNext(Particle currentParticle, List<Particle> particleList) {
+        final int particlesCount = particleList.size();
+        if (particlesCount < 4) {
+            throw new IllegalArgumentException("Not enough particles for DE/rand/1/bin");
+        }
+        Stream<Particle> bestParticles = particleList.stream().sorted(Comparator.comparing(p -> p.getBest().getY()));
+        Particle bestParticle = bestParticles.findFirst().orElseThrow(() -> new IllegalArgumentException("No particles to choose from"));
+        int bestIndex = particleList.indexOf(bestParticle);
+        int currentIndex = particleList.indexOf(currentParticle);
+        int randomIndex1 = currentIndex;
+        while (randomIndex1 == currentIndex || randomIndex1 == bestIndex) {
+            randomIndex1 = Generator.RANDOM.nextInt(particlesCount);
+        }
+        int randomIndex2 = randomIndex1;
+        while (randomIndex2 == randomIndex1 || randomIndex2 == currentIndex || randomIndex2 == bestIndex) {
+            randomIndex2 = Generator.RANDOM.nextInt(particlesCount);
+        }
+        double scale = Generator.RANDOM.nextDouble() * _scale;
+        double crossProb = Generator.RANDOM.nextDouble() * _crossProb;
+        return getDESample(
+                particleList.get(currentIndex).getBest().getX(),
+                particleList.get(bestIndex).getBest().getX(),
+                particleList.get(randomIndex1).getBest().getX(),
+                particleList.get(randomIndex2).getBest().getX(),
+                scale,
+                crossProb);
     }
 }
