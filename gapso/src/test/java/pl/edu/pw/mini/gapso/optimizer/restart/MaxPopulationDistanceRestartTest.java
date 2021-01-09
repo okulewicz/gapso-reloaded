@@ -29,7 +29,7 @@ public class MaxPopulationDistanceRestartTest {
                 {BORDERLINE_CASE_THRESHOLD * 10, 4.0}
         };
         boolean[] restarts = new boolean[]{
-                true,
+                false,
                 true,
                 false,
                 false
@@ -38,6 +38,7 @@ public class MaxPopulationDistanceRestartTest {
         RestartObserver observer = new MaxPopulationDistanceRestart(BORDERLINE_CASE_THRESHOLD);
 
         List<Particle> particles = new ArrayList<>();
+        Assert.assertTrue(observer.shouldBeRestarted(particles));
         for (int i = 0; i < samples.length; ++i) {
             Particle particle = new Particle(
                     samples[i],

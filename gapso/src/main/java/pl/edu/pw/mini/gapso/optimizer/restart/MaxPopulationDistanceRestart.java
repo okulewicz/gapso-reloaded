@@ -16,6 +16,8 @@ public class MaxPopulationDistanceRestart extends RestartObserver {
     public boolean shouldBeRestarted(List<Particle> particleList) {
         if (particleList.isEmpty())
             return true;
+        if (particleList.size() < 2)
+            return false;
         int dim = particleList.get(0).getBest().getX().length;
         for (int i = 0; i < dim; ++i) {
             int finalI = i;
