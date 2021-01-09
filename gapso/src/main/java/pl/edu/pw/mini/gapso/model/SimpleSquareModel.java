@@ -17,16 +17,16 @@ public class SimpleSquareModel extends Model {
             //needs to be significantly positive
             final double ai = ba[i + dim + 1];
             final double bi = ba[i + 1];
-            final double loweri = bounds.getLower()[i];
-            final double upperi = bounds.getUpper()[i];
+            final double lower = bounds.getLower()[i];
+            final double upper = bounds.getUpper()[i];
             if (ai > 1e-8) {
-                boundedPeak[i] += getBoundedCoordinate(-bi / ai / 2.0, loweri, upperi);
+                boundedPeak[i] += getBoundedCoordinate(-bi / ai / 2.0, lower, upper);
             } else {
-                if (linearCutValue(ai, bi, loweri)
-                        < linearCutValue(ai, bi, upperi)) {
-                    boundedPeak[i] += loweri;
+                if (linearCutValue(ai, bi, lower)
+                        < linearCutValue(ai, bi, upper)) {
+                    boundedPeak[i] += lower;
                 } else {
-                    boundedPeak[i] += upperi;
+                    boundedPeak[i] += upper;
                 }
             }
         }
