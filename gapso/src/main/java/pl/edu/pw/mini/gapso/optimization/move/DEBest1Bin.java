@@ -11,7 +11,7 @@ public class DEBest1Bin extends Move {
     private final double _scale;
     private final double _crossProb;
 
-    public double[] getDESample(double[] current, double[] best, double[] diffVector1, double[] diffVector2, double scale, double crossProb) {
+    public static double[] getDESample(double[] current, double[] best, double[] diffVector1, double[] diffVector2, double scale, double crossProb) {
         final int dim = current.length;
         double[] tryX = new double[dim];
         int alwaysSwitchIdx = Generator.RANDOM.nextInt(dim);

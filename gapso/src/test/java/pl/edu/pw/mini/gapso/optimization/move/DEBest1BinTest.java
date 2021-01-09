@@ -13,9 +13,8 @@ public class DEBest1BinTest {
         double[] diff2 = new double[]{1.0, -3.0};
         double[] sample;
 
-        DEBest1Bin move = new DEBest1Bin();
         for (double scale = 0.0; scale <= 1.0; scale += 0.1) {
-            sample = move.getDESample(current, best, diff1, diff2, scale, 1.0);
+            sample = DEBest1Bin.getDESample(current, best, diff1, diff2, scale, 1.0);
             for (int dimIdx = 0; dimIdx < sample.length; ++dimIdx) {
                 Assert.assertEquals(best[dimIdx] + scale * (diff1[dimIdx] - diff2[dimIdx])
                         , sample[dimIdx], 0.0);
@@ -23,7 +22,7 @@ public class DEBest1BinTest {
         }
 
         for (double scale = 0.0; scale <= 1.0; scale += 0.1) {
-            sample = move.getDESample(current, best, diff1, diff2, scale, 0.0);
+            sample = DEBest1Bin.getDESample(current, best, diff1, diff2, scale, 0.0);
             int bestParts = 0;
             int currentParts = 0;
             for (int dimIdx = 0; dimIdx < sample.length; ++dimIdx) {
@@ -36,5 +35,9 @@ public class DEBest1BinTest {
             Assert.assertEquals(1, bestParts);
             Assert.assertEquals(sample.length - 1, currentParts);
         }
+    }
+
+    @Test
+    public void getNext() {
     }
 }
