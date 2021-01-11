@@ -96,7 +96,6 @@ public class ExampleExperiment {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        CocoJNIReflectionWrapper.deleteLibFile();
     }
 
     private static Benchmark configureCOCOBenchmark(String suiteName, String observerName, BBOBExperimentConfigurator bbobConfigurator) throws Exception {
