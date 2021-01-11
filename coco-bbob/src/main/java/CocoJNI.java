@@ -16,7 +16,10 @@ public class CocoJNI {
         URL libname = Thread.currentThread().getContextClassLoader().getResource(LIBNAMEDLL);
         try {
             if (libname != null) {
-                FileUtils.copyURLToFile(libname, new File(LIBNAMEDLL));
+                File dllFile = new File(LIBNAMEDLL);
+                if (!dllFile.exists()) {
+                    FileUtils.copyURLToFile(libname, dllFile);
+                }
                 System.loadLibrary(LIBNAME);
             }
         } catch (IOException e) {

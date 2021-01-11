@@ -16,3 +16,5 @@ gradle-app.setting
 /gapso/build/
 /coco-bbob/build/
 /CocoJNI-2.3.0.dll
+/gapso.json
+/bbob.properties

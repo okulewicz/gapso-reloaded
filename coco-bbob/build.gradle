@@ -12,6 +12,7 @@ repositories {
 }
 
 dependencies {
+    compile project(':gapso')
     compile group: 'org.apache.commons', name: 'commons-io', version: '1.3.2'
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }

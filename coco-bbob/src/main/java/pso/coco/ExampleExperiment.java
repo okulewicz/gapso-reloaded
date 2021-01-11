@@ -1,6 +1,11 @@
 package pso.coco;
 
 
+import pl.edu.pw.mini.gapso.function.Function;
+import pl.edu.pw.mini.gapso.optimizer.GAPSOOptimizer;
+import pl.edu.pw.mini.gapso.optimizer.Optimizer;
+import pso.coco.gapso.GAPSOFunctionProblemWrapper;
+
 import java.util.Arrays;
 
 /**
@@ -9,11 +14,6 @@ import java.util.Arrays;
  * Set the parameter BUDGET_MULTIPLIER to suit your needs.
  */
 public class ExampleExperiment {
-    /**
-     * The maximal number of independent restarts allowed for an algorithm that
-     * restarts itself.
-     */
-    private static final int INDEPENDENT_RESTARTS = 10000;
     /**
      * The problem to be optimized (needed in order to simplify the interface
      * between the optimization algorithm and the COCO platform).
@@ -79,10 +79,10 @@ public class ExampleExperiment {
                     continue;
                 if (dimensionNotOnList(bbobConfigurator, PROBLEM))
                     continue;
-                for (int run = 1; run <= 1 + INDEPENDENT_RESTARTS; run++) {
-                    //OptimizationAlgorithm optimizationAlgorithm = chooseOptimizationAlgorithm(configurator, bbobConfigurator, PROBLEM, f, locationInitializer, behaviours, POP_SIZE);
-                    long evaluationsDone = PROBLEM.getEvaluations();
-                }
+                Function function = new GAPSOFunctionProblemWrapper(PROBLEM);
+                Optimizer optimizer = new GAPSOOptimizer();
+                optimizer.optimize(function);
+                System.out.println(PROBLEM.getEvaluations());
 
                 /* Keep track of time */
                 timing.timeProblem(PROBLEM);
@@ -117,9 +117,9 @@ public class ExampleExperiment {
     }
 
     private static String buildObserverOptions(String suiteName, BBOBExperimentConfigurator bbobConfigurator) {
-        return "result_folder: temp" +
-                " algorithm_name: temp" +
-                " algorithm_info: temp" +
+        return "result_folder: " + bbobConfigurator.getExperimentName() +
+                " algorithm_name: " + bbobConfigurator.getExperimentName() +
+                " algorithm_info: " + bbobConfigurator.getExperimentName() +
                 "";
     }
 
