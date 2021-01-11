@@ -1,5 +1,7 @@
-package pl.edu.pw.mini.gapso.optimization.move;
+package pl.edu.pw.mini.gapso.optimizer.move;
 
+import com.google.gson.Gson;
+import pl.edu.pw.mini.gapso.configuration.MoveConfiguration;
 import pl.edu.pw.mini.gapso.generator.Generator;
 import pl.edu.pw.mini.gapso.optimizer.Particle;
 
@@ -26,13 +28,14 @@ public class DEBest1Bin extends Move {
         return tryX;
     }
 
-    public DEBest1Bin(double scale, double crossProb) {
-        _scale = scale;
-        _crossProb = crossProb;
-    }
-
-    public DEBest1Bin(DEBest1BinConfiguration configuration) {
-        this(configuration.getScale(), configuration.getCrossProb());
+    public DEBest1Bin(MoveConfiguration moveConfiguration) {
+        super(moveConfiguration);
+        Gson gson = new Gson();
+        DEBest1BinConfiguration deConf = gson.fromJson(
+                moveConfiguration.getParameters(),
+                DEBest1BinConfiguration.class);
+        _scale = deConf.getScale();
+        _crossProb = deConf.getCrossProb();
     }
 
     @Override
@@ -63,10 +66,13 @@ public class DEBest1Bin extends Move {
     }
 
     public static class DEBest1BinConfiguration {
-        @SuppressWarnings("unused")
         private double scale;
-        @SuppressWarnings("unused")
         private double crossProb;
+
+        public DEBest1BinConfiguration(double scale, double crossProb) {
+            this.scale = scale;
+            this.crossProb = crossProb;
+        }
 
         public double getScale() {
             return scale;

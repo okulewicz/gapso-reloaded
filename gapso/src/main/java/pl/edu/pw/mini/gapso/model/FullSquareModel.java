@@ -86,7 +86,7 @@ public class FullSquareModel extends Model {
     }
 
     @Override
-    protected int getMinSamplesCount(int dim) {
+    public int getMinSamplesCount(int dim) {
         return ((dim + 1) * dim) / 2 + dim + 1;
     }
 }

@@ -3,8 +3,8 @@ package pl.edu.pw.mini.gapso.configuration;
 import org.junit.Assert;
 import org.junit.Test;
 import pl.edu.pw.mini.gapso.generator.initializer.RandomInitializer;
-import pl.edu.pw.mini.gapso.optimization.move.DEBest1Bin;
-import pl.edu.pw.mini.gapso.optimization.move.Move;
+import pl.edu.pw.mini.gapso.optimizer.move.DEBest1Bin;
+import pl.edu.pw.mini.gapso.optimizer.move.Move;
 import pl.edu.pw.mini.gapso.optimizer.restart.MinSpreadInDimensionsRestartManager;
 
 public class ConfigurationTest {

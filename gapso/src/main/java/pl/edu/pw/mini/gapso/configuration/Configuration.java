@@ -4,8 +4,7 @@ import com.google.gson.Gson;
 import org.apache.commons.io.IOUtils;
 import pl.edu.pw.mini.gapso.generator.initializer.Initializer;
 import pl.edu.pw.mini.gapso.generator.initializer.RandomInitializer;
-import pl.edu.pw.mini.gapso.optimization.move.DEBest1Bin;
-import pl.edu.pw.mini.gapso.optimization.move.Move;
+import pl.edu.pw.mini.gapso.optimizer.move.Move;
 import pl.edu.pw.mini.gapso.optimizer.restart.MinSpreadInDimensionsRestartManager;
 import pl.edu.pw.mini.gapso.optimizer.restart.RestartManager;
 
@@ -69,10 +68,7 @@ public class Configuration {
     public Move[] getMoves() {
         Move[] returnMoves = new Move[moveDefinition.length];
         for (int i = 0; i < returnMoves.length; ++i) {
-            if (moveDefinition[i].getName().equals(DEBest1Bin.NAME)) {
-                returnMoves[i] = new DEBest1Bin(gson.fromJson(moveDefinition[i].getParameters(),
-                        DEBest1Bin.DEBest1BinConfiguration.class));
-            }
+            returnMoves[i] = moveDefinition[i].getMove();
         }
         return returnMoves;
     }

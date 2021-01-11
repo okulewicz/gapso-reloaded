@@ -2,7 +2,7 @@ package pl.edu.pw.mini.gapso.optimizer;
 
 import pl.edu.pw.mini.gapso.bounds.Bounds;
 import pl.edu.pw.mini.gapso.function.Function;
-import pl.edu.pw.mini.gapso.optimization.move.Move;
+import pl.edu.pw.mini.gapso.optimizer.move.Move;
 import pl.edu.pw.mini.gapso.sample.Sample;
 import pl.edu.pw.mini.gapso.sample.SingleSample;
 import pl.edu.pw.mini.gapso.sample.UpdatableSample;
@@ -11,7 +11,6 @@ import java.util.List;
 
 public class Particle {
     private int index;
-
     private final Function _function;
     private final UpdatableSample globalBest;
     private Sample current;
@@ -40,6 +39,10 @@ public class Particle {
 
     public int getGlobalBestIndex() {
         return globalBestIndexContainer.getIndex();
+    }
+
+    public Function getFunction() {
+        return _function;
     }
 
     private void tryUpdateGlobalBest() {
