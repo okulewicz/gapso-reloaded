@@ -11,9 +11,9 @@ import java.util.List;
 
 public class Particle {
     private final Function _function;
+    private final UpdatableSample globalBest;
     private Sample current;
     private Sample best;
-    private UpdatableSample globalBest;
 
     public Particle(double[] initialLocation, Function function, UpdatableSample bestHolder) {
         _function = function;

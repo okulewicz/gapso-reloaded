@@ -1,7 +1,7 @@
 {
   "seed": 1,
   "particlesCountPerDimension": 10,
-  "evaluationsBudgetPerDimension": 1000,
+  "evaluationsBudgetPerDimension": 100,
   "initializerDefinition": {
     "name": "Random"
   },

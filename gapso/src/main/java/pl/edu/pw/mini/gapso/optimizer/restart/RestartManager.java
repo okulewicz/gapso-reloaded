@@ -4,6 +4,6 @@ import pl.edu.pw.mini.gapso.optimizer.Particle;
 
 import java.util.List;
 
-public abstract class RestartObserver {
+public abstract class RestartManager {
     public abstract boolean shouldBeRestarted(List<Particle> particleList);
 }

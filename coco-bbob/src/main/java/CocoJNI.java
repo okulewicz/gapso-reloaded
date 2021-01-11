@@ -14,10 +14,11 @@ public class CocoJNI {
     /* Load the library */
     static {
         URL libname = Thread.currentThread().getContextClassLoader().getResource(LIBNAMEDLL);
-        System.out.println(libname.toString());
         try {
-            FileUtils.copyURLToFile(libname, new File(LIBNAMEDLL));
-            System.loadLibrary(LIBNAME);
+            if (libname != null) {
+                FileUtils.copyURLToFile(libname, new File(LIBNAMEDLL));
+                System.loadLibrary(LIBNAME);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -71,7 +72,4 @@ public class CocoJNI {
 
     public static native int cocoProblemIsFinalTargetHit(long problemPointer);
 
-    @Override
-    protected void finalize() throws Throwable {
-    }
 }

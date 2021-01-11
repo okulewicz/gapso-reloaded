@@ -1,14 +1,20 @@
 package pl.edu.pw.mini.gapso.configuration;
 
-import java.util.Map;
+import com.google.gson.JsonElement;
 
 public class MoveConfiguration {
+    @SuppressWarnings("unused")
     private String name;
+    @SuppressWarnings("unused")
     private double initialWeight;
+    @SuppressWarnings("unused")
     private double minimalRatio;
+    @SuppressWarnings("unused")
     private int minimalAmount;
+    @SuppressWarnings("unused")
     private boolean isAdaptable;
-    private Map<String, Double> parameters;
+    @SuppressWarnings("unused")
+    private JsonElement parameters;
 
     public String getName() {
         return name;
@@ -30,7 +36,7 @@ public class MoveConfiguration {
         return isAdaptable;
     }
 
-    public Map<String, Double> getParameters() {
+    public JsonElement getParameters() {
         return parameters;
     }
 

@@ -2,6 +2,12 @@ package pl.edu.pw.mini.gapso.configuration;
 
 import com.google.gson.Gson;
 import org.apache.commons.io.IOUtils;
+import pl.edu.pw.mini.gapso.generator.initializer.Initializer;
+import pl.edu.pw.mini.gapso.generator.initializer.RandomInitializer;
+import pl.edu.pw.mini.gapso.optimization.move.DEBest1Bin;
+import pl.edu.pw.mini.gapso.optimization.move.Move;
+import pl.edu.pw.mini.gapso.optimizer.restart.MinSpreadInDimensionsRestartManager;
+import pl.edu.pw.mini.gapso.optimizer.restart.RestartManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,8 +17,24 @@ import java.nio.file.StandardOpenOption;
 
 public class Configuration {
     private static Configuration configuration;
+    private final static Gson gson = new Gson();
+    @SuppressWarnings("unused")
     private int seed;
-    private MoveConfiguration[] moves;
+    @SuppressWarnings("unused")
+    private int particlesCountPerDimension;
+    @SuppressWarnings("unused")
+    private int evaluationsBudgetPerDimension;
+    @SuppressWarnings("unused")
+    private RestartConfiguration restartManagerDefinition;
+    @SuppressWarnings("unused")
+    private InitializerConfiguration initializerDefinition;
+    @SuppressWarnings({"unused", "MismatchedReadAndWriteOfArray"})
+    private MoveConfiguration[] moveDefinition;
+
+    public int getEvaluationsBudgetPerDimension() {
+        return evaluationsBudgetPerDimension;
+    }
+
 
     public static Configuration getInstance() {
         if (configuration == null) {
@@ -37,7 +59,6 @@ public class Configuration {
     }
 
     public static Configuration generateFromJSONString(String JSONString) {
-        Gson gson = new Gson();
         return gson.fromJson(JSONString, Configuration.class);
     }
 
@@ -45,8 +66,35 @@ public class Configuration {
         return seed;
     }
 
-    public MoveConfiguration[] getMoves() {
-        return moves;
+    public Move[] getMoves() {
+        Move[] returnMoves = new Move[moveDefinition.length];
+        for (int i = 0; i < returnMoves.length; ++i) {
+            if (moveDefinition[i].getName().equals(DEBest1Bin.NAME)) {
+                returnMoves[i] = new DEBest1Bin(gson.fromJson(moveDefinition[i].getParameters(),
+                        DEBest1Bin.DEBest1BinConfiguration.class));
+            }
+        }
+        return returnMoves;
     }
 
+    public int getParticlesCountPerDimension() {
+        return particlesCountPerDimension;
+    }
+
+    public Initializer getInitializer() {
+        if (initializerDefinition.getName().equals(RandomInitializer.NAME)) {
+            return new RandomInitializer();
+        }
+        return null;
+    }
+
+    public RestartManager getRestartManager() {
+        if (restartManagerDefinition.getName().equals(MinSpreadInDimensionsRestartManager.NAME)) {
+            return new MinSpreadInDimensionsRestartManager(gson.fromJson(
+                    restartManagerDefinition.getParameters(),
+                    MinSpreadInDimensionsRestartManager
+                            .RandomManagerMinSpreadInDimensionsConfiguration.class));
+        }
+        return null;
+    }
 }

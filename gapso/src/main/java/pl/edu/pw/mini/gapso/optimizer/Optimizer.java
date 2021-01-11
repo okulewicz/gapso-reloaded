@@ -5,6 +5,4 @@ import pl.edu.pw.mini.gapso.sample.Sample;
 
 public abstract class Optimizer {
     public abstract Sample optimize(Function function);
-
-    public abstract long getPerformedEvaluations(Function function);
 }

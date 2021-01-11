@@ -5,11 +5,11 @@ import org.junit.Test;
 import pl.edu.pw.mini.gapso.bounds.Bounds;
 import pl.edu.pw.mini.gapso.bounds.SimpleBounds;
 
-public class RandomIntializerTest {
+public class RandomInitializerTest {
 
     @Test
     public void getNextSample() {
-        Initializer initializer = new RandomIntializer();
+        Initializer initializer = new RandomInitializer();
         Bounds bounds = new SimpleBounds(new double[]{-1.0, -1.5}, new double[]{2.0, -0.5});
         for (int i = 0; i < 100; ++i) {
             double[] sample = initializer.getNextSample(bounds);

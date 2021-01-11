@@ -11,7 +11,7 @@ import pl.edu.pw.mini.gapso.sample.UpdatableSample;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MaxPopulationDistanceRestartTest {
+public class MinSpreadInDimensionsRestartManagerTest {
 
     public static final double BORDERLINE_CASE_THRESHOLD = 1e-8;
 
@@ -35,7 +35,7 @@ public class MaxPopulationDistanceRestartTest {
                 false
         };
 
-        RestartObserver observer = new MaxPopulationDistanceRestart(BORDERLINE_CASE_THRESHOLD);
+        RestartManager observer = new MinSpreadInDimensionsRestartManager(BORDERLINE_CASE_THRESHOLD);
 
         List<Particle> particles = new ArrayList<>();
         Assert.assertTrue(observer.shouldBeRestarted(particles));

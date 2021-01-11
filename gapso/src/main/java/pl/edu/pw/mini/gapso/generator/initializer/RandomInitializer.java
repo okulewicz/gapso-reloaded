@@ -4,7 +4,9 @@ import org.apache.commons.math3.distribution.UniformRealDistribution;
 import pl.edu.pw.mini.gapso.bounds.Bounds;
 import pl.edu.pw.mini.gapso.generator.Generator;
 
-public class RandomIntializer extends Initializer {
+public class RandomInitializer extends Initializer {
+
+    public static final String NAME = "Random";
 
     @Override
     public double[] getNextSample(Bounds bounds) {

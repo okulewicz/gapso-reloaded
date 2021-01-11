@@ -1,10 +1,11 @@
 package pl.edu.pw.mini.gapso.optimizer;
 
+import pl.edu.pw.mini.gapso.configuration.Configuration;
 import pl.edu.pw.mini.gapso.function.Function;
 import pl.edu.pw.mini.gapso.generator.Generator;
 import pl.edu.pw.mini.gapso.generator.initializer.Initializer;
 import pl.edu.pw.mini.gapso.optimization.move.Move;
-import pl.edu.pw.mini.gapso.optimizer.restart.RestartObserver;
+import pl.edu.pw.mini.gapso.optimizer.restart.RestartManager;
 import pl.edu.pw.mini.gapso.sample.Sample;
 import pl.edu.pw.mini.gapso.sample.SingleSample;
 import pl.edu.pw.mini.gapso.sample.UpdatableSample;
@@ -13,18 +14,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GAPSOOptimizer extends Optimizer {
-    private final int _particlesCount;
-    private final int _evaluationsBudget;
+    private final int _particlesCountPerDimension;
+    private final int _evaluationsBudgetPerDimension;
     private final Move[] _availableMoves;
     private final Initializer _initializer;
-    private final RestartObserver _restartObserver;
+    private final RestartManager _restartManager;
 
-    public GAPSOOptimizer(int particlesCount, int evaluationsBudget, Move[] availableMoves, Initializer initializer, RestartObserver restartObserver) {
-        _particlesCount = particlesCount;
-        _evaluationsBudget = evaluationsBudget;
+    public GAPSOOptimizer(int particlesCount, int evaluationsBudget, Move[] availableMoves, Initializer initializer, RestartManager restartManager) {
+        _particlesCountPerDimension = particlesCount;
+        _evaluationsBudgetPerDimension = evaluationsBudget;
         _availableMoves = availableMoves;
         _initializer = initializer;
-        _restartObserver = restartObserver;
+        _restartManager = restartManager;
+    }
+
+    public GAPSOOptimizer() {
+        this(Configuration.getInstance().getParticlesCountPerDimension(),
+                Configuration.getInstance().getEvaluationsBudgetPerDimension(),
+                Configuration.getInstance().getMoves(),
+                Configuration.getInstance().getInitializer(),
+                Configuration.getInstance().getRestartManager());
     }
 
     @Override
@@ -34,22 +43,22 @@ public class GAPSOOptimizer extends Optimizer {
                         new double[function.getDimension()],
                         Double.POSITIVE_INFINITY)
         );
-        while (function.getEvaluationsCount() < _evaluationsBudget) {
+        while (function.getEvaluationsCount() < _evaluationsBudgetPerDimension) {
             UpdatableSample globalBest = new UpdatableSample(
                     new SingleSample(
                             new double[function.getDimension()],
                             Double.POSITIVE_INFINITY)
             );
             List<Particle> particles = new ArrayList<>();
-            for (int i = 0; i < _particlesCount; ++i) {
+            for (int i = 0; i < _particlesCountPerDimension * function.getDimension(); ++i) {
                 double[] initialLocation = _initializer.getNextSample(function.getBounds());
                 particles.add(new Particle(initialLocation, function, globalBest));
             }
-            while (function.getEvaluationsCount() < _evaluationsBudget) {
+            while (function.getEvaluationsCount() < _evaluationsBudgetPerDimension * function.getDimension()) {
                 for (Particle particle : particles) {
                     particle.move(_availableMoves[Generator.RANDOM.nextInt(_availableMoves.length)], particles);
                 }
-                if (_restartObserver.shouldBeRestarted(particles)) {
+                if (_restartManager.shouldBeRestarted(particles)) {
                     break;
                 }
             }
@@ -58,10 +67,5 @@ public class GAPSOOptimizer extends Optimizer {
             }
         }
         return totalGlobalBest;
-    }
-
-    @Override
-    public long getPerformedEvaluations(Function function) {
-        return 0;
     }
 }

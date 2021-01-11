@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public class DEBest1Bin extends Move {
+    public static final String NAME = "DE/best/1/bin";
     private final double _scale;
     private final double _crossProb;
 
@@ -32,14 +33,18 @@ public class DEBest1Bin extends Move {
         _crossProb = crossProb;
     }
 
+    public DEBest1Bin(DEBest1BinConfiguration configuration) {
+        this(configuration.getScale(), configuration.getCrossProb());
+    }
+
     @Override
     public double[] getNext(Particle currentParticle, List<Particle> particleList) {
         final int particlesCount = particleList.size();
         if (particlesCount < 4) {
-            throw new IllegalArgumentException("Not enough particles for DE/rand/1/bin");
+            throw new IllegalArgumentException("Not enough particles for " + NAME);
         }
         Stream<Particle> bestParticles = particleList.stream().sorted(Comparator.comparing(p -> p.getBest().getY()));
-        Particle bestParticle = bestParticles.findFirst().orElseThrow(() -> new IllegalArgumentException("No particles to choose from"));
+        Particle bestParticle = bestParticles.findFirst().orElseThrow(() -> new IllegalArgumentException("No particles to choose from in " + "DE/rand/1/bin"));
         int bestIndex = particleList.indexOf(bestParticle);
         int currentIndex = particleList.indexOf(currentParticle);
         int randomIndex1 = currentIndex;
@@ -59,5 +64,20 @@ public class DEBest1Bin extends Move {
                 particleList.get(randomIndex2).getBest().getX(),
                 scale,
                 crossProb);
+    }
+
+    public static class DEBest1BinConfiguration {
+        @SuppressWarnings("unused")
+        private double scale;
+        @SuppressWarnings("unused")
+        private double crossProb;
+
+        public double getScale() {
+            return scale;
+        }
+
+        public double getCrossProb() {
+            return crossProb;
+        }
     }
 }
