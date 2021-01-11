@@ -1,3 +1,4 @@
 rootProject.name = 'gapso-reloaded'
 include 'gapso'
+include 'coco-bbob'
 
