@@ -16,6 +16,8 @@ public abstract class Function {
 
     protected abstract double computeValue(double[] x);
 
+    public abstract boolean isTargetReached();
+
     public abstract int getDimension();
 
     public abstract Bounds getBounds();
@@ -23,4 +25,5 @@ public abstract class Function {
     public int getEvaluationsCount() {
         return evaluationsCount;
     }
+
 }

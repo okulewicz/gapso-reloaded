@@ -5,6 +5,7 @@ import pl.edu.pw.mini.gapso.bounds.Bounds;
 public class SlopedLinearFunction extends FunctionWhiteBox {
     @Override
     public double computeValue(double[] x) {
+        checkIfOptimumVisited(x);
         return 2 * x[0] - 3 * x[1] + 1;
     }
 

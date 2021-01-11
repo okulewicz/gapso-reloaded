@@ -22,6 +22,11 @@ public class GAPSOFunctionProblemWrapper extends Function {
     }
 
     @Override
+    public boolean isTargetReached() {
+        return _problem.isFinalTargetHit();
+    }
+
+    @Override
     public int getDimension() {
         return _problem.getDimension();
     }

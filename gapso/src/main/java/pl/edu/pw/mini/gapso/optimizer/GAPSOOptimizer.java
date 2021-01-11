@@ -43,7 +43,7 @@ public class GAPSOOptimizer extends Optimizer {
                         new double[function.getDimension()],
                         Double.POSITIVE_INFINITY)
         );
-        while (function.getEvaluationsCount() < _evaluationsBudgetPerDimension) {
+        while (isEnoughOptimizationBudgetLeftAndNeedsOptimzation(function)) {
             UpdatableSample globalBest = new UpdatableSample(
                     new SingleSample(
                             new double[function.getDimension()],
@@ -54,7 +54,7 @@ public class GAPSOOptimizer extends Optimizer {
                 double[] initialLocation = _initializer.getNextSample(function.getBounds());
                 particles.add(new Particle(initialLocation, function, globalBest));
             }
-            while (function.getEvaluationsCount() < _evaluationsBudgetPerDimension * function.getDimension()) {
+            while (isEnoughOptimizationBudgetLeftAndNeedsOptimzation(function)) {
                 for (Particle particle : particles) {
                     particle.move(_availableMoves[Generator.RANDOM.nextInt(_availableMoves.length)], particles);
                 }
@@ -67,5 +67,10 @@ public class GAPSOOptimizer extends Optimizer {
             }
         }
         return totalGlobalBest;
+    }
+
+    private boolean isEnoughOptimizationBudgetLeftAndNeedsOptimzation(Function function) {
+        return function.getEvaluationsCount() < _evaluationsBudgetPerDimension * function.getDimension()
+                && !function.isTargetReached();
     }
 }

@@ -5,6 +5,7 @@ import pl.edu.pw.mini.gapso.bounds.Bounds;
 public class PartiallyFlatLinearFunction extends FunctionWhiteBox {
     @Override
     public double computeValue(double[] x) {
+        checkIfOptimumVisited(x);
         return -2 * x[0] + 1;
     }
 

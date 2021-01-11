@@ -5,6 +5,7 @@ import pl.edu.pw.mini.gapso.bounds.Bounds;
 public class ConvexSeparableSquareFunction extends FunctionWhiteBox {
     @Override
     public double computeValue(double[] x) {
+        checkIfOptimumVisited(x);
         return 2 * x[0] * x[0] + 3 * x[0] + 4 * x[1] * x[1] - 3 * x[1] + 1;
     }
 

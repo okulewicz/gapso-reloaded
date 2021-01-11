@@ -6,6 +6,7 @@ import pl.edu.pw.mini.gapso.bounds.SimpleBounds;
 public class ConvexSquareFunction extends FunctionWhiteBox {
     @Override
     public double computeValue(double[] x) {
+        checkIfOptimumVisited(x);
         return
                 +1 * x[0] * x[0]
                         + 2 * x[0] * x[1]
