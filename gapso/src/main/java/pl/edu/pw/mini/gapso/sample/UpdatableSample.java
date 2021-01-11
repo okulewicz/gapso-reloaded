@@ -7,6 +7,14 @@ public class UpdatableSample extends Sample {
         _sample = sample;
     }
 
+    public static UpdatableSample generateInitialSample(int dimension) {
+        return new UpdatableSample(
+                new SingleSample(
+                        new double[dimension],
+                        Double.POSITIVE_INFINITY)
+        );
+    }
+
     @Override
     public double[] getX() {
         return _sample.getX();

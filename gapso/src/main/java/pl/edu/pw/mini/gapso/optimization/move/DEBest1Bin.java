@@ -3,9 +3,7 @@ package pl.edu.pw.mini.gapso.optimization.move;
 import pl.edu.pw.mini.gapso.generator.Generator;
 import pl.edu.pw.mini.gapso.optimizer.Particle;
 
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Stream;
 
 public class DEBest1Bin extends Move {
     public static final String NAME = "DE/best/1/bin";
@@ -43,10 +41,8 @@ public class DEBest1Bin extends Move {
         if (particlesCount < 4) {
             throw new IllegalArgumentException("Not enough particles for " + NAME);
         }
-        Stream<Particle> bestParticles = particleList.stream().sorted(Comparator.comparing(p -> p.getBest().getY()));
-        Particle bestParticle = bestParticles.findFirst().orElseThrow(() -> new IllegalArgumentException("No particles to choose from in " + "DE/rand/1/bin"));
-        int bestIndex = particleList.indexOf(bestParticle);
-        int currentIndex = particleList.indexOf(currentParticle);
+        int bestIndex = currentParticle.getGlobalBestIndex();
+        int currentIndex = currentParticle.getIndex();
         int randomIndex1 = currentIndex;
         while (randomIndex1 == currentIndex || randomIndex1 == bestIndex) {
             randomIndex1 = Generator.RANDOM.nextInt(particlesCount);

@@ -10,27 +10,54 @@ import pl.edu.pw.mini.gapso.sample.UpdatableSample;
 import java.util.List;
 
 public class Particle {
+    private int index;
+
     private final Function _function;
     private final UpdatableSample globalBest;
     private Sample current;
     private Sample best;
+    private IndexContainer globalBestIndexContainer;
 
-    public Particle(double[] initialLocation, Function function, UpdatableSample bestHolder) {
+    public Particle(double[] initialLocation, Function function, UpdatableSample bestHolder, IndexContainer indexContainer, List<Particle> particles) {
         _function = function;
         Sample sample = initializeLocation(initialLocation, function);
         current = sample;
         best = sample;
         globalBest = bestHolder;
+        globalBestIndexContainer = indexContainer;
+        index = particles.size();
+        particles.add(this);
         tryUpdateGlobalBest();
+    }
+
+    public int getIndex() {
+        return index;
     }
 
     public Sample getBest() {
         return best;
     }
 
+    public int getGlobalBestIndex() {
+        return globalBestIndexContainer.getIndex();
+    }
+
     private void tryUpdateGlobalBest() {
         if (best.getY() < globalBest.getY()) {
             globalBest.updateSample(best);
+            globalBestIndexContainer.setIndex(index);
+        }
+    }
+
+    public static class IndexContainer {
+        private int index;
+
+        public int getIndex() {
+            return index;
+        }
+
+        public void setIndex(int index) {
+            this.index = index;
         }
     }
 

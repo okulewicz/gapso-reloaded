@@ -5,7 +5,6 @@ import org.junit.Test;
 import pl.edu.pw.mini.gapso.function.ConvexSquareFunction;
 import pl.edu.pw.mini.gapso.function.FunctionWhiteBox;
 import pl.edu.pw.mini.gapso.optimizer.Particle;
-import pl.edu.pw.mini.gapso.sample.SingleSample;
 import pl.edu.pw.mini.gapso.sample.UpdatableSample;
 
 import java.util.ArrayList;
@@ -18,9 +17,7 @@ public class MinSpreadInDimensionsRestartManagerTest {
     @Test
     public void shouldBeRestarted() {
         FunctionWhiteBox function = new ConvexSquareFunction();
-        UpdatableSample globalBest = new UpdatableSample(
-                new SingleSample(new double[2], Double.POSITIVE_INFINITY)
-        );
+        UpdatableSample globalBest = UpdatableSample.generateInitialSample(function.getDimension());
 
         double[][] samples = new double[][]{
                 {0.0, 1.0},
@@ -37,15 +34,17 @@ public class MinSpreadInDimensionsRestartManagerTest {
 
         RestartManager observer = new MinSpreadInDimensionsRestartManager(BORDERLINE_CASE_THRESHOLD);
 
+        Particle.IndexContainer globalBestIndexContainer = new Particle.IndexContainer();
         List<Particle> particles = new ArrayList<>();
         Assert.assertTrue(observer.shouldBeRestarted(particles));
         for (int i = 0; i < samples.length; ++i) {
-            Particle particle = new Particle(
+            new Particle(
                     samples[i],
                     function,
-                    globalBest
+                    globalBest,
+                    globalBestIndexContainer,
+                    particles
             );
-            particles.add(particle);
             Assert.assertEquals(restarts[i], observer.shouldBeRestarted(particles));
         }
     }

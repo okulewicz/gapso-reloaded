@@ -2,6 +2,14 @@ package pl.edu.pw.mini.gapso.optimization.move;
 
 import org.junit.Assert;
 import org.junit.Test;
+import pl.edu.pw.mini.gapso.function.ConvexSeparableSquareFunction;
+import pl.edu.pw.mini.gapso.function.FunctionWhiteBox;
+import pl.edu.pw.mini.gapso.optimizer.Particle;
+import pl.edu.pw.mini.gapso.sample.UpdatableSample;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class DEBest1BinTest {
 
@@ -38,6 +46,62 @@ public class DEBest1BinTest {
     }
 
     @Test
-    public void getNext() {
+    public void getBestIndexAndSelfIndex() {
+        FunctionWhiteBox squareFunction = new ConvexSeparableSquareFunction();
+        double[] opt = squareFunction.getOptimumLocation();
+        double[] optLeft = Arrays.copyOf(opt, opt.length);
+        optLeft[0] -= 1.0;
+        double[] optRight = Arrays.copyOf(opt, opt.length);
+        optRight[0] += 1.0;
+        double[] optTop = Arrays.copyOf(opt, opt.length);
+        optTop[1] += 1.0;
+        double[] optBottom = Arrays.copyOf(opt, opt.length);
+        optBottom[1] -= 1.0;
+        UpdatableSample globalBest = UpdatableSample.generateInitialSample(squareFunction.getDimension());
+
+        Particle.IndexContainer indexContainer = new Particle.IndexContainer();
+        List<Particle> particles = new ArrayList<>();
+
+        Particle particleTop = new Particle(optTop, squareFunction, globalBest, indexContainer, particles);
+        Assert.assertEquals(0, particleTop.getGlobalBestIndex());
+        Assert.assertEquals(0, particleTop.getIndex());
+
+        Particle particleBottom = new Particle(optBottom, squareFunction, globalBest, indexContainer, particles);
+        Assert.assertEquals(0, particleTop.getGlobalBestIndex());
+        Assert.assertEquals(0, particleBottom.getGlobalBestIndex());
+        Assert.assertEquals(0, particleTop.getIndex());
+        Assert.assertEquals(1, particleBottom.getIndex());
+
+        Particle particleLeft = new Particle(optLeft, squareFunction, globalBest, indexContainer, particles);
+        Assert.assertEquals(2, particleTop.getGlobalBestIndex());
+        Assert.assertEquals(2, particleBottom.getGlobalBestIndex());
+        Assert.assertEquals(2, particleLeft.getGlobalBestIndex());
+        Assert.assertEquals(0, particleTop.getIndex());
+        Assert.assertEquals(1, particleBottom.getIndex());
+        Assert.assertEquals(2, particleLeft.getIndex());
+
+        Particle particleRight = new Particle(optRight, squareFunction, globalBest, indexContainer, particles);
+        Assert.assertEquals(2, particleTop.getGlobalBestIndex());
+        Assert.assertEquals(2, particleBottom.getGlobalBestIndex());
+        Assert.assertEquals(2, particleLeft.getGlobalBestIndex());
+        Assert.assertEquals(2, particleRight.getGlobalBestIndex());
+        Assert.assertEquals(0, particleTop.getIndex());
+        Assert.assertEquals(1, particleBottom.getIndex());
+        Assert.assertEquals(2, particleLeft.getIndex());
+        Assert.assertEquals(3, particleRight.getIndex());
+
+
+        Particle particleOpt = new Particle(opt, squareFunction, globalBest, indexContainer, particles);
+        Assert.assertEquals(4, particleTop.getGlobalBestIndex());
+        Assert.assertEquals(4, particleBottom.getGlobalBestIndex());
+        Assert.assertEquals(4, particleLeft.getGlobalBestIndex());
+        Assert.assertEquals(4, particleRight.getGlobalBestIndex());
+        Assert.assertEquals(4, particleOpt.getGlobalBestIndex());
+        Assert.assertEquals(0, particleTop.getIndex());
+        Assert.assertEquals(1, particleBottom.getIndex());
+        Assert.assertEquals(2, particleLeft.getIndex());
+        Assert.assertEquals(3, particleRight.getIndex());
+        Assert.assertEquals(4, particleOpt.getIndex());
     }
+
 }

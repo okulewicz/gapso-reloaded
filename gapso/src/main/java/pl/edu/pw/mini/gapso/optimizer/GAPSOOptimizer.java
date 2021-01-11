@@ -7,7 +7,6 @@ import pl.edu.pw.mini.gapso.generator.initializer.Initializer;
 import pl.edu.pw.mini.gapso.optimization.move.Move;
 import pl.edu.pw.mini.gapso.optimizer.restart.RestartManager;
 import pl.edu.pw.mini.gapso.sample.Sample;
-import pl.edu.pw.mini.gapso.sample.SingleSample;
 import pl.edu.pw.mini.gapso.sample.UpdatableSample;
 
 import java.util.ArrayList;
@@ -38,21 +37,14 @@ public class GAPSOOptimizer extends Optimizer {
 
     @Override
     public Sample optimize(Function function) {
-        UpdatableSample totalGlobalBest = new UpdatableSample(
-                new SingleSample(
-                        new double[function.getDimension()],
-                        Double.POSITIVE_INFINITY)
-        );
+        UpdatableSample totalGlobalBest = UpdatableSample.generateInitialSample(function.getDimension());
         while (isEnoughOptimizationBudgetLeftAndNeedsOptimzation(function)) {
-            UpdatableSample globalBest = new UpdatableSample(
-                    new SingleSample(
-                            new double[function.getDimension()],
-                            Double.POSITIVE_INFINITY)
-            );
+            UpdatableSample globalBest = UpdatableSample.generateInitialSample(function.getDimension());
+            Particle.IndexContainer indexContainer = new Particle.IndexContainer();
             List<Particle> particles = new ArrayList<>();
             for (int i = 0; i < _particlesCountPerDimension * function.getDimension(); ++i) {
                 double[] initialLocation = _initializer.getNextSample(function.getBounds());
-                particles.add(new Particle(initialLocation, function, globalBest));
+                new Particle(initialLocation, function, globalBest, indexContainer, particles);
             }
             while (isEnoughOptimizationBudgetLeftAndNeedsOptimzation(function)) {
                 for (Particle particle : particles) {
