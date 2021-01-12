@@ -40,7 +40,7 @@ public class GAPSOOptimizer extends Optimizer {
     public Sample optimize(Function function) {
         UpdatableSample totalGlobalBest = UpdatableSample.generateInitialSample(function.getDimension());
         MoveManager moveManager = new MoveManager(_availableMoves);
-        while (isEnoughOptimizationBudgetLeftAndNeedsOptimzation(function)) {
+        while (isEnoughOptimizationBudgetLeftAndNeedsOptimization(function)) {
             UpdatableSample globalBest = UpdatableSample.generateInitialSample(function.getDimension());
             Particle.IndexContainer indexContainer = new Particle.IndexContainer();
             List<Particle> particles = new ArrayList<>();
@@ -48,7 +48,7 @@ public class GAPSOOptimizer extends Optimizer {
                 double[] initialLocation = _initializer.getNextSample(function.getBounds());
                 new Particle(initialLocation, function, globalBest, indexContainer, particles);
             }
-            while (isEnoughOptimizationBudgetLeftAndNeedsOptimzation(function)) {
+            while (isEnoughOptimizationBudgetLeftAndNeedsOptimization(function)) {
                 List<Move> moves = moveManager.generateMoveSequence(particles.size());
                 Iterator<Move> movesIterator = moves.iterator();
                 for (Particle particle : particles) {
@@ -66,7 +66,7 @@ public class GAPSOOptimizer extends Optimizer {
         return totalGlobalBest;
     }
 
-    private boolean isEnoughOptimizationBudgetLeftAndNeedsOptimzation(Function function) {
+    private boolean isEnoughOptimizationBudgetLeftAndNeedsOptimization(Function function) {
         return function.getEvaluationsCount() < _evaluationsBudgetPerDimension * function.getDimension()
                 && !function.isTargetReached();
     }
