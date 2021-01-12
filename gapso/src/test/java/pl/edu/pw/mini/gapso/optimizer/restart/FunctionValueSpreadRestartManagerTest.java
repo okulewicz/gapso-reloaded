@@ -3,6 +3,7 @@ package pl.edu.pw.mini.gapso.optimizer.restart;
 import org.junit.Test;
 import pl.edu.pw.mini.gapso.function.Function;
 import pl.edu.pw.mini.gapso.function.SingleStepFunction;
+import pl.edu.pw.mini.gapso.optimizer.restart.threshold.FunctionValueSpreadRestartManager;
 import pl.edu.pw.mini.gapso.sample.UpdatableSample;
 
 public class FunctionValueSpreadRestartManagerTest {

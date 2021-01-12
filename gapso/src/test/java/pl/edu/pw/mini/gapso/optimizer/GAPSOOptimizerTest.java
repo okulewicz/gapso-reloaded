@@ -8,7 +8,7 @@ import pl.edu.pw.mini.gapso.function.FunctionWhiteBox;
 import pl.edu.pw.mini.gapso.initializer.RandomInitializer;
 import pl.edu.pw.mini.gapso.optimizer.move.DEBest1Bin;
 import pl.edu.pw.mini.gapso.optimizer.move.Move;
-import pl.edu.pw.mini.gapso.optimizer.restart.SmallestSpreadBelowThresholdRestartManager;
+import pl.edu.pw.mini.gapso.optimizer.restart.threshold.SmallestSpreadBelowThresholdRestartManager;
 import pl.edu.pw.mini.gapso.sample.Sample;
 
 public class GAPSOOptimizerTest {

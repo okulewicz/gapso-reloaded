@@ -7,7 +7,7 @@ import pl.edu.pw.mini.gapso.initializer.SequenceInitializer;
 import pl.edu.pw.mini.gapso.optimizer.move.DEBest1Bin;
 import pl.edu.pw.mini.gapso.optimizer.move.LocalBestModel;
 import pl.edu.pw.mini.gapso.optimizer.move.Move;
-import pl.edu.pw.mini.gapso.optimizer.restart.SmallestSpreadBelowThresholdRestartManager;
+import pl.edu.pw.mini.gapso.optimizer.restart.threshold.SmallestSpreadBelowThresholdRestartManager;
 
 public class ConfigurationTest {
     String JSONStringVer1 = "{\n" +

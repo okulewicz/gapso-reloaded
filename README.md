@@ -49,7 +49,30 @@ Generalized Adaptive Particle Swarm Optimization
 ```
   * MinSpreadInDimensions
   * MaxSpreadInDimensions 
- 
+  * Or - restarts when at least one rule is met
+  ```json
+{
+"name": "Or",
+"parameters": {
+  "restartManagerDefinitions": [
+    {
+      "name": "FunctionValues",
+      "parameters": {
+        "threshold": 1e-8
+      }
+    },
+    {
+      "name": "MaxSpreadInDimensions",
+      "parameters": {
+        "threshold": 1e-8
+      }
+    }
+
+  ]
+}
+}
+```
+  * And
 
 ## Moves
 
