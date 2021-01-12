@@ -2,14 +2,15 @@ package pl.edu.pw.mini.gapso.optimizer;
 
 import pl.edu.pw.mini.gapso.configuration.Configuration;
 import pl.edu.pw.mini.gapso.function.Function;
-import pl.edu.pw.mini.gapso.generator.Generator;
 import pl.edu.pw.mini.gapso.generator.initializer.Initializer;
 import pl.edu.pw.mini.gapso.optimizer.move.Move;
+import pl.edu.pw.mini.gapso.optimizer.move.MoveManager;
 import pl.edu.pw.mini.gapso.optimizer.restart.RestartManager;
 import pl.edu.pw.mini.gapso.sample.Sample;
 import pl.edu.pw.mini.gapso.sample.UpdatableSample;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class GAPSOOptimizer extends Optimizer {
@@ -38,6 +39,7 @@ public class GAPSOOptimizer extends Optimizer {
     @Override
     public Sample optimize(Function function) {
         UpdatableSample totalGlobalBest = UpdatableSample.generateInitialSample(function.getDimension());
+        MoveManager moveManager = new MoveManager(_availableMoves);
         while (isEnoughOptimizationBudgetLeftAndNeedsOptimzation(function)) {
             UpdatableSample globalBest = UpdatableSample.generateInitialSample(function.getDimension());
             Particle.IndexContainer indexContainer = new Particle.IndexContainer();
@@ -47,8 +49,11 @@ public class GAPSOOptimizer extends Optimizer {
                 new Particle(initialLocation, function, globalBest, indexContainer, particles);
             }
             while (isEnoughOptimizationBudgetLeftAndNeedsOptimzation(function)) {
+                List<Move> moves = moveManager.generateMoveSequence(particles.size());
+                Iterator<Move> movesIterator = moves.iterator();
                 for (Particle particle : particles) {
-                    particle.move(_availableMoves[Generator.RANDOM.nextInt(_availableMoves.length)], particles);
+                    Move selectedMove = movesIterator.next();
+                    particle.move(selectedMove);
                 }
                 if (_restartManager.shouldBeRestarted(particles)) {
                     break;

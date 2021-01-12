@@ -6,7 +6,6 @@ import pl.edu.pw.mini.gapso.generator.Generator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,10 +41,13 @@ public class MoveManager {
                             enumeratedDistribution.sample(size - movesSequence.size(), new Move[0]))
                             .collect(Collectors.toList()));
         }
-        return
-                movesSequence
-                        .stream()
-                        .sorted(Comparator.comparingDouble(m -> Generator.RANDOM.nextDouble()))
-                        .collect(Collectors.toList());
+        List<Move> rearrangedMoves = new ArrayList<>();
+        while (!movesSequence.isEmpty()) {
+            int idx = Generator.RANDOM.nextInt(movesSequence.size());
+            Move move = movesSequence.get(idx);
+            movesSequence.remove(idx);
+            rearrangedMoves.add(move);
+        }
+        return rearrangedMoves;
     }
 }

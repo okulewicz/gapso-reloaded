@@ -3,6 +3,7 @@ package pl.edu.pw.mini.gapso.optimizer.move;
 import org.junit.Assert;
 import org.junit.Test;
 import pl.edu.pw.mini.gapso.configuration.MoveConfiguration;
+import pl.edu.pw.mini.gapso.optimizer.GAPSOOptimizerTest;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -51,6 +52,8 @@ public class MoveManagerTest {
         }
         Set<Integer> uniqueIndexes = new HashSet<>(indexes);
         Assert.assertTrue("Should be more than one index position in multiple tries", uniqueIndexes.size() > 1);
+
+        GAPSOOptimizerTest.optimizeWithMoves(new Move[]{deMove, lbmMove});
     }
 
     private void testSequence(int expectedLBM, MoveManager moveManager, int size) {
