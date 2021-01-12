@@ -79,14 +79,16 @@ public class GAPSOOptimizer extends SamplingOptimizer {
     }
 
     private void resetAndConfigureBeforeOptimization() {
+        //TODO: this needs to be tested somehow
         samplers.clear();
         _initializer.resetInitializer(true);
         _initializer.registerObjectsWithOptimizer(this);
     }
 
     private void resetAfterOptimizationRestart() {
+        //TODO: this needs to be tested somehow
         samplers.clear();
-        _initializer.resetInitializer(false);
+        _initializer.resetInitializer(true);
         _initializer.registerObjectsWithOptimizer(this);
     }
 
