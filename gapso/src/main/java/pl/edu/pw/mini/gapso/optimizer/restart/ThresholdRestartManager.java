@@ -1,5 +1,8 @@
 package pl.edu.pw.mini.gapso.optimizer.restart;
 
+import com.google.gson.JsonElement;
+import pl.edu.pw.mini.gapso.utils.Util;
+
 public abstract class ThresholdRestartManager extends RestartManager {
     protected final double _threshold;
 
@@ -7,8 +10,8 @@ public abstract class ThresholdRestartManager extends RestartManager {
         _threshold = threshold;
     }
 
-    public ThresholdRestartManager(SpreadThresholdConfiguration configuration) {
-        this(configuration.getThreshold());
+    public ThresholdRestartManager(JsonElement configuration) {
+        this(Util.GSON.fromJson(configuration, SpreadThresholdConfiguration.class).getThreshold());
     }
 
     public static class SpreadThresholdConfiguration {

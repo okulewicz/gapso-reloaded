@@ -1,5 +1,6 @@
 package pl.edu.pw.mini.gapso.optimizer.restart;
 
+import com.google.gson.JsonElement;
 import pl.edu.pw.mini.gapso.optimizer.Particle;
 
 import java.util.DoubleSummaryStatistics;
@@ -12,7 +13,7 @@ public class LargestSpreadBelowThresholdRestartManager extends ThresholdRestartM
         super(threshold);
     }
 
-    public LargestSpreadBelowThresholdRestartManager(SpreadThresholdConfiguration configuration) {
+    public LargestSpreadBelowThresholdRestartManager(JsonElement configuration) {
         super(configuration);
     }
 
