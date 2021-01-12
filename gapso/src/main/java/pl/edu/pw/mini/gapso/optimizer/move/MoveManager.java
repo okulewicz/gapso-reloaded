@@ -41,11 +41,16 @@ public class MoveManager {
                             enumeratedDistribution.sample(size - movesSequence.size(), new Move[0]))
                             .collect(Collectors.toList()));
         }
+        return randomizeMovesOrder(movesSequence);
+    }
+
+    private List<Move> randomizeMovesOrder(List<Move> movesSequence) {
+        List<Move> tempMovesList = new ArrayList<>(movesSequence);
         List<Move> rearrangedMoves = new ArrayList<>();
-        while (!movesSequence.isEmpty()) {
-            int idx = Generator.RANDOM.nextInt(movesSequence.size());
-            Move move = movesSequence.get(idx);
-            movesSequence.remove(idx);
+        while (!tempMovesList.isEmpty()) {
+            int idx = Generator.RANDOM.nextInt(tempMovesList.size());
+            Move move = tempMovesList.get(idx);
+            tempMovesList.remove(idx);
             rearrangedMoves.add(move);
         }
         return rearrangedMoves;
