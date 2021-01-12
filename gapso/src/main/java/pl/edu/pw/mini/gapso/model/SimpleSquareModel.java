@@ -66,7 +66,7 @@ public class SimpleSquareModel extends Model {
     }
 
     @Override
-    protected int getMinSamplesCount(int dim) {
+    public int getMinSamplesCount(int dim) {
         return 2 * dim + 1;
     }
 }

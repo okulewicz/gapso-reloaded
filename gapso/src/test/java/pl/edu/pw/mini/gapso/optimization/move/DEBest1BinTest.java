@@ -5,6 +5,7 @@ import org.junit.Test;
 import pl.edu.pw.mini.gapso.function.ConvexSeparableSquareFunction;
 import pl.edu.pw.mini.gapso.function.FunctionWhiteBox;
 import pl.edu.pw.mini.gapso.optimizer.Particle;
+import pl.edu.pw.mini.gapso.optimizer.move.DEBest1Bin;
 import pl.edu.pw.mini.gapso.sample.UpdatableSample;
 
 import java.util.ArrayList;

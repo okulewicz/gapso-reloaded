@@ -42,7 +42,7 @@ public class LinearModel extends Model {
     }
 
     @Override
-    protected int getMinSamplesCount(int dim) {
+    public int getMinSamplesCount(int dim) {
         return dim + 1;
     }
 }

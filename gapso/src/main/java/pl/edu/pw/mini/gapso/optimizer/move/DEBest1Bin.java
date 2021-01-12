@@ -1,7 +1,9 @@
-package pl.edu.pw.mini.gapso.optimization.move;
+package pl.edu.pw.mini.gapso.optimizer.move;
 
-import pl.edu.pw.mini.gapso.generator.Generator;
+import com.google.gson.Gson;
+import pl.edu.pw.mini.gapso.configuration.MoveConfiguration;
 import pl.edu.pw.mini.gapso.optimizer.Particle;
+import pl.edu.pw.mini.gapso.utils.Generator;
 
 import java.util.List;
 
@@ -9,6 +11,8 @@ public class DEBest1Bin extends Move {
     public static final String NAME = "DE/best/1/bin";
     private final double _scale;
     private final double _crossProb;
+    private final boolean _constantScale;
+    private final boolean _constantCrossProb;
 
     public static double[] getDESample(double[] current, double[] best, double[] diffVector1, double[] diffVector2, double scale, double crossProb) {
         final int dim = current.length;
@@ -26,13 +30,16 @@ public class DEBest1Bin extends Move {
         return tryX;
     }
 
-    public DEBest1Bin(double scale, double crossProb) {
-        _scale = scale;
-        _crossProb = crossProb;
-    }
-
-    public DEBest1Bin(DEBest1BinConfiguration configuration) {
-        this(configuration.getScale(), configuration.getCrossProb());
+    public DEBest1Bin(MoveConfiguration moveConfiguration) {
+        super(moveConfiguration);
+        Gson gson = new Gson();
+        DEBest1BinConfiguration deConf = gson.fromJson(
+                moveConfiguration.getParameters(),
+                DEBest1BinConfiguration.class);
+        _scale = deConf.getScale();
+        _crossProb = deConf.getCrossProb();
+        _constantScale = deConf.isConstantScale();
+        _constantCrossProb = deConf.isConstantCrossProb();
     }
 
     @Override
@@ -51,8 +58,8 @@ public class DEBest1Bin extends Move {
         while (randomIndex2 == randomIndex1 || randomIndex2 == currentIndex || randomIndex2 == bestIndex) {
             randomIndex2 = Generator.RANDOM.nextInt(particlesCount);
         }
-        double scale = Generator.RANDOM.nextDouble() * _scale;
-        double crossProb = Generator.RANDOM.nextDouble() * _crossProb;
+        double scale = getValue(_scale, _constantScale);
+        double crossProb = getValue(_crossProb, _constantCrossProb);
         return getDESample(
                 particleList.get(currentIndex).getBest().getX(),
                 particleList.get(bestIndex).getBest().getX(),
@@ -62,11 +69,31 @@ public class DEBest1Bin extends Move {
                 crossProb);
     }
 
+    private double getValue(double parameter, boolean constantParameter) {
+        double scale = parameter;
+        if (!constantParameter) {
+            scale = Generator.RANDOM.nextDouble() * parameter;
+        }
+        return scale;
+    }
+
     public static class DEBest1BinConfiguration {
-        @SuppressWarnings("unused")
         private double scale;
-        @SuppressWarnings("unused")
         private double crossProb;
+        private boolean constantScale;
+        private boolean constantCrossProb;
+
+        public DEBest1BinConfiguration(double scale, double crossProb) {
+            this(scale, crossProb, false, false);
+        }
+
+        public DEBest1BinConfiguration(double scale, double crossProb,
+                                       boolean constantScale, boolean constantCrossProb) {
+            this.scale = scale;
+            this.crossProb = crossProb;
+            this.constantScale = constantScale;
+            this.constantCrossProb = constantCrossProb;
+        }
 
         public double getScale() {
             return scale;
@@ -74,6 +101,18 @@ public class DEBest1Bin extends Move {
 
         public double getCrossProb() {
             return crossProb;
+        }
+
+        public boolean isConstantScale() {
+            return constantScale;
+        }
+
+        public boolean isConstantCrossProb() {
+            return constantCrossProb;
+        }
+
+        public void setConstantCrossProb(boolean constantCrossProb) {
+            this.constantCrossProb = constantCrossProb;
         }
     }
 }

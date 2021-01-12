@@ -27,5 +27,5 @@ public abstract class Model {
 
     protected abstract OLSMultipleLinearRegression putDataIntoModel(List<Sample> samples, int dim);
 
-    protected abstract int getMinSamplesCount(int dim);
+    public abstract int getMinSamplesCount(int dim);
 }

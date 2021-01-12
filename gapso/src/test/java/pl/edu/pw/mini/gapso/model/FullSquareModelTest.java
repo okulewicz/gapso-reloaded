@@ -11,7 +11,9 @@ import pl.edu.pw.mini.gapso.sample.Sample;
 import pl.edu.pw.mini.gapso.sample.SingleSample;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class FullSquareModelTest {
 
@@ -63,6 +65,51 @@ public class FullSquareModelTest {
         sampleList.add(s5);
         sampleList.add(s6);
         return sampleList;
+    }
+
+    @Test
+    public void ModelOptimumOutsideFunctionBounds() {
+        Sample[] samples = new Sample[]{
+                new SingleSample(
+                        new double[]{0.8246643391410124, -0.7269922749851094},
+                        109.19935697815373
+                ),
+                new SingleSample(
+                        new double[]{4.144236131707409, 0.24866348310267128},
+                        114.5258712437668
+                ),
+                new SingleSample(
+                        new double[]{2.7460606544754924, -4.788280862812627},
+                        268.8474200039809
+                ),
+                new SingleSample(
+                        new double[]{-5.0, 5.0},
+                        2052.797737485445
+                ),
+                new SingleSample(
+                        new double[]{-1.3281330993538196, 2.900498624453631},
+                        501.6320477069903
+                ),
+                new SingleSample(
+                        new double[]{2.3670425847561303, 1.4217172229576647},
+                        178.12010529952312
+                )
+        };
+        List<Sample> sampleList = Arrays.stream(samples).collect(Collectors.toList());
+        Bounds largebounds = new SimpleBounds(
+                new double[]{-6.0, -6.0},
+                new double[]{6.0, 6.0}
+        );
+        Bounds bounds = new SimpleBounds(
+                new double[]{-5.0, -5.0},
+                new double[]{5.0, 5.0}
+        );
+        Model model = new FullSquareModel();
+        double[] optimumLocation = model.getOptimumLocation(sampleList, largebounds);
+        Assert.assertArrayEquals(new double[]{-3.249336123377295, 5.876107354430642}, optimumLocation, 0.0);
+
+        optimumLocation = model.getOptimumLocation(sampleList, bounds);
+        Assert.assertArrayEquals(new double[]{-3.249336123377295, 5.0}, optimumLocation, 0.0);
     }
 
 }

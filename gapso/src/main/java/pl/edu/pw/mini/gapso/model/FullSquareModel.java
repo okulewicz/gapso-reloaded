@@ -14,7 +14,16 @@ public class FullSquareModel extends Model {
         double[] ba = olslm.estimateRegressionParameters();
         Map<String, Double> parameters = decodeParametersFromFactors(dim, ba);
         OLSMultipleLinearRegression derivativesOlslm = createDerivativesEquation(dim, parameters);
-        return derivativesOlslm.estimateRegressionParameters();
+        double[] optimum = derivativesOlslm.estimateRegressionParameters();
+        if (!bounds.contain(optimum)) {
+            final double[] lower = bounds.getLower();
+            final double[] upper = bounds.getUpper();
+            for (int i = 0; i < optimum.length; ++i) {
+                optimum[i] = Math.max(optimum[i], lower[i]);
+                optimum[i] = Math.min(optimum[i], upper[i]);
+            }
+        }
+        return optimum;
     }
 
     private OLSMultipleLinearRegression createDerivativesEquation(int dim, Map<String, Double> parameters) {
@@ -86,7 +95,7 @@ public class FullSquareModel extends Model {
     }
 
     @Override
-    protected int getMinSamplesCount(int dim) {
+    public int getMinSamplesCount(int dim) {
         return ((dim + 1) * dim) / 2 + dim + 1;
     }
 }

@@ -2,7 +2,7 @@ package pl.edu.pw.mini.gapso.optimizer;
 
 import pl.edu.pw.mini.gapso.bounds.Bounds;
 import pl.edu.pw.mini.gapso.function.Function;
-import pl.edu.pw.mini.gapso.optimization.move.Move;
+import pl.edu.pw.mini.gapso.optimizer.move.Move;
 import pl.edu.pw.mini.gapso.sample.Sample;
 import pl.edu.pw.mini.gapso.sample.SingleSample;
 import pl.edu.pw.mini.gapso.sample.UpdatableSample;
@@ -10,8 +10,8 @@ import pl.edu.pw.mini.gapso.sample.UpdatableSample;
 import java.util.List;
 
 public class Particle {
+    private final List<Particle> _particles;
     private int index;
-
     private final Function _function;
     private final UpdatableSample globalBest;
     private Sample current;
@@ -20,6 +20,7 @@ public class Particle {
 
     public Particle(double[] initialLocation, Function function, UpdatableSample bestHolder, IndexContainer indexContainer, List<Particle> particles) {
         _function = function;
+        _particles = particles;
         Sample sample = initializeLocation(initialLocation, function);
         current = sample;
         best = sample;
@@ -40,6 +41,10 @@ public class Particle {
 
     public int getGlobalBestIndex() {
         return globalBestIndexContainer.getIndex();
+    }
+
+    public Function getFunction() {
+        return _function;
     }
 
     private void tryUpdateGlobalBest() {
@@ -66,8 +71,8 @@ public class Particle {
         return new SingleSample(initialLocation, value);
     }
 
-    public void move(Move availableMove, List<Particle> particleList) {
-        current = getSampleWithinFunctionBounds(availableMove, particleList);
+    public void move(Move availableMove) {
+        current = getSampleWithinFunctionBounds(availableMove);
         tryUpdatePersonalBest();
     }
 
@@ -78,8 +83,8 @@ public class Particle {
         }
     }
 
-    private Sample getSampleWithinFunctionBounds(Move availableMove, List<Particle> particleList) {
-        double[] sample = availableMove.getNext(this, particleList);
+    private Sample getSampleWithinFunctionBounds(Move availableMove) {
+        double[] sample = availableMove.getNext(this, _particles);
         Bounds bounds = _function.getBounds();
         while (!bounds.contain(sample)) {
             for (int i = 0; i < sample.length; ++i) {
