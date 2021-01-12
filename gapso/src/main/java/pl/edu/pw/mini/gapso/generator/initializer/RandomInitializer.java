@@ -21,4 +21,9 @@ public class RandomInitializer extends Initializer {
         }
         return sample;
     }
+
+    @Override
+    protected boolean canSample() {
+        return true;
+    }
 }
