@@ -17,7 +17,7 @@ public class MoveConfigurationTest {
             noSuchMove.getMove();
             Assert.fail("Non existent move generated");
         } catch (IllegalArgumentException ex) {
-            ex.printStackTrace();
+            ex.getMessage();
         }
     }
 }
