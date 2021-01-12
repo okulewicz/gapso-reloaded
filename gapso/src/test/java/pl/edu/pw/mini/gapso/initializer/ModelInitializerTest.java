@@ -22,7 +22,9 @@ public class ModelInitializerTest {
         Assert.assertFalse(initializer.canSample());
         Assert.assertFalse(initializer.canSample());
         for (int i = 0; i < 2; ++i) {
+            Assert.assertEquals(0, samplingOptimizer.samplerList.size());
             initializer.registerObjectsWithOptimizer(samplingOptimizer);
+            Assert.assertEquals(1, samplingOptimizer.samplerList.size());
             Function function = samplingOptimizer.wrapFunction(new ConvexSquareFunction());
             //LINEAR MODEL
             function.getValue(generator.getNextSample(function.getBounds()));
@@ -46,6 +48,7 @@ public class ModelInitializerTest {
             Assert.assertFalse(initializer.canSample());
             initializer.resetInitializer(false);
             Assert.assertTrue(initializer.canSample());
+            samplingOptimizer.samplerList.clear();
             initializer.resetInitializer(true);
             Assert.assertFalse(initializer.canSample());
         }
