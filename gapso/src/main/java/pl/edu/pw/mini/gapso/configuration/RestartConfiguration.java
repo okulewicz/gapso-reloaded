@@ -1,6 +1,7 @@
 package pl.edu.pw.mini.gapso.configuration;
 
 import com.google.gson.JsonElement;
+import pl.edu.pw.mini.gapso.optimizer.restart.FunctionValueSpreadRestartManager;
 import pl.edu.pw.mini.gapso.optimizer.restart.LargestSpreadBelowThresholdRestartManager;
 import pl.edu.pw.mini.gapso.optimizer.restart.RestartManager;
 import pl.edu.pw.mini.gapso.optimizer.restart.SmallestSpreadBelowThresholdRestartManager;
@@ -25,6 +26,9 @@ public class RestartConfiguration {
         }
         if (getName().equals(LargestSpreadBelowThresholdRestartManager.NAME)) {
             return new LargestSpreadBelowThresholdRestartManager(getParameters());
+        }
+        if (getName().equals(FunctionValueSpreadRestartManager.NAME)) {
+            return new FunctionValueSpreadRestartManager(getParameters());
         }
         throw new IllegalArgumentException("Restart manager " + getName() + " is not known");
 
