@@ -1,10 +1,12 @@
 package pl.edu.pw.mini.gapso.configuration;
 
 import com.google.gson.JsonElement;
-import pl.edu.pw.mini.gapso.optimizer.restart.FunctionValueSpreadRestartManager;
-import pl.edu.pw.mini.gapso.optimizer.restart.LargestSpreadBelowThresholdRestartManager;
 import pl.edu.pw.mini.gapso.optimizer.restart.RestartManager;
-import pl.edu.pw.mini.gapso.optimizer.restart.SmallestSpreadBelowThresholdRestartManager;
+import pl.edu.pw.mini.gapso.optimizer.restart.composite.AndRestartManager;
+import pl.edu.pw.mini.gapso.optimizer.restart.composite.OrRestartManager;
+import pl.edu.pw.mini.gapso.optimizer.restart.threshold.FunctionValueSpreadRestartManager;
+import pl.edu.pw.mini.gapso.optimizer.restart.threshold.LargestSpreadBelowThresholdRestartManager;
+import pl.edu.pw.mini.gapso.optimizer.restart.threshold.SmallestSpreadBelowThresholdRestartManager;
 
 public class RestartConfiguration {
     @SuppressWarnings("unused")
@@ -29,6 +31,12 @@ public class RestartConfiguration {
         }
         if (getName().equals(FunctionValueSpreadRestartManager.NAME)) {
             return new FunctionValueSpreadRestartManager(getParameters());
+        }
+        if (getName().equals(AndRestartManager.NAME)) {
+            return new AndRestartManager(getParameters());
+        }
+        if (getName().equals(OrRestartManager.NAME)) {
+            return new OrRestartManager(getParameters());
         }
         throw new IllegalArgumentException("Restart manager " + getName() + " is not known");
 
