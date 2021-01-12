@@ -16,9 +16,13 @@ public class RandomInitializer extends Initializer {
         for (int dimIdx = 0; dimIdx < dim; ++dimIdx) {
             final double lower = bounds.getLower()[dimIdx];
             final double upper = bounds.getUpper()[dimIdx];
-            UniformRealDistribution uniformRealDistribution =
-                    new UniformRealDistribution(Generator.RANDOM, lower, upper);
-            sample[dimIdx] = uniformRealDistribution.sample();
+            if (lower != upper) {
+                UniformRealDistribution uniformRealDistribution =
+                        new UniformRealDistribution(Generator.RANDOM, lower, upper);
+                sample[dimIdx] = uniformRealDistribution.sample();
+            } else {
+                sample[dimIdx] = lower;
+            }
         }
         return sample;
     }

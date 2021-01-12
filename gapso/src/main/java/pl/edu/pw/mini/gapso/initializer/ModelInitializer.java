@@ -35,6 +35,8 @@ public class ModelInitializer extends Initializer {
             if (sampler.getSamplesCount() >= minSamplesCount) {
                 List<Sample> samples = sampler.getSamples(minSamplesCount);
                 returnSample = model.getOptimumLocation(samples, bounds);
+                if (returnSample == null)
+                    continue;
                 modelSequence.remove(model);
                 break;
             }

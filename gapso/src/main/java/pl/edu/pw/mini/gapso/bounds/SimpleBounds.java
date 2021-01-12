@@ -1,5 +1,6 @@
 package pl.edu.pw.mini.gapso.bounds;
 
+import org.apache.commons.math3.exception.NumberIsTooLargeException;
 import pl.edu.pw.mini.gapso.sample.Sample;
 
 import java.util.Arrays;
@@ -14,6 +15,11 @@ public class SimpleBounds extends Bounds {
     public SimpleBounds(double[] lowerBounds, double[] upperBounds) {
         this.lowerBounds = Arrays.copyOf(lowerBounds, lowerBounds.length);
         this.upperBounds = Arrays.copyOf(upperBounds, upperBounds.length);
+        for (int i = 0; i < lowerBounds.length; ++i) {
+            if (this.lowerBounds[i] > this.upperBounds[i]) {
+                throw new NumberIsTooLargeException(lowerBounds[i], upperBounds[i], true);
+            }
+        }
     }
 
     public static Bounds createBoundsFromSamples(List<Sample> samples) {

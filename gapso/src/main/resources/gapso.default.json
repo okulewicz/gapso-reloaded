@@ -19,7 +19,9 @@
       "minimalAmount": 1,
       "parameters": {
         "crossProb": 0.9,
-        "scale": 0.5
+        "scale": 0.5,
+        "constantCrossProb": true,
+        "constantScale": false
       }
     }
   ]

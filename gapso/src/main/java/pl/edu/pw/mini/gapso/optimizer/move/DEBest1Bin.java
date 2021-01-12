@@ -11,6 +11,8 @@ public class DEBest1Bin extends Move {
     public static final String NAME = "DE/best/1/bin";
     private final double _scale;
     private final double _crossProb;
+    private final boolean _constantScale;
+    private final boolean _constantCrossProb;
 
     public static double[] getDESample(double[] current, double[] best, double[] diffVector1, double[] diffVector2, double scale, double crossProb) {
         final int dim = current.length;
@@ -36,6 +38,8 @@ public class DEBest1Bin extends Move {
                 DEBest1BinConfiguration.class);
         _scale = deConf.getScale();
         _crossProb = deConf.getCrossProb();
+        _constantScale = deConf.isConstantScale();
+        _constantCrossProb = deConf.isConstantCrossProb();
     }
 
     @Override
@@ -54,8 +58,8 @@ public class DEBest1Bin extends Move {
         while (randomIndex2 == randomIndex1 || randomIndex2 == currentIndex || randomIndex2 == bestIndex) {
             randomIndex2 = Generator.RANDOM.nextInt(particlesCount);
         }
-        double scale = Generator.RANDOM.nextDouble() * _scale;
-        double crossProb = Generator.RANDOM.nextDouble() * _crossProb;
+        double scale = getValue(_scale, _constantScale);
+        double crossProb = getValue(_crossProb, _constantCrossProb);
         return getDESample(
                 particleList.get(currentIndex).getBest().getX(),
                 particleList.get(bestIndex).getBest().getX(),
@@ -65,13 +69,30 @@ public class DEBest1Bin extends Move {
                 crossProb);
     }
 
+    private double getValue(double parameter, boolean constantParameter) {
+        double scale = parameter;
+        if (!constantParameter) {
+            scale = Generator.RANDOM.nextDouble() * parameter;
+        }
+        return scale;
+    }
+
     public static class DEBest1BinConfiguration {
         private double scale;
         private double crossProb;
+        private boolean constantScale;
+        private boolean constantCrossProb;
 
         public DEBest1BinConfiguration(double scale, double crossProb) {
+            this(scale, crossProb, false, false);
+        }
+
+        public DEBest1BinConfiguration(double scale, double crossProb,
+                                       boolean constantScale, boolean constantCrossProb) {
             this.scale = scale;
             this.crossProb = crossProb;
+            this.constantScale = constantScale;
+            this.constantCrossProb = constantCrossProb;
         }
 
         public double getScale() {
@@ -80,6 +101,18 @@ public class DEBest1Bin extends Move {
 
         public double getCrossProb() {
             return crossProb;
+        }
+
+        public boolean isConstantScale() {
+            return constantScale;
+        }
+
+        public boolean isConstantCrossProb() {
+            return constantCrossProb;
+        }
+
+        public void setConstantCrossProb(boolean constantCrossProb) {
+            this.constantCrossProb = constantCrossProb;
         }
     }
 }
