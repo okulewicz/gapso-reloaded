@@ -4,8 +4,8 @@ import com.google.gson.Gson;
 import org.apache.commons.io.IOUtils;
 import pl.edu.pw.mini.gapso.initializer.Initializer;
 import pl.edu.pw.mini.gapso.optimizer.move.Move;
-import pl.edu.pw.mini.gapso.optimizer.restart.MinSpreadInDimensionsRestartManager;
 import pl.edu.pw.mini.gapso.optimizer.restart.RestartManager;
+import pl.edu.pw.mini.gapso.optimizer.restart.SmallestSpreadBelowThresholdRestartManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -81,11 +81,10 @@ public class Configuration {
     }
 
     public RestartManager getRestartManager() {
-        if (restartManagerDefinition.getName().equals(MinSpreadInDimensionsRestartManager.NAME)) {
-            return new MinSpreadInDimensionsRestartManager(gson.fromJson(
+        if (restartManagerDefinition.getName().equals(SmallestSpreadBelowThresholdRestartManager.NAME)) {
+            return new SmallestSpreadBelowThresholdRestartManager(gson.fromJson(
                     restartManagerDefinition.getParameters(),
-                    MinSpreadInDimensionsRestartManager
-                            .RandomManagerMinSpreadInDimensionsConfiguration.class));
+                    SmallestSpreadBelowThresholdRestartManager.SpreadThresholdConfiguration.class));
         }
         return null;
     }

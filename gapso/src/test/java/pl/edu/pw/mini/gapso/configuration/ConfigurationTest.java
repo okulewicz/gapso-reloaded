@@ -7,7 +7,7 @@ import pl.edu.pw.mini.gapso.initializer.SequenceInitializer;
 import pl.edu.pw.mini.gapso.optimizer.move.DEBest1Bin;
 import pl.edu.pw.mini.gapso.optimizer.move.LocalBestModel;
 import pl.edu.pw.mini.gapso.optimizer.move.Move;
-import pl.edu.pw.mini.gapso.optimizer.restart.MinSpreadInDimensionsRestartManager;
+import pl.edu.pw.mini.gapso.optimizer.restart.SmallestSpreadBelowThresholdRestartManager;
 
 public class ConfigurationTest {
     String JSONStringVer1 = "{\n" +
@@ -99,7 +99,7 @@ public class ConfigurationTest {
         Assert.assertEquals(LocalBestModel.class,
                 moves[1].getClass());
         Assert.assertNotNull(configuration.getRestartManager());
-        Assert.assertEquals(MinSpreadInDimensionsRestartManager.class,
+        Assert.assertEquals(SmallestSpreadBelowThresholdRestartManager.class,
                 configuration.getRestartManager().getClass());
         Assert.assertNotNull(configuration.getInitializer());
         Assert.assertEquals(
@@ -119,7 +119,7 @@ public class ConfigurationTest {
         Assert.assertEquals(DEBest1Bin.class,
                 moves[0].getClass());
         Assert.assertNotNull(configuration.getRestartManager());
-        Assert.assertEquals(MinSpreadInDimensionsRestartManager.class,
+        Assert.assertEquals(SmallestSpreadBelowThresholdRestartManager.class,
                 configuration.getRestartManager().getClass());
         Assert.assertNotNull(configuration.getInitializer());
         Assert.assertEquals(

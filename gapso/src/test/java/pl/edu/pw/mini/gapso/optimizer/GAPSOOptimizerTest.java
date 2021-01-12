@@ -8,7 +8,7 @@ import pl.edu.pw.mini.gapso.function.FunctionWhiteBox;
 import pl.edu.pw.mini.gapso.initializer.RandomInitializer;
 import pl.edu.pw.mini.gapso.optimizer.move.DEBest1Bin;
 import pl.edu.pw.mini.gapso.optimizer.move.Move;
-import pl.edu.pw.mini.gapso.optimizer.restart.MinSpreadInDimensionsRestartManager;
+import pl.edu.pw.mini.gapso.optimizer.restart.SmallestSpreadBelowThresholdRestartManager;
 import pl.edu.pw.mini.gapso.sample.Sample;
 
 public class GAPSOOptimizerTest {
@@ -16,7 +16,7 @@ public class GAPSOOptimizerTest {
     public static void optimizeWithMoves(Move[] moves) {
         GAPSOOptimizer optimizer = new GAPSOOptimizer(10, 1000,
                 moves, new RandomInitializer(),
-                new MinSpreadInDimensionsRestartManager(1e-8));
+                new SmallestSpreadBelowThresholdRestartManager(1e-8));
         FunctionWhiteBox function = new ConvexSquareFunction();
         Sample optimumEstimation = optimizer.optimize(function);
         Assert.assertNotNull(optimumEstimation);

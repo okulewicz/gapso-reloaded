@@ -5,16 +5,15 @@ import pl.edu.pw.mini.gapso.optimizer.Particle;
 import java.util.DoubleSummaryStatistics;
 import java.util.List;
 
-public class MinSpreadInDimensionsRestartManager extends RestartManager {
+public class SmallestSpreadBelowThresholdRestartManager extends ThresholdRestartManager {
     public final static String NAME = "MinSpreadInDimensions";
-    private final double _threshold;
 
-    public MinSpreadInDimensionsRestartManager(double threshold) {
-        _threshold = threshold;
+    public SmallestSpreadBelowThresholdRestartManager(double threshold) {
+        super(threshold);
     }
 
-    public MinSpreadInDimensionsRestartManager(RandomManagerMinSpreadInDimensionsConfiguration configuration) {
-        _threshold = configuration.getThreshold();
+    public SmallestSpreadBelowThresholdRestartManager(SpreadThresholdConfiguration configuration) {
+        super(configuration);
     }
 
     @Override
@@ -39,14 +38,5 @@ public class MinSpreadInDimensionsRestartManager extends RestartManager {
             }
         }
         return false;
-    }
-
-    public static class RandomManagerMinSpreadInDimensionsConfiguration {
-        @SuppressWarnings("unused")
-        private double threshold;
-
-        public double getThreshold() {
-            return threshold;
-        }
     }
 }
