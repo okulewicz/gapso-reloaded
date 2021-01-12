@@ -2,8 +2,7 @@ package pl.edu.pw.mini.gapso.configuration;
 
 import com.google.gson.Gson;
 import org.apache.commons.io.IOUtils;
-import pl.edu.pw.mini.gapso.generator.initializer.Initializer;
-import pl.edu.pw.mini.gapso.generator.initializer.RandomInitializer;
+import pl.edu.pw.mini.gapso.initializer.Initializer;
 import pl.edu.pw.mini.gapso.optimizer.move.Move;
 import pl.edu.pw.mini.gapso.optimizer.restart.MinSpreadInDimensionsRestartManager;
 import pl.edu.pw.mini.gapso.optimizer.restart.RestartManager;
@@ -78,10 +77,7 @@ public class Configuration {
     }
 
     public Initializer getInitializer() {
-        if (initializerDefinition.getName().equals(RandomInitializer.NAME)) {
-            return new RandomInitializer();
-        }
-        return null;
+        return initializerDefinition.getInitializer();
     }
 
     public RestartManager getRestartManager() {

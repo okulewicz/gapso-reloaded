@@ -5,7 +5,7 @@ import org.junit.Test;
 import pl.edu.pw.mini.gapso.configuration.MoveConfiguration;
 import pl.edu.pw.mini.gapso.function.ConvexSquareFunction;
 import pl.edu.pw.mini.gapso.function.FunctionWhiteBox;
-import pl.edu.pw.mini.gapso.generator.initializer.RandomInitializer;
+import pl.edu.pw.mini.gapso.initializer.RandomInitializer;
 import pl.edu.pw.mini.gapso.optimizer.move.DEBest1Bin;
 import pl.edu.pw.mini.gapso.optimizer.move.Move;
 import pl.edu.pw.mini.gapso.optimizer.restart.MinSpreadInDimensionsRestartManager;

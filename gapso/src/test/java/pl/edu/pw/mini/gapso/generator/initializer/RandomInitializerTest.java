@@ -4,6 +4,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import pl.edu.pw.mini.gapso.bounds.Bounds;
 import pl.edu.pw.mini.gapso.bounds.SimpleBounds;
+import pl.edu.pw.mini.gapso.initializer.Initializer;
+import pl.edu.pw.mini.gapso.initializer.RandomInitializer;
 
 public class RandomInitializerTest {
 

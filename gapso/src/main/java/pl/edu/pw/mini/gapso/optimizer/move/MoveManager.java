@@ -2,7 +2,7 @@ package pl.edu.pw.mini.gapso.optimizer.move;
 
 import org.apache.commons.math3.distribution.EnumeratedDistribution;
 import org.apache.commons.math3.util.Pair;
-import pl.edu.pw.mini.gapso.generator.Generator;
+import pl.edu.pw.mini.gapso.utils.Generator;
 
 import java.util.ArrayList;
 import java.util.Arrays;

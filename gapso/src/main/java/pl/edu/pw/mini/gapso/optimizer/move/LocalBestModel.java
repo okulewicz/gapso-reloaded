@@ -3,7 +3,7 @@ package pl.edu.pw.mini.gapso.optimizer.move;
 import pl.edu.pw.mini.gapso.bounds.Bounds;
 import pl.edu.pw.mini.gapso.bounds.SimpleBounds;
 import pl.edu.pw.mini.gapso.configuration.MoveConfiguration;
-import pl.edu.pw.mini.gapso.generator.initializer.RandomInitializer;
+import pl.edu.pw.mini.gapso.initializer.RandomInitializer;
 import pl.edu.pw.mini.gapso.model.FullSquareModel;
 import pl.edu.pw.mini.gapso.model.LinearModel;
 import pl.edu.pw.mini.gapso.model.Model;

@@ -2,8 +2,8 @@ package pl.edu.pw.mini.gapso.optimizer.move;
 
 import com.google.gson.Gson;
 import pl.edu.pw.mini.gapso.configuration.MoveConfiguration;
-import pl.edu.pw.mini.gapso.generator.Generator;
 import pl.edu.pw.mini.gapso.optimizer.Particle;
+import pl.edu.pw.mini.gapso.utils.Generator;
 
 import java.util.List;
 

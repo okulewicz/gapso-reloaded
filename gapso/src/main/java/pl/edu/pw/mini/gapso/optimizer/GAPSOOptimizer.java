@@ -2,7 +2,7 @@ package pl.edu.pw.mini.gapso.optimizer;
 
 import pl.edu.pw.mini.gapso.configuration.Configuration;
 import pl.edu.pw.mini.gapso.function.Function;
-import pl.edu.pw.mini.gapso.generator.initializer.Initializer;
+import pl.edu.pw.mini.gapso.initializer.Initializer;
 import pl.edu.pw.mini.gapso.optimizer.move.Move;
 import pl.edu.pw.mini.gapso.optimizer.move.MoveManager;
 import pl.edu.pw.mini.gapso.optimizer.restart.RestartManager;

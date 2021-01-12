@@ -1,8 +1,8 @@
-package pl.edu.pw.mini.gapso.generator.initializer;
+package pl.edu.pw.mini.gapso.initializer;
 
 import org.apache.commons.math3.distribution.UniformRealDistribution;
 import pl.edu.pw.mini.gapso.bounds.Bounds;
-import pl.edu.pw.mini.gapso.generator.Generator;
+import pl.edu.pw.mini.gapso.utils.Generator;
 
 public class RandomInitializer extends Initializer {
 
@@ -23,7 +23,7 @@ public class RandomInitializer extends Initializer {
     }
 
     @Override
-    protected boolean canSample() {
+    public boolean canSample() {
         return true;
     }
 }

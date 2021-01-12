@@ -3,7 +3,14 @@
   "particlesCountPerDimension": 10,
   "evaluationsBudgetPerDimension": 100,
   "initializerDefinition": {
-    "name": "Random"
+    "name": "Sequence",
+    "parameters": {
+      "initializers": [
+        {
+          "name": "Random"
+        }
+      ]
+    }
   },
   "restartManagerDefinition": {
     "name": "MinSpreadInDimensions",

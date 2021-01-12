@@ -5,6 +5,9 @@ import org.junit.Before;
 import org.junit.Test;
 import pl.edu.pw.mini.gapso.bounds.Bounds;
 import pl.edu.pw.mini.gapso.bounds.SimpleBounds;
+import pl.edu.pw.mini.gapso.initializer.Initializer;
+import pl.edu.pw.mini.gapso.initializer.RandomInitializer;
+import pl.edu.pw.mini.gapso.initializer.SequenceInitializer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +20,7 @@ public class SequenceInitializerTest {
     public void setupTestObjects() {
         bounds = new SimpleBounds(
                 new double[]{-1.0, -1.0},
-                new double[]{2.0, -2.0}
+                new double[]{2.0, 2.0}
         );
         randomInitializer = new RandomInitializer();
     }
