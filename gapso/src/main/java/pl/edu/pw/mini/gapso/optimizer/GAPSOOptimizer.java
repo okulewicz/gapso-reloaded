@@ -67,6 +67,7 @@ public class GAPSOOptimizer extends SamplingOptimizer {
                     particle.move(selectedMove);
                 }
                 if (_restartManager.shouldBeRestarted(particles)) {
+                    resetAfterOptimizationRestart();
                     break;
                 }
             }
@@ -79,8 +80,12 @@ public class GAPSOOptimizer extends SamplingOptimizer {
 
     private void resetAndConfigureBeforeOptimization() {
         samplers.clear();
-        _initializer.resetInitializer();
+        _initializer.resetInitializer(true);
         _initializer.registerObjectsWithOptimizer(this);
+    }
+
+    private void resetAfterOptimizationRestart() {
+        _initializer.resetInitializer(false);
     }
 
     private boolean isEnoughOptimizationBudgetLeftAndNeedsOptimization(Function function) {

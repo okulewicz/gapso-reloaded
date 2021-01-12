@@ -10,5 +10,5 @@ public abstract class Initializer {
 
     public abstract void registerObjectsWithOptimizer(SamplingOptimizer optimizer);
 
-    public abstract void resetInitializer();
+    public abstract void resetInitializer(boolean hardReset);
 }

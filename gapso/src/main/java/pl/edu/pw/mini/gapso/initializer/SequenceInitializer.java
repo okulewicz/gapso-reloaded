@@ -34,9 +34,9 @@ public class SequenceInitializer extends Initializer {
     }
 
     @Override
-    public void resetInitializer() {
+    public void resetInitializer(boolean hardReset) {
         for (Initializer initializer : _initializers) {
-            initializer.resetInitializer();
+            initializer.resetInitializer(hardReset);
         }
     }
 
