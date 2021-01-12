@@ -2,6 +2,7 @@ package pl.edu.pw.mini.gapso.configuration;
 
 import com.google.gson.JsonElement;
 import pl.edu.pw.mini.gapso.initializer.Initializer;
+import pl.edu.pw.mini.gapso.initializer.ModelInitializer;
 import pl.edu.pw.mini.gapso.initializer.RandomInitializer;
 import pl.edu.pw.mini.gapso.initializer.SequenceInitializer;
 
@@ -23,6 +24,9 @@ public class InitializerConfiguration {
     public Initializer getInitializer() {
         if (getName().equals(RandomInitializer.NAME)) {
             return new RandomInitializer();
+        }
+        if (getName().equals(ModelInitializer.NAME)) {
+            return new ModelInitializer();
         }
         if (getName().equals(SequenceInitializer.NAME)) {
             return new SequenceInitializer(this);

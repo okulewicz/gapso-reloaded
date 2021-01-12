@@ -50,6 +50,9 @@ public class ConfigurationTest {
             "    \"parameters\": {\n" +
             "      \"initializers\": [\n" +
             "        {\n" +
+            "          \"name\": \"Model\"\n" +
+            "        },\n" +
+            "        {\n" +
             "          \"name\": \"Random\"\n" +
             "        }\n" +
             "      ]\n" +

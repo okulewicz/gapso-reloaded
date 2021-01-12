@@ -2,6 +2,7 @@ package pl.edu.pw.mini.gapso.initializer;
 
 import org.apache.commons.math3.distribution.UniformRealDistribution;
 import pl.edu.pw.mini.gapso.bounds.Bounds;
+import pl.edu.pw.mini.gapso.optimizer.GAPSOOptimizer;
 import pl.edu.pw.mini.gapso.utils.Generator;
 
 public class RandomInitializer extends Initializer {
@@ -25,5 +26,15 @@ public class RandomInitializer extends Initializer {
     @Override
     public boolean canSample() {
         return true;
+    }
+
+    @Override
+    public void registerObjectsWithOptimizer(GAPSOOptimizer optimizer) {
+        //NOTHING TO DO HERE
+    }
+
+    @Override
+    public void resetInitializer() {
+        //NOTHING TO DO HERE
     }
 }
