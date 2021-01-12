@@ -1,6 +1,5 @@
 package pl.edu.pw.mini.gapso.optimizer;
 
-import pl.edu.pw.mini.gapso.bounds.Bounds;
 import pl.edu.pw.mini.gapso.configuration.Configuration;
 import pl.edu.pw.mini.gapso.function.Function;
 import pl.edu.pw.mini.gapso.initializer.Initializer;
@@ -9,14 +8,13 @@ import pl.edu.pw.mini.gapso.optimizer.move.MoveManager;
 import pl.edu.pw.mini.gapso.optimizer.restart.RestartManager;
 import pl.edu.pw.mini.gapso.sample.Sample;
 import pl.edu.pw.mini.gapso.sample.Sampler;
-import pl.edu.pw.mini.gapso.sample.SingleSample;
 import pl.edu.pw.mini.gapso.sample.UpdatableSample;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class GAPSOOptimizer extends Optimizer {
+public class GAPSOOptimizer extends SamplingOptimizer {
     private final List<Sampler> samplers = new ArrayList<>();
 
     private final int _particlesCountPerDimension;
@@ -25,6 +23,7 @@ public class GAPSOOptimizer extends Optimizer {
     private final Initializer _initializer;
     private final RestartManager _restartManager;
 
+    @Override
     public void registerSampler(Sampler sampler) {
         samplers.add(sampler);
     }
@@ -48,7 +47,7 @@ public class GAPSOOptimizer extends Optimizer {
     @Override
     public Sample optimize(Function function) {
         resetAndConfigureBeforeOptimization();
-        Function functionWrapper = new FunctionSamplingWrapper(function, samplers);
+        Function functionWrapper = createSamplingWrapper(function, samplers);
         UpdatableSample totalGlobalBest = UpdatableSample.generateInitialSample(functionWrapper.getDimension());
         MoveManager moveManager = new MoveManager(_availableMoves);
         while (isEnoughOptimizationBudgetLeftAndNeedsOptimization(functionWrapper)) {
@@ -56,6 +55,7 @@ public class GAPSOOptimizer extends Optimizer {
             Particle.IndexContainer indexContainer = new Particle.IndexContainer();
             List<Particle> particles = new ArrayList<>();
             for (int i = 0; i < _particlesCountPerDimension * functionWrapper.getDimension(); ++i) {
+                assert _initializer.canSample();
                 double[] initialLocation = _initializer.getNextSample(functionWrapper.getBounds());
                 new Particle(initialLocation, functionWrapper, globalBest, indexContainer, particles);
             }
@@ -81,41 +81,6 @@ public class GAPSOOptimizer extends Optimizer {
         samplers.clear();
         _initializer.resetInitializer();
         _initializer.registerObjectsWithOptimizer(this);
-    }
-
-    private static class FunctionSamplingWrapper extends Function {
-        private final Function _function;
-        private final List<Sampler> _samplers;
-
-        FunctionSamplingWrapper(Function function, List<Sampler> samplers) {
-            _samplers = samplers;
-            _function = function;
-        }
-
-        @Override
-        protected double computeValue(double[] x) {
-            double y = _function.getValue(x);
-            Sample s = new SingleSample(x, y);
-            for (Sampler sampler : _samplers) {
-                sampler.tryStoreSample(s);
-            }
-            return y;
-        }
-
-        @Override
-        public boolean isTargetReached() {
-            return _function.isTargetReached();
-        }
-
-        @Override
-        public int getDimension() {
-            return _function.getDimension();
-        }
-
-        @Override
-        public Bounds getBounds() {
-            return _function.getBounds();
-        }
     }
 
     private boolean isEnoughOptimizationBudgetLeftAndNeedsOptimization(Function function) {

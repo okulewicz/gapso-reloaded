@@ -5,15 +5,13 @@ import pl.edu.pw.mini.gapso.model.FullSquareModel;
 import pl.edu.pw.mini.gapso.model.LinearModel;
 import pl.edu.pw.mini.gapso.model.Model;
 import pl.edu.pw.mini.gapso.model.SimpleSquareModel;
-import pl.edu.pw.mini.gapso.optimizer.GAPSOOptimizer;
+import pl.edu.pw.mini.gapso.optimizer.SamplingOptimizer;
 import pl.edu.pw.mini.gapso.sample.AllSamplesSampler;
 import pl.edu.pw.mini.gapso.sample.Sample;
 
 import java.util.ArrayList;
 import java.util.List;
 
-//TODO: needs to be tested
-//TODO: tests should include verification if initializer starts from nothing next time
 public class ModelInitializer extends Initializer {
     public static final String NAME = "Model";
     private ArrayList<Model> modelSequence;
@@ -64,7 +62,7 @@ public class ModelInitializer extends Initializer {
     }
 
     @Override
-    public void registerObjectsWithOptimizer(GAPSOOptimizer optimizer) {
+    public void registerObjectsWithOptimizer(SamplingOptimizer optimizer) {
         optimizer.registerSampler(sampler);
     }
 

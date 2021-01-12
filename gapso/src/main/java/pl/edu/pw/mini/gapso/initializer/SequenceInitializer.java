@@ -2,7 +2,7 @@ package pl.edu.pw.mini.gapso.initializer;
 
 import pl.edu.pw.mini.gapso.bounds.Bounds;
 import pl.edu.pw.mini.gapso.configuration.InitializerConfiguration;
-import pl.edu.pw.mini.gapso.optimizer.GAPSOOptimizer;
+import pl.edu.pw.mini.gapso.optimizer.SamplingOptimizer;
 import pl.edu.pw.mini.gapso.utils.Util;
 
 import java.util.List;
@@ -27,7 +27,7 @@ public class SequenceInitializer extends Initializer {
     }
 
     @Override
-    public void registerObjectsWithOptimizer(GAPSOOptimizer optimizer) {
+    public void registerObjectsWithOptimizer(SamplingOptimizer optimizer) {
         for (Initializer initializer : _initializers) {
             initializer.registerObjectsWithOptimizer(optimizer);
         }
