@@ -1,7 +1,7 @@
 package pl.edu.pw.mini.gapso.optimizer.restart;
 
 import org.junit.Assert;
-import pl.edu.pw.mini.gapso.function.FunctionWhiteBox;
+import pl.edu.pw.mini.gapso.function.Function;
 import pl.edu.pw.mini.gapso.optimizer.Particle;
 import pl.edu.pw.mini.gapso.sample.UpdatableSample;
 
@@ -19,7 +19,7 @@ public class RestartScheme {
             {BORDERLINE_CASE_THRESHOLD * 10, 4.0}
     };
 
-    public static void ValidateRestartManagerAgainstRestartsScheme(FunctionWhiteBox function, UpdatableSample globalBest, double[][] samples, boolean[] restarts, RestartManager observer) {
+    public static void ValidateRestartManagerAgainstRestartsScheme(Function function, UpdatableSample globalBest, double[][] samples, boolean[] restarts, RestartManager observer) {
         Particle.IndexContainer globalBestIndexContainer = new Particle.IndexContainer();
         List<Particle> particles = new ArrayList<>();
         Assert.assertTrue(observer.shouldBeRestarted(particles));
