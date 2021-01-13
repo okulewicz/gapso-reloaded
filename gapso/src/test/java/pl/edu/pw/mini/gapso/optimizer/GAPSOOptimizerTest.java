@@ -14,7 +14,7 @@ import pl.edu.pw.mini.gapso.sample.Sample;
 public class GAPSOOptimizerTest {
 
     public static void optimizeWithMoves(Move[] moves) {
-        GAPSOOptimizer optimizer = new GAPSOOptimizer(10, 1000,
+        GAPSOOptimizer optimizer = new GAPSOOptimizer(10, 1000, false,
                 moves, new RandomInitializer(),
                 new SmallestSpreadBelowThresholdRestartManager(1e-8));
         FunctionWhiteBox function = new ConvexSquareFunction();

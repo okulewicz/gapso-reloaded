@@ -27,6 +27,7 @@ public class Configuration {
     private InitializerConfiguration initializerDefinition;
     @SuppressWarnings({"unused", "MismatchedReadAndWriteOfArray"})
     private MoveConfiguration[] moveDefinition;
+    private boolean splitBounds;
 
     public int getEvaluationsBudgetPerDimension() {
         return evaluationsBudgetPerDimension;
@@ -81,5 +82,13 @@ public class Configuration {
 
     public RestartManager getRestartManager() {
         return restartManagerDefinition.getManager();
+    }
+
+    public boolean isSplitBounds() {
+        return splitBounds;
+    }
+
+    public void setSplitBounds(boolean splitBounds) {
+        this.splitBounds = splitBounds;
     }
 }

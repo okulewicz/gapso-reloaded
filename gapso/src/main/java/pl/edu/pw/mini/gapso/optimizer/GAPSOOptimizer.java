@@ -1,5 +1,6 @@
 package pl.edu.pw.mini.gapso.optimizer;
 
+import pl.edu.pw.mini.gapso.bounds.SplittableBounds;
 import pl.edu.pw.mini.gapso.configuration.Configuration;
 import pl.edu.pw.mini.gapso.function.Function;
 import pl.edu.pw.mini.gapso.initializer.Initializer;
@@ -22,15 +23,17 @@ public class GAPSOOptimizer extends SamplingOptimizer {
     private final Move[] _availableMoves;
     private final Initializer _initializer;
     private final RestartManager _restartManager;
+    private final boolean _splitBounds;
 
     @Override
     public void registerSampler(Sampler sampler) {
         samplers.add(sampler);
     }
 
-    public GAPSOOptimizer(int particlesCount, int evaluationsBudget, Move[] availableMoves, Initializer initializer, RestartManager restartManager) {
+    public GAPSOOptimizer(int particlesCount, int evaluationsBudget, boolean splitBounds, Move[] availableMoves, Initializer initializer, RestartManager restartManager) {
         _particlesCountPerDimension = particlesCount;
         _evaluationsBudgetPerDimension = evaluationsBudget;
+        _splitBounds = splitBounds;
         _availableMoves = availableMoves;
         _initializer = initializer;
         _restartManager = restartManager;
@@ -39,6 +42,7 @@ public class GAPSOOptimizer extends SamplingOptimizer {
     public GAPSOOptimizer() {
         this(Configuration.getInstance().getParticlesCountPerDimension(),
                 Configuration.getInstance().getEvaluationsBudgetPerDimension(),
+                Configuration.getInstance().isSplitBounds(),
                 Configuration.getInstance().getMoves(),
                 Configuration.getInstance().getInitializer(),
                 Configuration.getInstance().getRestartManager());
@@ -47,10 +51,11 @@ public class GAPSOOptimizer extends SamplingOptimizer {
     @Override
     public Sample optimize(Function function) {
         resetAndConfigureBeforeOptimization();
-        Function functionWrapper = createSamplingWrapper(function, samplers);
-        UpdatableSample totalGlobalBest = UpdatableSample.generateInitialSample(functionWrapper.getDimension());
+        UpdatableSample totalGlobalBest = UpdatableSample.generateInitialSample(function.getDimension());
         MoveManager moveManager = new MoveManager(_availableMoves);
-        while (isEnoughOptimizationBudgetLeftAndNeedsOptimization(functionWrapper)) {
+        SplittableBounds bounds = new SplittableBounds(function.getBounds());
+        while (isEnoughOptimizationBudgetLeftAndNeedsOptimization(function)) {
+            Function functionWrapper = createSamplingWrapper(function, samplers, bounds);
             UpdatableSample globalBest = UpdatableSample.generateInitialSample(functionWrapper.getDimension());
             Particle.IndexContainer indexContainer = new Particle.IndexContainer();
             List<Particle> particles = new ArrayList<>();
@@ -59,7 +64,7 @@ public class GAPSOOptimizer extends SamplingOptimizer {
                 double[] initialLocation = _initializer.getNextSample(functionWrapper.getBounds());
                 new Particle(initialLocation, functionWrapper, globalBest, indexContainer, particles);
             }
-            while (isEnoughOptimizationBudgetLeftAndNeedsOptimization(functionWrapper)) {
+            while (isEnoughOptimizationBudgetLeftAndNeedsOptimization(function)) {
                 List<Move> moves = moveManager.generateMoveSequence(particles.size());
                 Iterator<Move> movesIterator = moves.iterator();
                 for (Particle particle : particles) {
@@ -67,15 +72,28 @@ public class GAPSOOptimizer extends SamplingOptimizer {
                     particle.move(selectedMove);
                 }
                 if (_restartManager.shouldBeRestarted(particles)) {
+                    if (_splitBounds) {
+                        if (bounds.areBoundsTooThinToSplit()) {
+                            bounds = new SplittableBounds(function.getBounds());
+                        } else {
+                            List<SplittableBounds> newBoundsList = bounds.Split(globalBest.getX());
+                            bounds = newBoundsList.get(1);
+                        }
+                    }
                     resetAfterOptimizationRestart();
+                    tryUpdateTotalGlobalBest(totalGlobalBest, globalBest);
                     break;
                 }
             }
-            if (totalGlobalBest.getY() > globalBest.getY()) {
-                totalGlobalBest.updateSample(globalBest);
-            }
+            tryUpdateTotalGlobalBest(totalGlobalBest, globalBest);
         }
         return totalGlobalBest;
+    }
+
+    private void tryUpdateTotalGlobalBest(UpdatableSample totalGlobalBest, UpdatableSample globalBest) {
+        if (totalGlobalBest.getY() > globalBest.getY()) {
+            totalGlobalBest.updateSample(globalBest);
+        }
     }
 
     private void resetAndConfigureBeforeOptimization() {

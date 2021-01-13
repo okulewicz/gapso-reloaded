@@ -8,6 +8,7 @@ Generalized Adaptive Particle Swarm Optimization
   "seed": 1,
   "particlesCountPerDimension": 10,
   "evaluationsBudgetPerDimension": 100000,
+  "splitBounds": false,
   "initializerDefinition": {},
   "restartManagerDefinition": {},
   "moveDefinition": []
