@@ -73,6 +73,7 @@ public class GAPSOOptimizer extends SamplingOptimizer {
                 }
                 if (_restartManager.shouldBeRestarted(particles)) {
                     if (_splitBounds) {
+                        //TODO in a need of a manager observing process and values (and model fitness) - check peeks function for guidance
                         if (bounds.areBoundsTooThinToSplit()) {
                             bounds = new SplittableBounds(function.getBounds());
                         } else {
