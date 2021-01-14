@@ -35,6 +35,7 @@ public class BoundsManagerTest {
             samplingOptimizer.optimize(rastrigin);
             Bounds bounds = boundsManager.getBounds();
             Assert.assertTrue("Failed for dim = " + dimension, bounds.contain(optimum));
+            Assert.assertTrue("Model not utilized for dim = " + dimension, boundsManager.isModelUtilized());
         }
     }
 
@@ -53,7 +54,7 @@ public class BoundsManagerTest {
             double[] someSampleLocation = randomInitialize.getNextSample(function.getBounds());
             Sample someSample = new SingleSample(someSampleLocation, function.getValue(someSampleLocation));
             UpdatableSample bestSample = new UpdatableSample(someSample);
-            for (int i = 0; i < 20 * function.getDimension() * function.getDimension(); ++i) {
+            for (int i = 0; i < 120 * function.getDimension() * function.getDimension(); ++i) {
                 someSampleLocation = randomInitialize.getNextSample(function.getBounds());
                 someSample = new SingleSample(someSampleLocation, function.getValue(someSampleLocation));
                 if (bestSample.getY() > someSample.getY()) {

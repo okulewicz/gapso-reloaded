@@ -24,7 +24,7 @@ public class RastriginFunction extends FunctionWhiteBox {
             double mean = (upper[i] + lower[i]) / 2.0;
             _optimum[i] = Generator.RANDOM.nextDouble() * spread / 2.0
                     + mean - spread / 4.0;
-            _scale[i] = Generator.RANDOM.nextDouble() * 0.5 + 0.5;
+            _scale[i] = 0.5 + Generator.RANDOM.nextDouble() * 5.0;
         }
         _bounds = new SimpleBounds(lower, upper);
 

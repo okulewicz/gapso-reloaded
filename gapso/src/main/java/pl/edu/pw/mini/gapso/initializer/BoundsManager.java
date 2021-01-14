@@ -5,6 +5,7 @@ import pl.edu.pw.mini.gapso.bounds.SimpleBounds;
 import pl.edu.pw.mini.gapso.bounds.SplittableBounds;
 import pl.edu.pw.mini.gapso.model.FullSquareModel;
 import pl.edu.pw.mini.gapso.model.Model;
+import pl.edu.pw.mini.gapso.model.SimpleSquareModel;
 import pl.edu.pw.mini.gapso.optimizer.SamplingOptimizer;
 import pl.edu.pw.mini.gapso.sample.AllSamplesSampler;
 import pl.edu.pw.mini.gapso.sample.Sample;
@@ -14,9 +15,11 @@ import java.util.List;
 
 public class BoundsManager {
     public static final double SPREAD_FACTOR = 0.1;
+    public static final int SAFETY_MULTIPLIER = 20;
     private Bounds initialBounds;
     private SplittableBounds bounds;
     private AllSamplesSampler sampler;
+    private boolean modelUtilized;
 
     public void resetManager() {
         bounds = new SplittableBounds(initialBounds);
@@ -36,42 +39,63 @@ public class BoundsManager {
     public Bounds getBounds() {
         assert initialBounds != null;
 
-        Model functionModel = new FullSquareModel();
-
-        final int minSamplesCount = 5 * functionModel.getMinSamplesCount(initialBounds.getLower().length);
-        if (sampler.getSamplesCount() > 2 * minSamplesCount) {
-            List<Sample> samplesForModel = sampler.getSamples(minSamplesCount);
+        final int samplesForFullModel = 2 * SAFETY_MULTIPLIER * new FullSquareModel().getMinSamplesCount(initialBounds.getLower().length);
+        final int samplesForSimpleModel = 2 * SAFETY_MULTIPLIER * new SimpleSquareModel().getMinSamplesCount(initialBounds.getLower().length);
+        final boolean fullModelSatisfied = samplesForFullModel < sampler.getSamplesCount();
+        final boolean simpleModelSatisfied = samplesForSimpleModel < sampler.getSamplesCount();
+        Model functionModel;
+        if (fullModelSatisfied)
+            functionModel = new FullSquareModel();
+        else if (simpleModelSatisfied) {
+            functionModel = new SimpleSquareModel();
+        } else {
+            modelUtilized = false;
+            return initialBounds;
+        }
+        final int samplesForModeling = SAFETY_MULTIPLIER * functionModel.getMinSamplesCount(initialBounds.getLower().length);
+        if (sampler.getSamplesCount() > 2 * samplesForModeling) {
+            List<Sample> samplesForModel = sampler.getSamples(samplesForModeling);
             double[] boundsCenter = functionModel.getOptimumLocation(samplesForModel, SimpleBounds.createBoundsFromSamples(samplesForModel));
             double[] lower = Arrays.copyOf(boundsCenter, boundsCenter.length);
             double[] upper = Arrays.copyOf(boundsCenter, boundsCenter.length);
-            for (int j = 0; j < 100; ++j) {
+            for (int j = 0; j < 10; ++j) {
+                samplesForModel = sampler.getSamples(samplesForModeling);
                 boundsCenter = functionModel.getOptimumLocation(samplesForModel, SimpleBounds.createBoundsFromSamples(samplesForModel));
-                for (int i = 0; i < boundsCenter.length; ++i) {
-                    lower[i] = Math.min(boundsCenter[i], lower[i]);
-                    upper[i] = Math.max(boundsCenter[i], upper[i]);
+                if (functionModel.getrSquared() > 0.9) {
+                    for (int i = 0; i < boundsCenter.length; ++i) {
+                        lower[i] = Math.min(boundsCenter[i], lower[i]);
+                        upper[i] = Math.max(boundsCenter[i], upper[i]);
+                    }
                 }
             }
 
-            if (functionModel.getrSquared() > 0.9) {
-                for (int i = 0; i < boundsCenter.length; ++i) {
-                    double spread = (initialBounds.getUpper()[i] - initialBounds.getLower()[i]) * SPREAD_FACTOR;
-                    lower[i] = Math.max(initialBounds.getLower()[i], lower[i] - spread / 2.0);
-                    upper[i] = Math.min(initialBounds.getUpper()[i], upper[i] + spread / 2.0);
-                }
-                return new SplittableBounds(
-                        new SimpleBounds(
-                                lower,
-                                upper
-                        )
-                );
-            }
+            createSpreadForLowerAndUpperBounds(lower, upper);
+            modelUtilized = true;
+            return new SplittableBounds(
+                    new SimpleBounds(
+                            lower,
+                            upper
+                    )
+            );
         }
-
+        modelUtilized = false;
         return initialBounds;
+    }
+
+    private void createSpreadForLowerAndUpperBounds(double[] lower, double[] upper) {
+        for (int i = 0; i < lower.length; ++i) {
+            double spread = (initialBounds.getUpper()[i] - initialBounds.getLower()[i]) * SPREAD_FACTOR;
+            lower[i] = Math.max(initialBounds.getLower()[i], lower[i] - spread / 2.0);
+            upper[i] = Math.min(initialBounds.getUpper()[i], upper[i] + spread / 2.0);
+        }
     }
 
     public void registerOptimumLocation(Sample sample) {
 
+    }
+
+    public boolean isModelUtilized() {
+        return modelUtilized;
     }
 
 
