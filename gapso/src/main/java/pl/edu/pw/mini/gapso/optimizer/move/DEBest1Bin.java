@@ -3,6 +3,7 @@ package pl.edu.pw.mini.gapso.optimizer.move;
 import com.google.gson.Gson;
 import pl.edu.pw.mini.gapso.configuration.MoveConfiguration;
 import pl.edu.pw.mini.gapso.optimizer.Particle;
+import pl.edu.pw.mini.gapso.optimizer.SamplingOptimizer;
 import pl.edu.pw.mini.gapso.utils.Generator;
 
 import java.util.List;
@@ -67,6 +68,16 @@ public class DEBest1Bin extends Move {
                 particleList.get(randomIndex2).getBest().getX(),
                 scale,
                 crossProb);
+    }
+
+    @Override
+    public void registerObjectsWithOptimizer(SamplingOptimizer samplingOptimizer) {
+        //DO NOTHING ON PURPOSE
+    }
+
+    @Override
+    public void resetState() {
+        //DO NOTHING ON PURPOSE
     }
 
     private double getValue(double parameter, boolean constantParameter) {

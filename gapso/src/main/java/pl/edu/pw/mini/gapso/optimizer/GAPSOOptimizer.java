@@ -57,6 +57,7 @@ public class GAPSOOptimizer extends SamplingOptimizer {
         totalGlobalBest = UpdatableSample.generateInitialSample(function.getDimension());
         _boundsManager.setInitialBounds(function.getBounds());
         resetAndConfigureBeforeOptimization();
+        bounds = function.getBounds();
         while (isEnoughOptimizationBudgetLeftAndNeedsOptimization(function)) {
             Function functionWrapper = createSamplingWrapper(function, samplers, bounds);
             UpdatableSample globalBest = UpdatableSample.generateInitialSample(functionWrapper.getDimension());
@@ -99,7 +100,11 @@ public class GAPSOOptimizer extends SamplingOptimizer {
         _initializer.registerObjectsWithOptimizer(this);
         _boundsManager.resetManager();
         _boundsManager.registerObjectsWithOptimizer(this);
-        bounds = _boundsManager.getBounds();
+        for (Move move : _availableMoves) {
+            move.resetState();
+            move.registerObjectsWithOptimizer(this);
+        }
+        //bounds = _boundsManager.getBounds();
         moveManager = new MoveManager(_availableMoves);
     }
 
@@ -108,7 +113,7 @@ public class GAPSOOptimizer extends SamplingOptimizer {
         samplers.clear();
         _initializer.resetInitializer(true);
         _initializer.registerObjectsWithOptimizer(this);
-        bounds = _boundsManager.getBounds();
+        //bounds = _boundsManager.getBounds();
     }
 
     private boolean isEnoughOptimizationBudgetLeftAndNeedsOptimization(Function function) {
