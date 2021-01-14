@@ -1,8 +1,9 @@
 package pl.edu.pw.mini.gapso.optimizer;
 
-import pl.edu.pw.mini.gapso.bounds.SplittableBounds;
+import pl.edu.pw.mini.gapso.bounds.Bounds;
 import pl.edu.pw.mini.gapso.configuration.Configuration;
 import pl.edu.pw.mini.gapso.function.Function;
+import pl.edu.pw.mini.gapso.initializer.BoundsManager;
 import pl.edu.pw.mini.gapso.initializer.Initializer;
 import pl.edu.pw.mini.gapso.optimizer.move.Move;
 import pl.edu.pw.mini.gapso.optimizer.move.MoveManager;
@@ -23,37 +24,39 @@ public class GAPSOOptimizer extends SamplingOptimizer {
     private final Move[] _availableMoves;
     private final Initializer _initializer;
     private final RestartManager _restartManager;
-    private final boolean _splitBounds;
+    private final BoundsManager _boundsManager;
+    private UpdatableSample totalGlobalBest;
+    private MoveManager moveManager;
+    private Bounds bounds;
 
     @Override
     public void registerSampler(Sampler sampler) {
         samplers.add(sampler);
     }
 
-    public GAPSOOptimizer(int particlesCount, int evaluationsBudget, boolean splitBounds, Move[] availableMoves, Initializer initializer, RestartManager restartManager) {
+    public GAPSOOptimizer(int particlesCount, int evaluationsBudget, Move[] availableMoves, Initializer initializer, RestartManager restartManager, BoundsManager boundsManager) {
         _particlesCountPerDimension = particlesCount;
         _evaluationsBudgetPerDimension = evaluationsBudget;
-        _splitBounds = splitBounds;
         _availableMoves = availableMoves;
         _initializer = initializer;
         _restartManager = restartManager;
+        _boundsManager = boundsManager;
     }
 
     public GAPSOOptimizer() {
         this(Configuration.getInstance().getParticlesCountPerDimension(),
                 Configuration.getInstance().getEvaluationsBudgetPerDimension(),
-                Configuration.getInstance().isSplitBounds(),
                 Configuration.getInstance().getMoves(),
                 Configuration.getInstance().getInitializer(),
-                Configuration.getInstance().getRestartManager());
+                Configuration.getInstance().getRestartManager(),
+                Configuration.getInstance().getBoundsManager());
     }
 
     @Override
     public Sample optimize(Function function) {
+        totalGlobalBest = UpdatableSample.generateInitialSample(function.getDimension());
+        _boundsManager.setInitialBounds(function.getBounds());
         resetAndConfigureBeforeOptimization();
-        UpdatableSample totalGlobalBest = UpdatableSample.generateInitialSample(function.getDimension());
-        MoveManager moveManager = new MoveManager(_availableMoves);
-        SplittableBounds bounds = new SplittableBounds(function.getBounds());
         while (isEnoughOptimizationBudgetLeftAndNeedsOptimization(function)) {
             Function functionWrapper = createSamplingWrapper(function, samplers, bounds);
             UpdatableSample globalBest = UpdatableSample.generateInitialSample(functionWrapper.getDimension());
@@ -72,17 +75,9 @@ public class GAPSOOptimizer extends SamplingOptimizer {
                     particle.move(selectedMove);
                 }
                 if (_restartManager.shouldBeRestarted(particles)) {
-                    if (_splitBounds) {
-                        //TODO in a need of a manager observing process and values (and model fitness) - check peeks function for guidance
-                        if (bounds.areBoundsTooThinToSplit()) {
-                            bounds = new SplittableBounds(function.getBounds());
-                        } else {
-                            List<SplittableBounds> newBoundsList = bounds.Split(globalBest.getX());
-                            bounds = newBoundsList.get(1);
-                        }
-                    }
-                    resetAfterOptimizationRestart();
+                    _boundsManager.registerOptimumLocation(globalBest);
                     tryUpdateTotalGlobalBest(totalGlobalBest, globalBest);
+                    resetAfterOptimizationRestart();
                     break;
                 }
             }
@@ -102,6 +97,10 @@ public class GAPSOOptimizer extends SamplingOptimizer {
         samplers.clear();
         _initializer.resetInitializer(true);
         _initializer.registerObjectsWithOptimizer(this);
+        _boundsManager.resetManager();
+        _boundsManager.registerObjectsWithOptimizer(this);
+        bounds = _boundsManager.getBounds();
+        moveManager = new MoveManager(_availableMoves);
     }
 
     private void resetAfterOptimizationRestart() {
@@ -109,6 +108,7 @@ public class GAPSOOptimizer extends SamplingOptimizer {
         samplers.clear();
         _initializer.resetInitializer(true);
         _initializer.registerObjectsWithOptimizer(this);
+        bounds = _boundsManager.getBounds();
     }
 
     private boolean isEnoughOptimizationBudgetLeftAndNeedsOptimization(Function function) {
