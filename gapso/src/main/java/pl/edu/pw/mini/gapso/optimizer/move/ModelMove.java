@@ -13,9 +13,8 @@ import pl.edu.pw.mini.gapso.sample.OptimalClusters;
 import pl.edu.pw.mini.gapso.sample.Sample;
 import pl.edu.pw.mini.gapso.utils.Util;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class ModelMove extends Move {
     protected final Map<Model, Integer> modelSequenceWithFreq;
@@ -67,7 +66,11 @@ public abstract class ModelMove extends Move {
         }
         Bounds bounds = SimpleBounds.createBoundsFromSamples(samples);
         double[] returnSample = null;
-        for (Model model : modelSequenceWithFreq.keySet()) {
+        final List<Model> models = modelSequenceWithFreq.keySet().stream().sorted(
+                Comparator.comparingInt(m -> m.getMinSamplesCount(dimension)))
+                .collect(Collectors.toList());
+        Collections.reverse(models);
+        for (Model model : models) {
             final int minSamplesCount = model.getMinSamplesCount(dimension);
             final Integer frequency = modelSequenceWithFreq.get(model);
             if (samples.size() >= minSamplesCount && currentUseCounter % frequency == 0) {

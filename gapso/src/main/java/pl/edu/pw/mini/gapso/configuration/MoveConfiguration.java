@@ -2,10 +2,7 @@ package pl.edu.pw.mini.gapso.configuration;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import pl.edu.pw.mini.gapso.optimizer.move.DEBest1Bin;
-import pl.edu.pw.mini.gapso.optimizer.move.GlobalModel;
-import pl.edu.pw.mini.gapso.optimizer.move.LocalBestModel;
-import pl.edu.pw.mini.gapso.optimizer.move.Move;
+import pl.edu.pw.mini.gapso.optimizer.move.*;
 
 public class MoveConfiguration {
 
@@ -65,6 +62,9 @@ public class MoveConfiguration {
         }
         if (getName().equals(GlobalModel.NAME)) {
             return new GlobalModel(this);
+        }
+        if (getName().equals(NearestSamplesModel.NAME)) {
+            return new NearestSamplesModel(this);
         }
         throw new IllegalArgumentException("Unknown move " + getName());
     }
