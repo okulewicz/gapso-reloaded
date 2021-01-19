@@ -3,7 +3,9 @@ package pl.edu.pw.mini.gapso.optimizer.move;
 import org.junit.Assert;
 import org.junit.Test;
 import pl.edu.pw.mini.gapso.configuration.MoveConfiguration;
+import pl.edu.pw.mini.gapso.model.SimpleSquareModel;
 import pl.edu.pw.mini.gapso.optimizer.GAPSOOptimizerTest;
+import pl.edu.pw.mini.gapso.optimizer.move.ModelMove.ModelParameters;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -15,11 +17,19 @@ public class MoveManagerTest {
     @Test
     public void generateMoveSequence() {
         final int expectedLBM = 2;
+        List<ModelParameters> parameters = new ArrayList<>();
+        parameters.add(new ModelParameters(
+                SimpleSquareModel.NAME,
+                1
+        ));
         MoveConfiguration moveConfigurationModel = new MoveConfiguration(
                 LocalBestModel.NAME,
                 0.0,
                 expectedLBM,
-                false
+                false,
+                new ModelMove.ModelSequenceParameters(
+                        parameters
+                )
         );
         final int expectedMinDE = 1;
         MoveConfiguration moveConfigurationDE = new MoveConfiguration(

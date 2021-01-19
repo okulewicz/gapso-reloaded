@@ -1,9 +1,6 @@
 package pl.edu.pw.mini.gapso.optimizer.move;
 
 import pl.edu.pw.mini.gapso.configuration.MoveConfiguration;
-import pl.edu.pw.mini.gapso.model.FullSquareModel;
-import pl.edu.pw.mini.gapso.model.LinearModel;
-import pl.edu.pw.mini.gapso.model.SimpleSquareModel;
 import pl.edu.pw.mini.gapso.optimizer.Particle;
 import pl.edu.pw.mini.gapso.optimizer.SamplingOptimizer;
 import pl.edu.pw.mini.gapso.sample.Sample;
@@ -16,9 +13,6 @@ public class LocalBestModel extends ModelMove {
 
     public LocalBestModel(MoveConfiguration configuration) {
         super(configuration);
-        modelSequence.add(new FullSquareModel());
-        modelSequence.add(new SimpleSquareModel());
-        modelSequence.add(new LinearModel());
     }
 
     @Override
