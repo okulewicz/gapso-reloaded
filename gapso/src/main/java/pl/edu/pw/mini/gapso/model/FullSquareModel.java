@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 
 public class FullSquareModel extends Model {
+    public static final String NAME = "FullSquare";
+
     @Override
     protected double[] computeLinearModelOptimum(OLSMultipleLinearRegression olslm, Bounds bounds, int dim) {
         double[] ba = olslm.estimateRegressionParameters();

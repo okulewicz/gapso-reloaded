@@ -8,6 +8,8 @@ import pl.edu.pw.mini.gapso.sample.Sample;
 import java.util.List;
 
 public abstract class Model {
+    private double rSquared;
+
     public double[] getOptimumLocation(List<Sample> samples, Bounds bounds) {
         if (samples == null || samples.isEmpty())
             return null;
@@ -17,7 +19,9 @@ public abstract class Model {
         OLSMultipleLinearRegression olslm = putDataIntoModel(samples, dim);
 
         try {
-            return computeLinearModelOptimum(olslm, bounds, dim);
+            double[] result = computeLinearModelOptimum(olslm, bounds, dim);
+            rSquared = olslm.calculateRSquared();
+            return result;
         } catch (SingularMatrixException ex) {
             return null;
         }
@@ -28,4 +32,8 @@ public abstract class Model {
     protected abstract OLSMultipleLinearRegression putDataIntoModel(List<Sample> samples, int dim);
 
     public abstract int getMinSamplesCount(int dim);
+
+    public double getRSquared() {
+        return rSquared;
+    }
 }

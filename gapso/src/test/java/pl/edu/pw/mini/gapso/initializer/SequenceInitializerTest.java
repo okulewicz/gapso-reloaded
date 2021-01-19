@@ -1,13 +1,10 @@
-package pl.edu.pw.mini.gapso.generator.initializer;
+package pl.edu.pw.mini.gapso.initializer;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import pl.edu.pw.mini.gapso.bounds.Bounds;
 import pl.edu.pw.mini.gapso.bounds.SimpleBounds;
-import pl.edu.pw.mini.gapso.initializer.Initializer;
-import pl.edu.pw.mini.gapso.initializer.RandomInitializer;
-import pl.edu.pw.mini.gapso.initializer.SequenceInitializer;
 
 import java.util.ArrayList;
 import java.util.List;

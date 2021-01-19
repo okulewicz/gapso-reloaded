@@ -2,9 +2,9 @@ package pl.edu.pw.mini.gapso.configuration;
 
 import com.google.gson.Gson;
 import org.apache.commons.io.IOUtils;
+import pl.edu.pw.mini.gapso.initializer.BoundsManager;
 import pl.edu.pw.mini.gapso.initializer.Initializer;
 import pl.edu.pw.mini.gapso.optimizer.move.Move;
-import pl.edu.pw.mini.gapso.optimizer.restart.MinSpreadInDimensionsRestartManager;
 import pl.edu.pw.mini.gapso.optimizer.restart.RestartManager;
 
 import java.io.IOException;
@@ -22,6 +22,9 @@ public class Configuration {
     private int particlesCountPerDimension;
     @SuppressWarnings("unused")
     private int evaluationsBudgetPerDimension;
+    @SuppressWarnings("unused")
+    private BoundsManagerConfiguration boundsManagerDefinition;
+
     @SuppressWarnings("unused")
     private RestartConfiguration restartManagerDefinition;
     @SuppressWarnings("unused")
@@ -81,12 +84,11 @@ public class Configuration {
     }
 
     public RestartManager getRestartManager() {
-        if (restartManagerDefinition.getName().equals(MinSpreadInDimensionsRestartManager.NAME)) {
-            return new MinSpreadInDimensionsRestartManager(gson.fromJson(
-                    restartManagerDefinition.getParameters(),
-                    MinSpreadInDimensionsRestartManager
-                            .RandomManagerMinSpreadInDimensionsConfiguration.class));
-        }
-        return null;
+        return restartManagerDefinition.getManager();
+    }
+
+
+    public BoundsManager getBoundsManager() {
+        return boundsManagerDefinition.getBoundsManager();
     }
 }

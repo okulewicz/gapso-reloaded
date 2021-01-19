@@ -7,9 +7,11 @@ import pl.edu.pw.mini.gapso.sample.Sample;
 import pl.edu.pw.mini.gapso.sample.SingleSample;
 import pl.edu.pw.mini.gapso.sample.UpdatableSample;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class Particle {
+    private static final int MAX_COUNTER = 10;
     private final List<Particle> _particles;
     private int index;
     private final Function _function;
@@ -86,9 +88,13 @@ public class Particle {
     private Sample getSampleWithinFunctionBounds(Move availableMove) {
         double[] sample = availableMove.getNext(this, _particles);
         Bounds bounds = _function.getBounds();
+        int counter = 0;
         while (!bounds.contain(sample)) {
             for (int i = 0; i < sample.length; ++i) {
                 sample[i] = (current.getX()[i] + sample[i]) / 2.0;
+            }
+            if (counter++ > MAX_COUNTER) {
+                sample = Arrays.copyOf(current.getX(), current.getX().length);
             }
         }
         double y = _function.getValue(sample);

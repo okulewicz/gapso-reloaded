@@ -4,12 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import pl.edu.pw.mini.gapso.function.ConvexSquareFunction;
 import pl.edu.pw.mini.gapso.function.Function;
-import pl.edu.pw.mini.gapso.optimizer.SamplingOptimizer;
-import pl.edu.pw.mini.gapso.sample.Sample;
-import pl.edu.pw.mini.gapso.sample.Sampler;
-
-import java.util.ArrayList;
-import java.util.List;
+import pl.edu.pw.mini.gapso.optimizer.MySamplingOptimizer;
 
 public class ModelInitializerTest {
 
@@ -22,7 +17,9 @@ public class ModelInitializerTest {
         Assert.assertFalse(initializer.canSample());
         Assert.assertFalse(initializer.canSample());
         for (int i = 0; i < 2; ++i) {
+            Assert.assertEquals(0, samplingOptimizer.samplerList.size());
             initializer.registerObjectsWithOptimizer(samplingOptimizer);
+            Assert.assertEquals(1, samplingOptimizer.samplerList.size());
             Function function = samplingOptimizer.wrapFunction(new ConvexSquareFunction());
             //LINEAR MODEL
             function.getValue(generator.getNextSample(function.getBounds()));
@@ -44,27 +41,12 @@ public class ModelInitializerTest {
             Assert.assertTrue(initializer.canSample());
             initializer.getNextSample(function.getBounds());
             Assert.assertFalse(initializer.canSample());
-            initializer.resetInitializer();
+            initializer.resetInitializer(false);
+            Assert.assertTrue(initializer.canSample());
+            samplingOptimizer.samplerList.clear();
+            initializer.resetInitializer(true);
             Assert.assertFalse(initializer.canSample());
         }
     }
 
-    private static class MySamplingOptimizer extends SamplingOptimizer {
-        public List<Sampler> samplerList = new ArrayList<>();
-
-        public Function wrapFunction(Function function) {
-            return createSamplingWrapper(function, samplerList);
-        }
-
-        @Override
-        public Sample optimize(Function function) {
-            return null;
-        }
-
-        @Override
-        public void registerSampler(Sampler sampler) {
-            samplerList.add(sampler);
-        }
-
-    }
 }

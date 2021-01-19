@@ -1,12 +1,17 @@
 package pso.coco;
 
 
+import org.apache.commons.io.FileUtils;
 import pl.edu.pw.mini.gapso.function.Function;
 import pl.edu.pw.mini.gapso.optimizer.GAPSOOptimizer;
 import pl.edu.pw.mini.gapso.optimizer.Optimizer;
 import pso.coco.gapso.GAPSOFunctionProblemWrapper;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * An example of benchmarking random search on a COCO suite.
@@ -14,6 +19,9 @@ import java.util.Arrays;
  * Set the parameter BUDGET_MULTIPLIER to suit your needs.
  */
 public class ExampleExperiment {
+    public static final String BBOB_PROPERTIES = "bbob.properties";
+    public static final String GAPSO_JSON = "gapso.json";
+    public static final String EXDATA = "exdata";
     /**
      * The problem to be optimized (needed in order to simplify the interface
      * between the optimization algorithm and the COCO platform).
@@ -62,14 +70,29 @@ public class ExampleExperiment {
      *                     (e.g. "bbob-biobj" when using the "bbob-biobj-ext" suite).
      */
     private static void exampleExperiment(String suiteName, String observerName) {
+        List<String> beforeStartDirectories;
+        File f = new File(EXDATA);
+        beforeStartDirectories = Arrays.asList(Objects.requireNonNull(f.list()));
 
         final BBOBExperimentConfigurator bbobConfigurator = new PropertiesBBOBExperimentConfigurator();
         int dimension;
 
 
         try {
+
+
             /* Set some options for the observer. See documentation for other options. */
             Benchmark benchmark = configureCOCOBenchmark(suiteName, observerName, bbobConfigurator);
+
+            String[] afterStartDirectories;
+            afterStartDirectories = f.list();
+            assert afterStartDirectories != null;
+            for (String afterStartDirectory : afterStartDirectories) {
+                if (!beforeStartDirectories.contains(afterStartDirectory)) {
+                    copyFile(afterStartDirectory, BBOB_PROPERTIES);
+                    copyFile(afterStartDirectory, GAPSO_JSON);
+                }
+            }
 
             /* Initialize timing */
             Timing timing = new Timing();
@@ -95,6 +118,14 @@ public class ExampleExperiment {
 
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private static void copyFile(String experimentFolder, String fileName) throws IOException {
+        File experimentSettings = new File(fileName);
+        if (experimentSettings.exists()) {
+            File experimentSettingsCopy = new File(EXDATA + "/" + experimentFolder + "/" + fileName);
+            FileUtils.copyFile(experimentSettings, experimentSettingsCopy);
         }
     }
 

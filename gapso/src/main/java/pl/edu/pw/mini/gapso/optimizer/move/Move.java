@@ -2,6 +2,7 @@ package pl.edu.pw.mini.gapso.optimizer.move;
 
 import pl.edu.pw.mini.gapso.configuration.MoveConfiguration;
 import pl.edu.pw.mini.gapso.optimizer.Particle;
+import pl.edu.pw.mini.gapso.optimizer.SamplingOptimizer;
 
 import java.util.List;
 
@@ -29,4 +30,8 @@ public abstract class Move {
     public boolean isAdaptable() {
         return isAdaptable;
     }
+
+    public abstract void registerObjectsWithOptimizer(SamplingOptimizer samplingOptimizer);
+
+    public abstract void resetState();
 }

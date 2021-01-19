@@ -8,6 +8,8 @@ import java.util.List;
 
 public class SimpleSquareModel extends Model {
 
+    public static final String NAME = "SimpleSquare";
+
     @Override
     protected double[] computeLinearModelOptimum(OLSMultipleLinearRegression olslm, Bounds bounds, int dim) {
         double[] boundedPeak;

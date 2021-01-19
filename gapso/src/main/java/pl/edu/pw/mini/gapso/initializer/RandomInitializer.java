@@ -38,7 +38,7 @@ public class RandomInitializer extends Initializer {
     }
 
     @Override
-    public void resetInitializer() {
+    public void resetInitializer(boolean hardReset) {
         //NOTHING TO DO HERE
     }
 }

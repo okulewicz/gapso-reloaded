@@ -12,16 +12,22 @@ public abstract class SamplingOptimizer extends Optimizer {
     public abstract void registerSampler(Sampler sampler);
 
     protected Function createSamplingWrapper(Function function, List<Sampler> samplers) {
-        return new FunctionSamplingWrapper(function, samplers);
+        return new FunctionSamplingWrapper(function, samplers, function.getBounds());
+    }
+
+    protected Function createSamplingWrapper(Function function, List<Sampler> samplers, Bounds bounds) {
+        return new FunctionSamplingWrapper(function, samplers, bounds);
     }
 
     private static class FunctionSamplingWrapper extends Function {
         private final Function _function;
         private final List<Sampler> _samplers;
+        private final Bounds _bounds;
 
-        public FunctionSamplingWrapper(Function function, List<Sampler> samplers) {
+        public FunctionSamplingWrapper(Function function, List<Sampler> samplers, Bounds bounds) {
             _samplers = samplers;
             _function = function;
+            _bounds = bounds;
         }
 
         @Override
@@ -46,7 +52,7 @@ public abstract class SamplingOptimizer extends Optimizer {
 
         @Override
         public Bounds getBounds() {
-            return _function.getBounds();
+            return _bounds;
         }
     }
 }

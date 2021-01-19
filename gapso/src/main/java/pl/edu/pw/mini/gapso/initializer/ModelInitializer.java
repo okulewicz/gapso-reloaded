@@ -18,7 +18,7 @@ public class ModelInitializer extends Initializer {
     private AllSamplesSampler sampler;
 
     public ModelInitializer() {
-        resetInitializer();
+        resetInitializer(true);
     }
 
     @Override
@@ -67,9 +67,13 @@ public class ModelInitializer extends Initializer {
     }
 
     @Override
-    public void resetInitializer() {
-        sampler = new AllSamplesSampler();
-        modelSequence = new ArrayList<>();
+    public void resetInitializer(boolean hardReset) {
+        if (hardReset) {
+            sampler = new AllSamplesSampler();
+            modelSequence = new ArrayList<>();
+        }
+        assert modelSequence != null;
+        modelSequence.clear();
         modelSequence.add(new FullSquareModel());
         modelSequence.add(new SimpleSquareModel());
         modelSequence.add(new LinearModel());
