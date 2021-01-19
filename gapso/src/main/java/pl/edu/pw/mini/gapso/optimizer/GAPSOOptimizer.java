@@ -104,7 +104,7 @@ public class GAPSOOptimizer extends SamplingOptimizer {
             move.resetState();
             move.registerObjectsWithOptimizer(this);
         }
-        //bounds = _boundsManager.getBounds();
+        bounds = _boundsManager.getBounds();
         moveManager = new MoveManager(_availableMoves);
     }
 
@@ -113,7 +113,7 @@ public class GAPSOOptimizer extends SamplingOptimizer {
         samplers.clear();
         _initializer.resetInitializer(true);
         _initializer.registerObjectsWithOptimizer(this);
-        //bounds = _boundsManager.getBounds();
+        bounds = _boundsManager.getBounds();
     }
 
     private boolean isEnoughOptimizationBudgetLeftAndNeedsOptimization(Function function) {

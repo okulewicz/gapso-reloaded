@@ -23,6 +23,9 @@ public class Configuration {
     @SuppressWarnings("unused")
     private int evaluationsBudgetPerDimension;
     @SuppressWarnings("unused")
+    private BoundsManagerConfiguration boundsManagerDefinition;
+
+    @SuppressWarnings("unused")
     private RestartConfiguration restartManagerDefinition;
     @SuppressWarnings("unused")
     private InitializerConfiguration initializerDefinition;
@@ -85,9 +88,7 @@ public class Configuration {
     }
 
 
-    //TODO splits should go to bounds manager
     public BoundsManager getBoundsManager() {
-        //TODO this should be done from configuration
-        return new BoundsManager();
+        return boundsManagerDefinition.getBoundsManager();
     }
 }

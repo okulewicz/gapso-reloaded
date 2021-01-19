@@ -33,7 +33,7 @@ public abstract class Model {
 
     public abstract int getMinSamplesCount(int dim);
 
-    public double getrSquared() {
+    public double getRSquared() {
         return rSquared;
     }
 }

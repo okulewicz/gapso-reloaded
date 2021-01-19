@@ -3,6 +3,7 @@ package pl.edu.pw.mini.gapso.initializer;
 import org.junit.Assert;
 import org.junit.Test;
 import pl.edu.pw.mini.gapso.bounds.Bounds;
+import pl.edu.pw.mini.gapso.configuration.BoundsManagerConfiguration;
 import pl.edu.pw.mini.gapso.function.Function;
 import pl.edu.pw.mini.gapso.function.FunctionWhiteBox;
 import pl.edu.pw.mini.gapso.function.RastriginFunction;
@@ -15,7 +16,7 @@ import pl.edu.pw.mini.gapso.sample.UpdatableSample;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BoundsManagerTest {
+public class GlobalModelBoundsManagerTest {
     @Test
     public void getBounds() {
         for (int dimension = 1; dimension < 21; ++dimension) {
@@ -28,7 +29,9 @@ public class BoundsManagerTest {
             Assert.assertNotEquals(0.0, rastrigin.getValue(someSample), 1e-8);
 
             SamplingOptimizer samplingOptimizer = new RandomOptimizer();
-            BoundsManager boundsManager = new BoundsManager();
+            BoundsManagerConfiguration boundsManagerConfiguration =
+                    new BoundsManagerConfiguration(GlobalModelBoundsManager.NAME, null);
+            GlobalModelBoundsManager boundsManager = new GlobalModelBoundsManager(boundsManagerConfiguration);
             boundsManager.setInitialBounds(rastrigin.getBounds());
             boundsManager.registerObjectsWithOptimizer(samplingOptimizer);
 
