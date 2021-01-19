@@ -76,6 +76,11 @@ public class OptimalClusters {
     }
 
     private List<Sample> getLargestTree() {
+        List<List<Sample>> sortedTrees = getClusters();
+        return sortedTrees.get(sortedTrees.size() - 1);
+    }
+
+    public List<List<Sample>> getClusters() {
         double thresholdDistance = AVG_DISTANCE_MULTIPLIER * Math.sqrt(dimension) / samples.size();
         int largestClusterSize = 1;
         for (Edge edge : edges) {
@@ -87,16 +92,16 @@ public class OptimalClusters {
             int newClusterSize = edge.getNode1().mergeGroups(edge.getNode2());
             largestClusterSize = Math.max(largestClusterSize, newClusterSize);
         }
-        List<List<ScaledAssignedSample>> sortedTrees = scaledSamples
-                .stream().map(ScaledAssignedSample::getGroup)
+        return scaledSamples
+                .stream()
+                .map(ScaledAssignedSample::getGroup)
                 .collect(Collectors.toSet())
                 .stream()
-                .sorted(Comparator.comparingDouble(List::size))
-                .collect(Collectors.toList());
-        return sortedTrees
-                .get(sortedTrees.size() - 1)
-                .stream()
-                .map(ScaledAssignedSample::getOriginalSample)
+                .map(l -> l
+                        .stream()
+                        .map(ScaledAssignedSample::getOriginalSample)
+                        .collect(Collectors.toList()))
+                .sorted(Comparator.comparingInt(List::size))
                 .collect(Collectors.toList());
     }
 
