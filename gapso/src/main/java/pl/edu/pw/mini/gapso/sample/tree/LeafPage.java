@@ -31,18 +31,6 @@ public class LeafPage extends Page {
         samples.add(sample);
 
         updateStatistics(sample, 1);
-/*
-        //use just enough samples to build a model
-        if (samples.size() >= (2 * sample.getX().length + 1)) {
-            try {
-                squareModel = new SquareModel(sample.getX().length, samples);
-                //this will fire SingularMatrixException
-                squareModel.evaluateInModel(sample.getX());
-            } catch (SingularMatrixException ex) {
-                squareModel = null;
-            }
-        }
-        */
         return true;
     }
 
