@@ -8,6 +8,8 @@ import java.util.List;
 
 public class LinearModel extends Model {
 
+    public static final String NAME = "Linear";
+
     @Override
     protected double[] computeLinearModelOptimum(OLSMultipleLinearRegression olslm, Bounds bounds, int dim) {
         double[] modelOptimumLocation;

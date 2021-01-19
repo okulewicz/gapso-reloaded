@@ -80,7 +80,18 @@ public class ConfigurationTest {
             "      \"isAdaptable\": false,\n" +
             "      \"initialWeight\": 0,\n" +
             "      \"minimalAmount\": 1,\n" +
-            "      \"parameters\": {}\n" +
+            "      \"parameters\": {\n" +
+            "        \"models\": [\n" +
+            "        {\n" +
+            "           \"modelType\": \"FullSquare\",\n" +
+            "           \"modelUseFrequency\": 10\n" +
+            "        },\n" +
+            "        {\n" +
+            "           \"modelType\": \"SimpleSquare\",\n" +
+            "           \"modelUseFrequency\": 1\n" +
+            "        }\n" +
+            "        ]\n" +
+            "      }\n" +
             "    }\n" +
             "  ]\n" +
             "}";

@@ -22,6 +22,16 @@ public class SimpleBounds extends Bounds {
         }
     }
 
+    @Override
+    public double[] getLower() {
+        return lowerBounds;
+    }
+
+    @Override
+    public double[] getUpper() {
+        return upperBounds;
+    }
+
     public static Bounds createBoundsFromSamples(List<Sample> samples) {
         if (samples == null || samples.isEmpty())
             return null;
@@ -42,15 +52,5 @@ public class SimpleBounds extends Bounds {
             }
         }
         return new SimpleBounds(lower, upper);
-    }
-
-    @Override
-    public double[] getLower() {
-        return lowerBounds;
-    }
-
-    @Override
-    public double[] getUpper() {
-        return upperBounds;
     }
 }

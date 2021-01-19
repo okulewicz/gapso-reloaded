@@ -2,6 +2,9 @@
   "seed": 1,
   "particlesCountPerDimension": 10,
   "evaluationsBudgetPerDimension": 100,
+  "boundsManagerDefinition": {
+    "name": "ResetAll"
+  },
   "initializerDefinition": {
     "name": "Sequence",
     "parameters": {

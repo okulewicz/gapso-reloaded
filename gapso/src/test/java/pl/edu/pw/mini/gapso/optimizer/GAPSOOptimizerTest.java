@@ -2,9 +2,11 @@ package pl.edu.pw.mini.gapso.optimizer;
 
 import org.junit.Assert;
 import org.junit.Test;
+import pl.edu.pw.mini.gapso.configuration.BoundsManagerConfiguration;
 import pl.edu.pw.mini.gapso.configuration.MoveConfiguration;
 import pl.edu.pw.mini.gapso.function.ConvexSquareFunction;
 import pl.edu.pw.mini.gapso.function.FunctionWhiteBox;
+import pl.edu.pw.mini.gapso.initializer.BoundsManager;
 import pl.edu.pw.mini.gapso.initializer.RandomInitializer;
 import pl.edu.pw.mini.gapso.optimizer.move.DEBest1Bin;
 import pl.edu.pw.mini.gapso.optimizer.move.Move;
@@ -14,9 +16,13 @@ import pl.edu.pw.mini.gapso.sample.Sample;
 public class GAPSOOptimizerTest {
 
     public static void optimizeWithMoves(Move[] moves) {
-        GAPSOOptimizer optimizer = new GAPSOOptimizer(10, 1000, false,
+        BoundsManagerConfiguration boundsManagerConfiguration =
+                new BoundsManagerConfiguration(ResetAllBoundsManager.NAME, null);
+        BoundsManager boundsManager = new ResetAllBoundsManager(boundsManagerConfiguration);
+        GAPSOOptimizer optimizer = new GAPSOOptimizer(10, 1000,
                 moves, new RandomInitializer(),
-                new SmallestSpreadBelowThresholdRestartManager(1e-8));
+                new SmallestSpreadBelowThresholdRestartManager(1e-8),
+                boundsManager);
         FunctionWhiteBox function = new ConvexSquareFunction();
         Sample optimumEstimation = optimizer.optimize(function);
         Assert.assertNotNull(optimumEstimation);

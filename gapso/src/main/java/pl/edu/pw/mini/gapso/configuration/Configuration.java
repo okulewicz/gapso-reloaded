@@ -2,6 +2,7 @@ package pl.edu.pw.mini.gapso.configuration;
 
 import com.google.gson.Gson;
 import org.apache.commons.io.IOUtils;
+import pl.edu.pw.mini.gapso.initializer.BoundsManager;
 import pl.edu.pw.mini.gapso.initializer.Initializer;
 import pl.edu.pw.mini.gapso.optimizer.move.Move;
 import pl.edu.pw.mini.gapso.optimizer.restart.RestartManager;
@@ -22,12 +23,14 @@ public class Configuration {
     @SuppressWarnings("unused")
     private int evaluationsBudgetPerDimension;
     @SuppressWarnings("unused")
+    private BoundsManagerConfiguration boundsManagerDefinition;
+
+    @SuppressWarnings("unused")
     private RestartConfiguration restartManagerDefinition;
     @SuppressWarnings("unused")
     private InitializerConfiguration initializerDefinition;
     @SuppressWarnings({"unused", "MismatchedReadAndWriteOfArray"})
     private MoveConfiguration[] moveDefinition;
-    private boolean splitBounds;
 
     public int getEvaluationsBudgetPerDimension() {
         return evaluationsBudgetPerDimension;
@@ -84,11 +87,8 @@ public class Configuration {
         return restartManagerDefinition.getManager();
     }
 
-    public boolean isSplitBounds() {
-        return splitBounds;
-    }
 
-    public void setSplitBounds(boolean splitBounds) {
-        this.splitBounds = splitBounds;
+    public BoundsManager getBoundsManager() {
+        return boundsManagerDefinition.getBoundsManager();
     }
 }

@@ -1,5 +1,17 @@
-# gapso-reloaded
-Generalized Adaptive Particle Swarm Optimization
+# GAPSO
+
+Generalized Adaptive Particle Swarm Optimization.
+The framework applies a population based optimizer,
+which consists of the following modules:
+
+ * Bounds manager - selects
+ function bounds within which the function optimum is sought
+ * Initializer - generates initial locations of the population
+ within set bounds
+ * Restart manager - decides if the population needs to be restarted
+ and optimization process started again (possibly within different bounds
+ or with different initialization strategy)
+ * Moves - the actual optimizers
 
 ## General settings (gapso.json)
 
@@ -9,11 +21,28 @@ Generalized Adaptive Particle Swarm Optimization
   "particlesCountPerDimension": 10,
   "evaluationsBudgetPerDimension": 100000,
   "splitBounds": false,
+  "boundsManagerDefinition": {},
   "initializerDefinition": {},
   "restartManagerDefinition": {},
   "moveDefinition": []
 }
 ```
+
+## Bounds managers
+  
+  * ResetAll - Always start with full function bounds
+```json
+{
+  "name": "ResetAll"
+}
+``` 
+  * GlobalModel - Tries to guess bounds from global model optimum estimations
+```json
+{
+  "name": "GlobalModel"
+}
+``` 
+  
 
 ## Initializers
   
@@ -93,16 +122,52 @@ Generalized Adaptive Particle Swarm Optimization
   }
 }
 ```
-  * LocalBestModel - tries to apply
-  the fullest possible model: full square, independent square and linear
+  * LocalBestModel - tries to apply the first model with enough samples and current availability
+  model is fitted on particles' bests
 
 ```json
 {
-  "name": "LocalBestModel",
-  "isAdaptable": false,
-  "initialWeight": 0,
-  "minimalAmount": 1,
-  "parameters": {}
+      "name": "LocalBestModel",
+      "isAdaptable": true,
+      "initialWeight": 500,
+      "minimalAmount": 1,
+      "parameters": {
+        "models": [
+        {
+          "modelType" : "FullSquare",
+          "modelUseFrequency": 20
+        },
+        {
+          "modelType" : "SimpleSquare",
+          "modelUseFrequency": 1
+        }
+        ]
+      }
 }
 ```
+
+  * GlobalModel - tries to apply the first model with enough samples and current availability
+  model is fitted on subset of all samples gathered so far
+
+```json
+{
+  "name": "GlobalModel",
+  "isAdaptable": false,
+  "initialWeight": 0,
+  "minimalAmount": 2,
+  "parameters": {
+    "models": [
+      {
+        "modelType" : "FullSquare",
+        "modelUseFrequency": 20
+      },
+      {
+        "modelType" : "SimpleSquare",
+        "modelUseFrequency": 1
+      }
+    ]
+  }
+}
+```
+
 
