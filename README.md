@@ -1,5 +1,17 @@
-# gapso-reloaded
-Generalized Adaptive Particle Swarm Optimization
+# GAPSO
+
+Generalized Adaptive Particle Swarm Optimization.
+The framework applies a population based optimizer,
+which consists of the following modules:
+
+ * Bounds manager - selects
+ function bounds within which the function optimum is sought
+ * Initializer - generates initial locations of the population
+ within set bounds
+ * Restart manager - decides if the population needs to be restarted
+ and optimization process started again (possibly within different bounds
+ or with different initialization strategy)
+ * Moves - the actual optimizers
 
 ## General settings (gapso.json)
 
