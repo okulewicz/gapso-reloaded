@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class OptimalClusters {
-    public static final double MAX_DISTANCE_FACTOR_CUTOFF = 0.26;
     public static final double AVG_DISTANCE_MULTIPLIER = 1.5;
     public static final int MIN_SAMPLES_DIM_MULTIPLIER = 3;
     private static final double DIFFERENCE_THRESHOLD = 1e-4;

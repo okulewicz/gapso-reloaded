@@ -31,7 +31,8 @@ public class GlobalModelTest {
                 1,
                 false,
                 new ModelMove.ModelSequenceParameters(
-                        parameters
+                        parameters,
+                        SamplesClusteringType.NONE
                 )
         );
         MySamplingOptimizer samplingOptimizer = new MySamplingOptimizer();

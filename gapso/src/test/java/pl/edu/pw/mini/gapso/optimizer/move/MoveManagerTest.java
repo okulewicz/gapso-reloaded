@@ -28,7 +28,8 @@ public class MoveManagerTest {
                 expectedLBM,
                 false,
                 new ModelMove.ModelSequenceParameters(
-                        parameters
+                        parameters,
+                        SamplesClusteringType.NONE
                 )
         );
         final int expectedMinDE = 1;
