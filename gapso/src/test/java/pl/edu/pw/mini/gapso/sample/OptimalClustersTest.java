@@ -105,16 +105,15 @@ public class OptimalClustersTest {
             Assert.assertEquals(1, optimalClusters.getClusters().size());
         }
         {
-            Sample outlingSample = addOutlyingSample(function, samples, 1.0);
-            samples.add(outlingSample);
+            addOutlyingSample(function, samples, 1.0);
             OptimalClusters optimalClustersWithOutlier = new OptimalClusters(samples, dimension);
             Assert.assertEquals(2, optimalClustersWithOutlier.getClusters().size());
         }
         {
-            Sample outlingSample = addOutlyingSample(function, samples, 1.0);
-            samples.add(outlingSample);
+            addOutlyingSample(function, samples, 0.9);
             OptimalClusters optimalClustersWithOutlier = new OptimalClusters(samples, dimension);
-            Assert.assertEquals(2, optimalClustersWithOutlier.getClusters().size());
+            final List<List<Sample>> clusters = optimalClustersWithOutlier.getClusters();
+            Assert.assertEquals(2, clusters.size());
         }
 
 
@@ -123,5 +122,24 @@ public class OptimalClustersTest {
         final List<List<Sample>> clusters = optimalClusters.getClusters();
         Assert.assertEquals(3, clusters.stream().filter(c -> c.size() > 1).count());
 
+    }
+
+    @Test
+    public void getBestCluster() {
+        int dimension = 1;
+        Function function = new RastriginFunction(new double[]{0.95});
+        List<Sample> samples = prepareSamplesFromFunction(function);
+        int expectedLargestCluster = samples.size();
+        {
+            addOutlyingSample(function, samples, 1.0);
+        }
+        {
+            addOutlyingSample(function, samples, 0.9);
+            OptimalClusters optimalClustersWithOutlier = new OptimalClusters(samples, dimension);
+            final List<Sample> bestClusterFor2 = optimalClustersWithOutlier.getBestCluster(2);
+            Assert.assertEquals(2, bestClusterFor2.size());
+            final List<Sample> bestClusterFor3 = optimalClustersWithOutlier.getBestCluster(3);
+            Assert.assertEquals(expectedLargestCluster, bestClusterFor3.size());
+        }
     }
 }

@@ -16,6 +16,7 @@ public class OptimalClusters {
     private final List<ScaledAssignedSample> scaledSamples;
     private final int dimension;
     private final List<Edge> edges;
+    private final List<List<Sample>> clusteredSamples;
     private double minValue;
     private double maxValue;
 
@@ -24,6 +25,7 @@ public class OptimalClusters {
         this.dimension = dimension;
         scaledSamples = scaleSamples(samples);
         edges = createSortedEdges(scaledSamples);
+        clusteredSamples = clusterSamples();
     }
 
     private List<ScaledAssignedSample> scaleSamples(List<Sample> samples) {
@@ -75,12 +77,7 @@ public class OptimalClusters {
         return sorted.collect(Collectors.toList());
     }
 
-    private List<Sample> getLargestTree() {
-        List<List<Sample>> sortedTrees = getClusters();
-        return sortedTrees.get(sortedTrees.size() - 1);
-    }
-
-    public List<List<Sample>> getClusters() {
+    private List<List<Sample>> clusterSamples() {
         double thresholdDistance = AVG_DISTANCE_MULTIPLIER * Math.sqrt(dimension) / samples.size();
         int largestClusterSize = 1;
         for (Edge edge : edges) {
@@ -106,6 +103,20 @@ public class OptimalClusters {
     }
 
     public List<Sample> getLargestCluster() {
-        return getLargestTree();
+        return clusteredSamples.get(clusteredSamples.size() - 1);
+    }
+
+    public List<Sample> getBestCluster(int minSamplesInCluster) {
+        final Stream<List<Sample>> sorted = clusteredSamples
+                .stream()
+                .filter(c -> c.size() >= minSamplesInCluster)
+                .sorted(Comparator.comparingDouble(
+                        c -> c.stream().mapToDouble(Sample::getY).min().orElse(Double.POSITIVE_INFINITY)
+                ));
+        return sorted.findFirst().orElse(new ArrayList<>());
+    }
+
+    public List<List<Sample>> getClusters() {
+        return clusteredSamples;
     }
 }

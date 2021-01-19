@@ -11,6 +11,13 @@ public class RastriginFunction extends FunctionWhiteBox {
     private final double[] _optimum;
     private final double[] _scale;
 
+    public RastriginFunction(double[] optimum) {
+        this(optimum.length);
+        if (_dimension >= 0) {
+            System.arraycopy(optimum, 0, _optimum, 0, _dimension);
+        }
+    }
+
     public RastriginFunction(int dimension) {
         _dimension = dimension;
         double[] lower = new double[_dimension];
