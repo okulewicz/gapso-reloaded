@@ -1,9 +1,22 @@
 {
   "seed": 1,
   "particlesCountPerDimension": 10,
-  "evaluationsBudgetPerDimension": 1000,
+  "evaluationsBudgetPerDimension": 100,
+  "boundsManagerDefinition": {
+    "name": "ResetAll"
+  },
   "initializerDefinition": {
-    "name": "Random"
+    "name": "Sequence",
+    "parameters": {
+      "initializers": [
+        {
+          "name": "Model"
+        },
+        {
+          "name": "Random"
+        }
+      ]
+    }
   },
   "restartManagerDefinition": {
     "name": "MinSpreadInDimensions",

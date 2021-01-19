@@ -9,11 +9,28 @@ Generalized Adaptive Particle Swarm Optimization
   "particlesCountPerDimension": 10,
   "evaluationsBudgetPerDimension": 100000,
   "splitBounds": false,
+  "boundsManagerDefinition": {},
   "initializerDefinition": {},
   "restartManagerDefinition": {},
   "moveDefinition": []
 }
 ```
+
+## Bounds managers
+  
+  * ResetAll - Always start with full function bounds
+```json
+{
+  "name": "ResetAll"
+}
+``` 
+  * GlobalModel - Tries to guess bounds from global model optimum estimations
+```json
+{
+  "name": "GlobalModel"
+}
+``` 
+  
 
 ## Initializers
   
