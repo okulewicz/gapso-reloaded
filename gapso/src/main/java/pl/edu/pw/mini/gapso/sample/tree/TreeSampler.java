@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 public class TreeSampler extends Sampler {
     public static final int PAGE_SIZE = 20;
+    private static final int MAX_CAPACITY = 3000;
     private final RTree tree;
 
     public TreeSampler() {
@@ -17,6 +18,10 @@ public class TreeSampler extends Sampler {
 
     @Override
     public boolean tryStoreSample(Sample sample) {
+        if (tree.getCount() > MAX_CAPACITY) {
+            tree.clearIndex();
+            samplesCount = 0;
+        }
         if (tree.indexSample(sample)) {
             samplesCount++;
             return true;
@@ -32,5 +37,6 @@ public class TreeSampler extends Sampler {
 
     public void clear() {
         tree.clearIndex();
+        samplesCount = 0;
     }
 }
