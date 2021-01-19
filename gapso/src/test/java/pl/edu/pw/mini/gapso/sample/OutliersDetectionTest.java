@@ -6,32 +6,44 @@ import pl.edu.pw.mini.gapso.function.Function;
 import pl.edu.pw.mini.gapso.function.RastriginFunction;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class OutliersDetectionTest {
 
     public static final int TRIES = 10;
 
-    /*
-From this sample 7 - 9 samples should be selected
-bbob_f003_i01_d02,  1,  4, 95,-2.30084313, 2.70881784,DataPoint
-bbob_f003_i01_d02,  1,  4, 95,-2.27343419, 2.93562809,DataPoint
-bbob_f003_i01_d02,  1,  4, 95,-2.40330721, 2.94947199,DataPoint
-bbob_f003_i01_d02,  1,  4, 95,-1.98531486, 2.35901598,DataPoint
-bbob_f003_i01_d02,  1,  4, 95,-2.74117079, 2.28027840,DataPoint
-bbob_f003_i01_d02,  1,  4, 95,-2.52283674, 2.33001549,DataPoint
-bbob_f003_i01_d02,  1,  4, 95,-2.42052192, 2.29508464,DataPoint
-bbob_f003_i01_d02,  1,  4, 95,-2.44421259, 2.27361385,DataPoint
-bbob_f003_i01_d02,  1,  4, 95,-2.40817622, 2.32146468,DataPoint
-bbob_f003_i01_d02,  1,  4, 95,-2.31197445, 2.28253265,DataPoint
-bbob_f003_i01_d02,  1,  4, 95,-2.35750177, 2.30095716,DataPoint
-bbob_f003_i01_d02,  1,  4, 95,-2.24174585, 2.33512048,DataPoint
-bbob_f003_i01_d02,  1,  4, 95,-1.16585358, 2.70881784,DataPoint
-bbob_f003_i01_d02,  1,  4, 95,-1.45508010, 2.45674420,DataPoint
-bbob_f003_i01_d02,  1,  4, 95,-2.36981864, 1.74817235,DataPoint
-bbob_f003_i01_d02,  1,  4, 95,-2.31923290, 1.88347933,DataPoint
-bbob_f003_i01_d02,  1,  4, 95,-2.17129671, 1.55606380,DataPoint
-     */
+    @Test
+    public void getLargestClusterFromRealSamplesList() {
+        double[][] vectors = new double[][]
+                {
+                        new double[]{-2.30084313, 2.70881784},
+                        new double[]{-2.27343419, 2.93562809},
+                        new double[]{-2.40330721, 2.94947199},
+                        new double[]{-1.98531486, 2.35901598},
+                        new double[]{-2.74117079, 2.28027840},
+                        new double[]{-2.52283674, 2.33001549},
+                        new double[]{-2.42052192, 2.29508464},
+                        new double[]{-2.44421259, 2.27361385},
+                        new double[]{-2.40817622, 2.32146468},
+                        new double[]{-2.31197445, 2.28253265},
+                        new double[]{-2.35750177, 2.30095716},
+                        new double[]{-2.24174585, 2.33512048},
+                        new double[]{-1.16585358, 2.70881784},
+                        new double[]{-1.45508010, 2.45674420},
+                        new double[]{-2.36981864, 1.74817235},
+                        new double[]{-2.31923290, 1.88347933},
+                        new double[]{-2.17129671, 1.55606380},
+                };
+        List<Sample> samples = Arrays
+                .stream(vectors)
+                .map(v -> new SingleSample(v, 0.0)).collect(Collectors.toList());
+        OptimalClusters optimalClusters = new OptimalClusters(samples, 2);
+        Assert.assertTrue(optimalClusters.getLargestCluster().size() > 6);
+        Assert.assertTrue(optimalClusters.getLargestCluster().size() < 10);
+    }
+
 
     @Test
     public void getLargestCluster() {
