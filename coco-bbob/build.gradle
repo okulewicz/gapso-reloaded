@@ -2,10 +2,12 @@ plugins {
     id 'java'
 }
 
-group 'pl.edu.pw.mini.gapso'
-version '1.0-SNAPSHOT'
+static def getCheckedOutGitCommitHash() {
+    'git rev-parse --verify --short HEAD'.execute().text.trim()
+}
 
-sourceCompatibility = 1.8
+group 'pl.edu.pw.mini.gapso'
+version '1.0-' + getCheckedOutGitCommitHash()
 
 repositories {
     mavenCentral()
