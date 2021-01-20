@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 public class TreeSampler extends Sampler {
     public static final int PAGE_SIZE = 20;
-    private static final int MAX_CAPACITY = 3000;
+    private static final int MAX_CAPACITY = 10000;
     private RTree tree;
     private RTree backupTree;
 
