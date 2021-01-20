@@ -71,8 +71,8 @@ public class ExampleExperiment {
      */
     private static void exampleExperiment(String suiteName, String observerName) {
         List<String> beforeStartDirectories;
-        File f = new File(EXDATA);
-        beforeStartDirectories = Arrays.asList(Objects.requireNonNull(f.list()));
+        File exdataDir = getExperimentDataDirHandle();
+        beforeStartDirectories = Arrays.asList(Objects.requireNonNull(exdataDir.list()));
 
         final BBOBExperimentConfigurator bbobConfigurator = new PropertiesBBOBExperimentConfigurator();
         int dimension;
@@ -85,7 +85,7 @@ public class ExampleExperiment {
             Benchmark benchmark = configureCOCOBenchmark(suiteName, observerName, bbobConfigurator);
 
             String[] afterStartDirectories;
-            afterStartDirectories = f.list();
+            afterStartDirectories = exdataDir.list();
             assert afterStartDirectories != null;
             for (String afterStartDirectory : afterStartDirectories) {
                 if (!beforeStartDirectories.contains(afterStartDirectory)) {
@@ -119,6 +119,12 @@ public class ExampleExperiment {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static File getExperimentDataDirHandle() {
+        File exdataDir = new File(EXDATA);
+        assert exdataDir.exists() || exdataDir.mkdir();
+        return exdataDir;
     }
 
     private static void copyFile(String experimentFolder, String fileName) throws IOException {
