@@ -118,7 +118,7 @@ public class SHADE extends Move {
     }
 
     private int getPBestParticleIndex(List<Particle> particleList) {
-        final int worstPBest = (int) (particleList.size() * _pBestRatio);
+        final int worstPBest = Math.max(1, (int) (particleList.size() * _pBestRatio));
         final int[] pBests = particleList
                 .stream()
                 .sorted(Comparator.comparingDouble(p -> p.getBest().getY()))
