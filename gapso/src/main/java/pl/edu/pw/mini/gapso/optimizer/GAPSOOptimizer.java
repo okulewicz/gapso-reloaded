@@ -81,19 +81,19 @@ public class GAPSOOptimizer extends SamplingOptimizer {
                 for (Particle particle : particles) {
                     Move selectedMove = movesIterator.next();
                     double globalBestValue = globalBest.getY();
-                    double personalBestValue = particle.getBest().getY();
+                    Sample personalBest = particle.getBest();
+                    final double personalBestValue = personalBest.getY();
                     particle.move(selectedMove);
                     final Sample newPersonalBest = particle.getBest();
                     double newPersonalBestValue = newPersonalBest.getY();
                     if (newPersonalBestValue < personalBestValue) {
-                        successSamplers.forEach(s -> s.tryStoreSample(newPersonalBest));
+                        successSamplers.forEach(s -> s.tryStoreSample(personalBest));
                     }
                     moveManager.registerPersonalImprovementByMove(selectedMove, personalBestValue - newPersonalBestValue);
                     moveManager.registerGlobalImprovementByMove(selectedMove, globalBestValue - newPersonalBestValue);
                 }
                 if (_restartManager.shouldBeRestarted(particles)) {
                     _boundsManager.registerOptimumLocation(globalBest);
-                    tryUpdateTotalGlobalBest(totalGlobalBest, globalBest);
                     resetAfterOptimizationRestart();
                     break;
                 }
