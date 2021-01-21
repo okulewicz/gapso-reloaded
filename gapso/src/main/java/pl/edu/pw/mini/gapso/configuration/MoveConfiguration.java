@@ -57,6 +57,9 @@ public class MoveConfiguration {
         if (getName().equals(DEBest1Bin.NAME)) {
             return new DEBest1Bin(this);
         }
+        if (getName().equals(SHADE.NAME)) {
+            return new SHADE(this);
+        }
         if (getName().equals(LocalBestModel.NAME)) {
             return new LocalBestModel(this);
         }

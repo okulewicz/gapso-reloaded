@@ -8,9 +8,9 @@ import pl.edu.pw.mini.gapso.optimizer.Particle;
 import pl.edu.pw.mini.gapso.optimizer.SamplingOptimizer;
 import pl.edu.pw.mini.gapso.sample.Sample;
 import pl.edu.pw.mini.gapso.sample.sampler.LimitedCapacitySampler;
-import pl.edu.pw.mini.gapso.sample.sampler.Sampler;
 import pl.edu.pw.mini.gapso.utils.Generator;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -24,7 +24,7 @@ public class SHADE extends Move {
     private final double _archiveSizeFactor;
     private double[] _scales;
     private double[] _crossProbs;
-    private Sampler _archive;
+    private LimitedCapacitySampler _archive;
     private int activeSlot;
     private double lastScale;
     private double lastCrossProb;
@@ -52,7 +52,7 @@ public class SHADE extends Move {
         for (int dimIdx = 0; dimIdx < dim; ++dimIdx) {
             tryX[dimIdx] = current[dimIdx]
                     + scale * (best[dimIdx] - current[dimIdx])
-                    + scale * (diffOrArchiveVector[dimIdx] - diffVector[dimIdx]);
+                    + scale * (diffVector[dimIdx] - diffOrArchiveVector[dimIdx]);
             if (alwaysSwitchIdx != dimIdx) {
                 double testIfSwitch = Generator.RANDOM.nextDouble();
                 if (testIfSwitch > crossProb) {
@@ -97,15 +97,24 @@ public class SHADE extends Move {
         lastCrossProb = generateCrossProb();
         final Sample currentSample = particleList.get(currentIndex).getBest();
         final Sample pBestSample = particleList.get(pBestIndex).getBest();
-        final Particle randomSample = particleList.get(randomIndex1);
-        final Particle randomOrArchiveSample = particleList.get(randomIndex2);
+        final Sample randomSample = particleList.get(randomIndex1).getBest();
+        final Sample randomOrArchiveSample = getRandomOrArchiveSample(particleList, _archive.getSamples(), randomIndex2);
         return getDESample(
                 currentSample.getX(),
                 pBestSample.getX(),
-                randomSample.getBest().getX(),
-                randomOrArchiveSample.getBest().getX(),
+                randomSample.getX(),
+                randomOrArchiveSample.getX(),
                 lastScale,
                 lastCrossProb);
+    }
+
+    protected Sample getRandomOrArchiveSample(List<Particle> particleList, List<Sample> archiveSamples, int randomIndex2) {
+        if (randomIndex2 < particleList.size()) {
+            return particleList.get(randomIndex2).getBest();
+        } else {
+            randomIndex2 -= particleList.size();
+            return archiveSamples.get(randomIndex2);
+        }
     }
 
     private int getPBestParticleIndex(List<Particle> particleList) {
@@ -138,6 +147,9 @@ public class SHADE extends Move {
 
     @Override
     public void resetState(int particleCount) {
+        deltas = new ArrayList<>();
+        successfulCrossProb = new ArrayList<>();
+        successfulScales = new ArrayList<>();
         _scales = new double[_slots];
         Arrays.fill(_scales, _scale);
         _crossProbs = new double[_slots];
