@@ -9,9 +9,9 @@ import pl.edu.pw.mini.gapso.function.FunctionWhiteBox;
 import pl.edu.pw.mini.gapso.function.RastriginFunction;
 import pl.edu.pw.mini.gapso.optimizer.SamplingOptimizer;
 import pl.edu.pw.mini.gapso.sample.Sample;
-import pl.edu.pw.mini.gapso.sample.Sampler;
 import pl.edu.pw.mini.gapso.sample.SingleSample;
 import pl.edu.pw.mini.gapso.sample.UpdatableSample;
+import pl.edu.pw.mini.gapso.sample.sampler.Sampler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +48,11 @@ public class GlobalModelBoundsManagerTest {
         @Override
         public void registerSampler(Sampler sampler) {
             samplerList.add(sampler);
+        }
+
+        @Override
+        public void registerSuccessSampler(Sampler archive) {
+
         }
 
         @Override

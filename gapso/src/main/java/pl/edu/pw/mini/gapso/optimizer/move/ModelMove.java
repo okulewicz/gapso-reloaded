@@ -9,8 +9,8 @@ import pl.edu.pw.mini.gapso.model.LinearModel;
 import pl.edu.pw.mini.gapso.model.Model;
 import pl.edu.pw.mini.gapso.model.SimpleSquareModel;
 import pl.edu.pw.mini.gapso.optimizer.Particle;
-import pl.edu.pw.mini.gapso.sample.OptimalClusters;
 import pl.edu.pw.mini.gapso.sample.Sample;
+import pl.edu.pw.mini.gapso.sample.cluster.OptimalClusters;
 import pl.edu.pw.mini.gapso.utils.Util;
 
 import java.util.*;
@@ -43,7 +43,7 @@ public abstract class ModelMove extends Move {
         }
         currentUseCounter = 1;
         clusteringType = parameters.getClusteringType();
-        resetState();
+        resetState(Integer.MAX_VALUE);
     }
 
     @Override

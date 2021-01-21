@@ -2,7 +2,7 @@ package pl.edu.pw.mini.gapso.optimizer;
 
 import pl.edu.pw.mini.gapso.function.Function;
 import pl.edu.pw.mini.gapso.sample.Sample;
-import pl.edu.pw.mini.gapso.sample.Sampler;
+import pl.edu.pw.mini.gapso.sample.sampler.Sampler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +22,11 @@ public class MySamplingOptimizer extends SamplingOptimizer {
     @Override
     public void registerSampler(Sampler sampler) {
         samplerList.add(sampler);
+    }
+
+    @Override
+    public void registerSuccessSampler(Sampler archive) {
+
     }
 
 }

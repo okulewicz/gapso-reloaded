@@ -17,6 +17,9 @@ public class MoveManager {
     }
 
     public List<Move> generateMoveSequence(int size) {
+        for (Move move : _moves) {
+            move.newIteration();
+        }
         int minAmount = Arrays.stream(_moves).mapToInt(Move::getMinNumber).sum();
         if (minAmount > size) {
             throw new IllegalArgumentException("Too many moves for too little slots");
@@ -54,5 +57,14 @@ public class MoveManager {
             rearrangedMoves.add(move);
         }
         return rearrangedMoves;
+    }
+
+    public void registerPersonalImprovementByMove(Move selectedMove, double deltaY) {
+        if (deltaY > 0) {
+            selectedMove.registerPersonalImprovement(deltaY);
+        }
+    }
+
+    public void registerGlobalImprovementByMove(Move selectedMove, double deltaY) {
     }
 }

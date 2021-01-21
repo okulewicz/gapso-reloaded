@@ -26,7 +26,17 @@ public class LocalBestModel extends ModelMove {
     }
 
     @Override
-    public void resetState() {
+    public void resetState(int particleCount) {
+        //DO NOTHING ON PURPOSE
+    }
+
+    @Override
+    public void registerPersonalImprovement(double deltaY) {
+        //DO NOTHING ON PURPOSE
+    }
+
+    @Override
+    public void newIteration() {
         //DO NOTHING ON PURPOSE
     }
 }

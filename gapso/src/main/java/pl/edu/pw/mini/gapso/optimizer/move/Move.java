@@ -33,5 +33,9 @@ public abstract class Move {
 
     public abstract void registerObjectsWithOptimizer(SamplingOptimizer samplingOptimizer);
 
-    public abstract void resetState();
+    public abstract void resetState(int particleCount);
+
+    public abstract void registerPersonalImprovement(double deltaY);
+
+    public abstract void newIteration();
 }

@@ -1,6 +1,5 @@
 package pl.edu.pw.mini.gapso.sample.tree;
 
-import pl.edu.pw.mini.gapso.sample.DistancedSample;
 import pl.edu.pw.mini.gapso.sample.Sample;
 import pl.edu.pw.mini.gapso.utils.Generator;
 

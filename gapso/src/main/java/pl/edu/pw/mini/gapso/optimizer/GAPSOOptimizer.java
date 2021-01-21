@@ -9,8 +9,8 @@ import pl.edu.pw.mini.gapso.optimizer.move.Move;
 import pl.edu.pw.mini.gapso.optimizer.move.MoveManager;
 import pl.edu.pw.mini.gapso.optimizer.restart.RestartManager;
 import pl.edu.pw.mini.gapso.sample.Sample;
-import pl.edu.pw.mini.gapso.sample.Sampler;
 import pl.edu.pw.mini.gapso.sample.UpdatableSample;
+import pl.edu.pw.mini.gapso.sample.sampler.Sampler;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -18,6 +18,7 @@ import java.util.List;
 
 public class GAPSOOptimizer extends SamplingOptimizer {
     private final List<Sampler> samplers = new ArrayList<>();
+    private final List<Sampler> successSamplers = new ArrayList<>();
 
     private final int _particlesCountPerDimension;
     private final int _evaluationsBudgetPerDimension;
@@ -32,6 +33,11 @@ public class GAPSOOptimizer extends SamplingOptimizer {
     @Override
     public void registerSampler(Sampler sampler) {
         samplers.add(sampler);
+    }
+
+    @Override
+    public void registerSuccessSampler(Sampler sampler) {
+        successSamplers.add(sampler);
     }
 
     public GAPSOOptimizer(int particlesCount, int evaluationsBudget, Move[] availableMoves, Initializer initializer, RestartManager restartManager, BoundsManager boundsManager) {
@@ -56,14 +62,15 @@ public class GAPSOOptimizer extends SamplingOptimizer {
     public Sample optimize(Function function) {
         totalGlobalBest = UpdatableSample.generateInitialSample(function.getDimension());
         _boundsManager.setInitialBounds(function.getBounds());
-        resetAndConfigureBeforeOptimization();
+        final int particleCount = _particlesCountPerDimension * function.getDimension();
+        resetAndConfigureBeforeOptimization(particleCount);
         bounds = function.getBounds();
         while (isEnoughOptimizationBudgetLeftAndNeedsOptimization(function)) {
             Function functionWrapper = createSamplingWrapper(function, samplers, bounds);
             UpdatableSample globalBest = UpdatableSample.generateInitialSample(functionWrapper.getDimension());
             Particle.IndexContainer indexContainer = new Particle.IndexContainer();
             List<Particle> particles = new ArrayList<>();
-            for (int i = 0; i < _particlesCountPerDimension * functionWrapper.getDimension(); ++i) {
+            for (int i = 0; i < particleCount; ++i) {
                 assert _initializer.canSample();
                 double[] initialLocation = _initializer.getNextSample(functionWrapper.getBounds());
                 new Particle(initialLocation, functionWrapper, globalBest, indexContainer, particles);
@@ -73,7 +80,16 @@ public class GAPSOOptimizer extends SamplingOptimizer {
                 Iterator<Move> movesIterator = moves.iterator();
                 for (Particle particle : particles) {
                     Move selectedMove = movesIterator.next();
+                    double globalBestValue = globalBest.getY();
+                    double personalBestValue = particle.getBest().getY();
                     particle.move(selectedMove);
+                    final Sample newPersonalBest = particle.getBest();
+                    double newPersonalBestValue = newPersonalBest.getY();
+                    if (newPersonalBestValue < personalBestValue) {
+                        successSamplers.forEach(s -> s.tryStoreSample(newPersonalBest));
+                    }
+                    moveManager.registerPersonalImprovementByMove(selectedMove, personalBestValue - newPersonalBestValue);
+                    moveManager.registerGlobalImprovementByMove(selectedMove, globalBestValue - newPersonalBestValue);
                 }
                 if (_restartManager.shouldBeRestarted(particles)) {
                     _boundsManager.registerOptimumLocation(globalBest);
@@ -93,15 +109,16 @@ public class GAPSOOptimizer extends SamplingOptimizer {
         }
     }
 
-    private void resetAndConfigureBeforeOptimization() {
+    private void resetAndConfigureBeforeOptimization(int particleCount) {
         //TODO: this needs to be tested somehow
         samplers.clear();
+        successSamplers.clear();
         _initializer.resetInitializer(true);
         _initializer.registerObjectsWithOptimizer(this);
         _boundsManager.resetManager();
         _boundsManager.registerObjectsWithOptimizer(this);
         for (Move move : _availableMoves) {
-            move.resetState();
+            move.resetState(particleCount);
             move.registerObjectsWithOptimizer(this);
         }
         bounds = _boundsManager.getBounds();
@@ -111,6 +128,7 @@ public class GAPSOOptimizer extends SamplingOptimizer {
     private void resetAfterOptimizationRestart() {
         //TODO: this needs to be tested somehow
         samplers.clear();
+        successSamplers.clear();
         _initializer.resetInitializer(true);
         _initializer.registerObjectsWithOptimizer(this);
         bounds = _boundsManager.getBounds();

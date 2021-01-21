@@ -1,5 +1,6 @@
-package pl.edu.pw.mini.gapso.sample;
+package pl.edu.pw.mini.gapso.sample.sampler;
 
+import pl.edu.pw.mini.gapso.sample.Sample;
 import pl.edu.pw.mini.gapso.utils.Generator;
 
 import java.util.ArrayList;
