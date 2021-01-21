@@ -72,7 +72,7 @@ public class ExampleExperiment {
     private static void exampleExperiment(String suiteName, String observerName) {
         List<String> beforeStartDirectories;
         File exdataDir = getExperimentDataDirHandle();
-        beforeStartDirectories = Arrays.asList(Objects.requireNonNull(exdataDir.list()));
+        beforeStartDirectories = Arrays.asList(Objects.requireNonNullElse(exdataDir.list(), new String[0]));
 
         final BBOBExperimentConfigurator bbobConfigurator = new PropertiesBBOBExperimentConfigurator();
         int dimension;
