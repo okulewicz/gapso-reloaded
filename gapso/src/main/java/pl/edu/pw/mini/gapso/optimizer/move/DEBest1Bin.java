@@ -77,7 +77,7 @@ public class DEBest1Bin extends Move {
 
     @Override
     public void resetState(int particleCount) {
-        //DO NOTHING ON PURPOSE
+        resetWeight();
     }
 
     @Override

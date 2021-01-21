@@ -14,8 +14,10 @@ public class MoveManager {
     private final Move[] _moves;
     private final static int maxSize = 10;
     private HashMap<Move, List<List<Double>>> movesImprovementsDictionary;
+    private boolean adaptation;
 
     public MoveManager(Move[] moves) {
+        adaptation = true;
         _moves = moves;
         movesImprovementsDictionary = new HashMap<>();
         for (Move move : _moves) {
@@ -24,7 +26,9 @@ public class MoveManager {
     }
 
     public List<Move> generateMoveSequence(int size) {
-        recomputeWeights();
+        if (adaptation) {
+            recomputeWeights();
+        }
         for (Move move : _moves) {
             movesImprovementsDictionary.get(move).add(0, new ArrayList<>());
             final int movesSize = movesImprovementsDictionary.get(move).size();
@@ -77,7 +81,7 @@ public class MoveManager {
                                 list -> (int) list.stream().mapToDouble(el -> el).count()
                         ).sum();
                 double weight = sum / count;
-                //TODO: beware weight will not be reset after restart
+                //TODO beware weight will not be reset after restart
                 move.setWeight(weight);
                 if (weight > 0.0) {
                     noPositiveWeights = false;
@@ -114,5 +118,16 @@ public class MoveManager {
 
     public void registerGlobalImprovementByMove(Move selectedMove, double deltaY) {
         movesImprovementsDictionary.get(selectedMove).get(0).add(Math.max(deltaY, 0.0));
+    }
+
+    public void setNoAdaptation() {
+        if (Generator.RANDOM.nextDouble() < 0.5) {
+            adaptation = false;
+            for (Move move : _moves) {
+                if (move.isAdaptable()) {
+                    move.resetWeight();
+                }
+            }
+        }
     }
 }

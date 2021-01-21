@@ -27,7 +27,7 @@ public class LocalBestModel extends ModelMove {
 
     @Override
     public void resetState(int particleCount) {
-        //DO NOTHING ON PURPOSE
+        resetWeight();
     }
 
     @Override

@@ -38,6 +38,7 @@ public class NearestSamplesModel extends ModelMove {
             treeSampler.clear();
         }
         treeSampler = new TreeSampler();
+        resetWeight();
     }
 
     @Override

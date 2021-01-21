@@ -133,6 +133,7 @@ public class GAPSOOptimizer extends SamplingOptimizer {
         _initializer.registerObjectsWithOptimizer(this);
         bounds = _boundsManager.getBounds();
         _restartManager.reset();
+        moveManager.setNoAdaptation();
     }
 
     private boolean isEnoughOptimizationBudgetLeftAndNeedsOptimization(Function function) {

@@ -32,6 +32,7 @@ public class GlobalModel extends ModelMove {
     @Override
     public void resetState(int particleCount) {
         _sampler = new AllSamplesSampler();
+        resetWeight();
     }
 
     @Override
