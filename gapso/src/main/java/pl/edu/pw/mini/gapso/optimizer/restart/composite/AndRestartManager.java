@@ -22,4 +22,5 @@ public class AndRestartManager extends CompositeLogicRestartManager {
     public boolean shouldBeRestarted(List<Particle> particleList) {
         return restartManagers.stream().allMatch(rm -> rm.shouldBeRestarted(particleList));
     }
+
 }

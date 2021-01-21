@@ -155,7 +155,7 @@ public class SHADE extends Move {
         _crossProbs = new double[_slots];
         Arrays.fill(_crossProbs, _crossProb);
         _archive = new LimitedCapacitySampler((int) (_archiveSizeFactor * particleCount));
-        activeSlot = -1;
+        activeSlot = 0;
     }
 
     @Override
@@ -167,15 +167,16 @@ public class SHADE extends Move {
 
     @Override
     public void newIteration() {
-        if (activeSlot >= 0) {
-            if (!deltas.isEmpty()) {
-                _crossProbs[activeSlot] = computeMeanWL(deltas, successfulCrossProb);
-                _scales[activeSlot] = computeMeanWL(deltas, successfulScales);
+        if (!deltas.isEmpty()) {
+            _crossProbs[activeSlot] = computeMeanWL(deltas, successfulCrossProb);
+            _scales[activeSlot] = computeMeanWL(deltas, successfulScales);
+            deltas.clear();
+            successfulScales.clear();
+            successfulCrossProb.clear();
+            activeSlot++;
+            if (activeSlot > _slots - 1) {
+                activeSlot = 0;
             }
-        }
-        activeSlot++;
-        if (activeSlot > _slots - 1) {
-            activeSlot = 0;
         }
     }
 
