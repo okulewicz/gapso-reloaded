@@ -12,7 +12,7 @@ import pl.edu.pw.mini.gapso.optimizer.SamplingOptimizer;
 public class GlobalModelBoundsManagerTest {
     @Test
     public void getBounds() {
-        for (int dimension = 1; dimension < 21; ++dimension) {
+        for (int dimension = 2; dimension < 21; dimension += 6) {
             FunctionWhiteBox rastrigin = new RastriginFunction(dimension);
             double[] optimum = rastrigin.getOptimumLocation();
             Assert.assertEquals(0.0, rastrigin.getValue(optimum), 1e-8);
