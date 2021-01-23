@@ -10,6 +10,7 @@ import pl.edu.pw.mini.gapso.initializer.BoundsManager;
 import pl.edu.pw.mini.gapso.initializer.RandomInitializer;
 import pl.edu.pw.mini.gapso.optimizer.move.DEBest1Bin;
 import pl.edu.pw.mini.gapso.optimizer.move.Move;
+import pl.edu.pw.mini.gapso.optimizer.move.SHADE;
 import pl.edu.pw.mini.gapso.optimizer.restart.threshold.SmallestSpreadBelowThresholdRestartManager;
 import pl.edu.pw.mini.gapso.sample.Sample;
 
@@ -40,5 +41,15 @@ public class GAPSOOptimizerTest {
         MoveConfiguration moveConfiguration =
                 new MoveConfiguration(DEBest1Bin.NAME, 1000.0, 1, true, configuration);
         optimizeWithMoves(new Move[]{new DEBest1Bin(moveConfiguration)});
+    }
+
+    @Test
+    public void optimizeWithSHADE() {
+        SHADE.SHADEConfiguration configuration = new SHADE.SHADEConfiguration(
+                0.5, 0.9, 0.11, 6, 2.0);
+        MoveConfiguration moveConfiguration =
+                new MoveConfiguration(SHADE.NAME, 1000.0, 1, true, configuration);
+        Move shade = moveConfiguration.getMove();
+        optimizeWithMoves(new Move[]{shade});
     }
 }

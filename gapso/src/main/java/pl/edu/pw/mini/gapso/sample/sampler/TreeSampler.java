@@ -1,8 +1,8 @@
-package pl.edu.pw.mini.gapso.sample.tree;
+package pl.edu.pw.mini.gapso.sample.sampler;
 
-import pl.edu.pw.mini.gapso.sample.DistancedSample;
 import pl.edu.pw.mini.gapso.sample.Sample;
-import pl.edu.pw.mini.gapso.sample.Sampler;
+import pl.edu.pw.mini.gapso.sample.tree.DistancedSample;
+import pl.edu.pw.mini.gapso.sample.tree.RTree;
 
 import java.util.List;
 import java.util.stream.Collectors;

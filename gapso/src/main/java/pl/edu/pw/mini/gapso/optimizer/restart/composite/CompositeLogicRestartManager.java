@@ -33,4 +33,9 @@ public abstract class CompositeLogicRestartManager extends RestartManager {
         }
     }
 
+    @Override
+    public void reset() {
+        restartManagers.forEach(RestartManager::reset);
+    }
+
 }

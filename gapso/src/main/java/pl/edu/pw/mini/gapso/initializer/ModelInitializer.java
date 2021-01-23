@@ -6,8 +6,8 @@ import pl.edu.pw.mini.gapso.model.LinearModel;
 import pl.edu.pw.mini.gapso.model.Model;
 import pl.edu.pw.mini.gapso.model.SimpleSquareModel;
 import pl.edu.pw.mini.gapso.optimizer.SamplingOptimizer;
-import pl.edu.pw.mini.gapso.sample.AllSamplesSampler;
 import pl.edu.pw.mini.gapso.sample.Sample;
+import pl.edu.pw.mini.gapso.sample.sampler.AllSamplesSampler;
 
 import java.util.ArrayList;
 import java.util.List;

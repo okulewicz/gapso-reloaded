@@ -4,7 +4,6 @@ import org.junit.Test;
 import pl.edu.pw.mini.gapso.function.ConvexSquareFunction;
 import pl.edu.pw.mini.gapso.function.FunctionWhiteBox;
 import pl.edu.pw.mini.gapso.optimizer.restart.threshold.LargestSpreadBelowThresholdRestartManager;
-import pl.edu.pw.mini.gapso.sample.UpdatableSample;
 
 public class LargestSpreadBelowThresholdRestartManagerTest {
 
@@ -12,7 +11,6 @@ public class LargestSpreadBelowThresholdRestartManagerTest {
     public void shouldBeRestarted() {
 
         FunctionWhiteBox function = new ConvexSquareFunction();
-        UpdatableSample globalBest = UpdatableSample.generateInitialSample(function.getDimension());
 
         boolean[] restarts = new boolean[]{
                 false,
@@ -23,7 +21,7 @@ public class LargestSpreadBelowThresholdRestartManagerTest {
         };
 
         RestartManager observer = new LargestSpreadBelowThresholdRestartManager(RestartScheme.BORDERLINE_CASE_THRESHOLD);
-        RestartScheme.ValidateRestartManagerAgainstRestartsScheme(function, globalBest, RestartScheme.samples, restarts, observer);
+        RestartScheme.ValidateRestartManagerAgainstRestartsScheme(function, RestartScheme.samples, restarts, observer);
     }
 
 }

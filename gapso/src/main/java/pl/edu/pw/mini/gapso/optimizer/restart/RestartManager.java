@@ -6,4 +6,6 @@ import java.util.List;
 
 public abstract class RestartManager {
     public abstract boolean shouldBeRestarted(List<Particle> particleList);
+
+    public abstract void reset();
 }

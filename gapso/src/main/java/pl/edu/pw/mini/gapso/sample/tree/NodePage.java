@@ -1,7 +1,6 @@
 package pl.edu.pw.mini.gapso.sample.tree;
 
 import org.apache.commons.math3.ml.distance.EuclideanDistance;
-import pl.edu.pw.mini.gapso.sample.DistancedSample;
 import pl.edu.pw.mini.gapso.sample.Sample;
 import pl.edu.pw.mini.gapso.sample.SingleSample;
 

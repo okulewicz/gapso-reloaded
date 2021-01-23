@@ -27,4 +27,9 @@ public abstract class ThresholdRestartManager extends RestartManager {
         }
     }
 
+    @Override
+    public void reset() {
+        //DO NOTHING ON PURPOSE
+    }
+
 }

@@ -7,13 +7,14 @@ import pl.edu.pw.mini.gapso.optimizer.SamplingOptimizer;
 import java.util.List;
 
 public abstract class Move {
+    private final double initialWeight;
     private int minNumber;
     private double weight;
     private boolean isAdaptable;
 
     public Move(MoveConfiguration configuration) {
         this.minNumber = configuration.getMinimalAmount();
-        this.weight = configuration.getInitialWeight();
+        this.initialWeight = this.weight = configuration.getInitialWeight();
         this.isAdaptable = configuration.isAdaptable();
     }
 
@@ -33,5 +34,17 @@ public abstract class Move {
 
     public abstract void registerObjectsWithOptimizer(SamplingOptimizer samplingOptimizer);
 
-    public abstract void resetState();
+    public abstract void resetState(int particleCount);
+
+    public abstract void registerPersonalImprovement(double deltaY);
+
+    public abstract void newIteration();
+
+    public void setWeight(double weight) {
+        this.weight = weight;
+    }
+
+    public void resetWeight() {
+        this.weight = this.initialWeight;
+    }
 }

@@ -5,7 +5,6 @@ import pl.edu.pw.mini.gapso.function.Function;
 import pl.edu.pw.mini.gapso.optimizer.move.Move;
 import pl.edu.pw.mini.gapso.sample.Sample;
 import pl.edu.pw.mini.gapso.sample.SingleSample;
-import pl.edu.pw.mini.gapso.sample.UpdatableSample;
 
 import java.util.Arrays;
 import java.util.List;
@@ -13,23 +12,21 @@ import java.util.List;
 public class Particle {
     private static final int MAX_COUNTER = 10;
     private final List<Particle> _particles;
-    private int index;
+    private final Swarm _swarm;
     private final Function _function;
-    private final UpdatableSample globalBest;
+    private final int index;
     private Sample current;
     private Sample best;
-    private IndexContainer globalBestIndexContainer;
 
-    public Particle(double[] initialLocation, Function function, UpdatableSample bestHolder, IndexContainer indexContainer, List<Particle> particles) {
+    public Particle(double[] initialLocation, Function function, Swarm swarm) {
         _function = function;
-        _particles = particles;
+        _particles = swarm.getParticles();
+        _swarm = swarm;
         Sample sample = initializeLocation(initialLocation, function);
         current = sample;
         best = sample;
-        globalBest = bestHolder;
-        globalBestIndexContainer = indexContainer;
-        index = particles.size();
-        particles.add(this);
+        index = _particles.size();
+        _particles.add(this);
         tryUpdateGlobalBest();
     }
 
@@ -42,7 +39,7 @@ public class Particle {
     }
 
     public int getGlobalBestIndex() {
-        return globalBestIndexContainer.getIndex();
+        return _swarm.getGlobalBestIdx();
     }
 
     public Function getFunction() {
@@ -50,21 +47,9 @@ public class Particle {
     }
 
     private void tryUpdateGlobalBest() {
-        if (best.getY() < globalBest.getY()) {
-            globalBest.updateSample(best);
-            globalBestIndexContainer.setIndex(index);
-        }
-    }
-
-    public static class IndexContainer {
-        private int index;
-
-        public int getIndex() {
-            return index;
-        }
-
-        public void setIndex(int index) {
-            this.index = index;
+        if (best.getY() < _swarm.getGlobalBest().getY()) {
+            _swarm.setGlobalBest(best);
+            _swarm.setGlobalBestIdx(index);
         }
     }
 
@@ -73,9 +58,15 @@ public class Particle {
         return new SingleSample(initialLocation, value);
     }
 
-    public void move(Move availableMove) {
+    public ParticleMoveResults move(Move availableMove) {
         current = getSampleWithinFunctionBounds(availableMove);
+        ParticleMoveResults pmr = new ParticleMoveResults(
+                _swarm.getGlobalBest().getY() - current.getY(),
+                best.getY() - current.getY(),
+                best
+        );
         tryUpdatePersonalBest();
+        return pmr;
     }
 
     private void tryUpdatePersonalBest() {

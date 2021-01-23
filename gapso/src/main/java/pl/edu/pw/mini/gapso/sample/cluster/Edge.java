@@ -1,4 +1,4 @@
-package pl.edu.pw.mini.gapso.sample;
+package pl.edu.pw.mini.gapso.sample.cluster;
 
 public class Edge {
     private ScaledAssignedSample node1;

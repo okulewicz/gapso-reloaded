@@ -5,11 +5,9 @@ import org.junit.Test;
 import pl.edu.pw.mini.gapso.function.ConvexSeparableSquareFunction;
 import pl.edu.pw.mini.gapso.function.FunctionWhiteBox;
 import pl.edu.pw.mini.gapso.optimizer.Particle;
-import pl.edu.pw.mini.gapso.sample.UpdatableSample;
+import pl.edu.pw.mini.gapso.optimizer.Swarm;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class DEBest1BinTest {
 
@@ -57,22 +55,20 @@ public class DEBest1BinTest {
         optTop[1] += 1.0;
         double[] optBottom = Arrays.copyOf(opt, opt.length);
         optBottom[1] -= 1.0;
-        UpdatableSample globalBest = UpdatableSample.generateInitialSample(squareFunction.getDimension());
 
-        Particle.IndexContainer indexContainer = new Particle.IndexContainer();
-        List<Particle> particles = new ArrayList<>();
+        Swarm swarm = new Swarm();
 
-        Particle particleTop = new Particle(optTop, squareFunction, globalBest, indexContainer, particles);
+        Particle particleTop = new Particle(optTop, squareFunction, swarm);
         Assert.assertEquals(0, particleTop.getGlobalBestIndex());
         Assert.assertEquals(0, particleTop.getIndex());
 
-        Particle particleBottom = new Particle(optBottom, squareFunction, globalBest, indexContainer, particles);
+        Particle particleBottom = new Particle(optBottom, squareFunction, swarm);
         Assert.assertEquals(0, particleTop.getGlobalBestIndex());
         Assert.assertEquals(0, particleBottom.getGlobalBestIndex());
         Assert.assertEquals(0, particleTop.getIndex());
         Assert.assertEquals(1, particleBottom.getIndex());
 
-        Particle particleLeft = new Particle(optLeft, squareFunction, globalBest, indexContainer, particles);
+        Particle particleLeft = new Particle(optLeft, squareFunction, swarm);
         Assert.assertEquals(2, particleTop.getGlobalBestIndex());
         Assert.assertEquals(2, particleBottom.getGlobalBestIndex());
         Assert.assertEquals(2, particleLeft.getGlobalBestIndex());
@@ -80,7 +76,7 @@ public class DEBest1BinTest {
         Assert.assertEquals(1, particleBottom.getIndex());
         Assert.assertEquals(2, particleLeft.getIndex());
 
-        Particle particleRight = new Particle(optRight, squareFunction, globalBest, indexContainer, particles);
+        Particle particleRight = new Particle(optRight, squareFunction, swarm);
         Assert.assertEquals(2, particleTop.getGlobalBestIndex());
         Assert.assertEquals(2, particleBottom.getGlobalBestIndex());
         Assert.assertEquals(2, particleLeft.getGlobalBestIndex());
@@ -91,7 +87,7 @@ public class DEBest1BinTest {
         Assert.assertEquals(3, particleRight.getIndex());
 
 
-        Particle particleOpt = new Particle(opt, squareFunction, globalBest, indexContainer, particles);
+        Particle particleOpt = new Particle(opt, squareFunction, swarm);
         Assert.assertEquals(4, particleTop.getGlobalBestIndex());
         Assert.assertEquals(4, particleBottom.getGlobalBestIndex());
         Assert.assertEquals(4, particleLeft.getGlobalBestIndex());

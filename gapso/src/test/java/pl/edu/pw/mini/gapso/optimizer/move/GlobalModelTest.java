@@ -10,7 +10,7 @@ import pl.edu.pw.mini.gapso.initializer.RandomInitializer;
 import pl.edu.pw.mini.gapso.model.FullSquareModel;
 import pl.edu.pw.mini.gapso.optimizer.MySamplingOptimizer;
 import pl.edu.pw.mini.gapso.optimizer.Particle;
-import pl.edu.pw.mini.gapso.sample.UpdatableSample;
+import pl.edu.pw.mini.gapso.optimizer.Swarm;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,20 +46,18 @@ public class GlobalModelTest {
             double[] sample = generator.getNextSample(wrappedFunction.getBounds());
             wrappedFunction.getValue(sample);
         }
-        List<Particle> particles = new ArrayList<>();
-        UpdatableSample globalBest = UpdatableSample.generateInitialSample(wrappedFunction.getDimension());
-        Particle.IndexContainer indexContainer = new Particle.IndexContainer();
+        Swarm swarm = new Swarm();
         double[] sample = generator.getNextSample(wrappedFunction.getBounds());
-        Particle p = new Particle(sample, wrappedFunction, globalBest, indexContainer, particles);
-        double[] modelResult = globalModel.getNext(p, particles);
+        Particle p = new Particle(sample, wrappedFunction, swarm);
+        double[] modelResult = globalModel.getNext(p, swarm.getParticles());
         Assert.assertNotEquals(function.getOptimumLocation()[0], modelResult[0], 1e-8);
         Assert.assertNotEquals(function.getOptimumLocation()[1], modelResult[1], 1e-8);
-        modelResult = globalModel.getNext(p, particles);
+        modelResult = globalModel.getNext(p, swarm.getParticles());
         Assert.assertArrayEquals(function.getOptimumLocation(), modelResult, 1e-8);
-        modelResult = globalModel.getNext(p, particles);
+        modelResult = globalModel.getNext(p, swarm.getParticles());
         Assert.assertNotEquals(function.getOptimumLocation()[0], modelResult[0], 1e-8);
         Assert.assertNotEquals(function.getOptimumLocation()[1], modelResult[1], 1e-8);
-        modelResult = globalModel.getNext(p, particles);
+        modelResult = globalModel.getNext(p, swarm.getParticles());
         Assert.assertArrayEquals(function.getOptimumLocation(), modelResult, 1e-8);
     }
 }

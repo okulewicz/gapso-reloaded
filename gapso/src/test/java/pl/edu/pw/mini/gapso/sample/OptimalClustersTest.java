@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import pl.edu.pw.mini.gapso.function.Function;
 import pl.edu.pw.mini.gapso.function.RastriginFunction;
+import pl.edu.pw.mini.gapso.sample.cluster.OptimalClusters;
 
 import java.util.ArrayList;
 import java.util.Arrays;

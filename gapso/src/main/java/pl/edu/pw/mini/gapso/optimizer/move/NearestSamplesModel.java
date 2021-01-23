@@ -4,7 +4,7 @@ import pl.edu.pw.mini.gapso.configuration.MoveConfiguration;
 import pl.edu.pw.mini.gapso.optimizer.Particle;
 import pl.edu.pw.mini.gapso.optimizer.SamplingOptimizer;
 import pl.edu.pw.mini.gapso.sample.Sample;
-import pl.edu.pw.mini.gapso.sample.tree.TreeSampler;
+import pl.edu.pw.mini.gapso.sample.sampler.TreeSampler;
 
 import java.util.List;
 
@@ -33,10 +33,21 @@ public class NearestSamplesModel extends ModelMove {
     }
 
     @Override
-    public void resetState() {
+    public void resetState(int particleCount) {
         if (treeSampler != null) {
             treeSampler.clear();
         }
         treeSampler = new TreeSampler();
+        resetWeight();
+    }
+
+    @Override
+    public void registerPersonalImprovement(double deltaY) {
+        //DO NOTHING ON PURPOSE
+    }
+
+    @Override
+    public void newIteration() {
+        //DO NOTHING ON PURPOSE
     }
 }

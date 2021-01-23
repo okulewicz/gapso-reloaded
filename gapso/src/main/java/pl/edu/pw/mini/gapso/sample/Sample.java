@@ -10,7 +10,7 @@ public abstract class Sample {
         return getDistance(otherX);
     }
 
-    protected double getDistance(double[] otherX) {
+    public double getDistance(double[] otherX) {
         final double[] thisX = this.getX();
         final int thisDim = thisX.length;
         final int otherDim = otherX.length;
@@ -23,7 +23,7 @@ public abstract class Sample {
         return Math.sqrt(distance);
     }
 
-    protected double getDistanceInDimension(double[] refPoint, int dim) {
+    public double getDistanceInDimension(double[] refPoint, int dim) {
         double distance = 0.0;
         double[] samplePoint = this.getX();
         for (int i = 0; i < refPoint.length && i < samplePoint.length; ++i) {
