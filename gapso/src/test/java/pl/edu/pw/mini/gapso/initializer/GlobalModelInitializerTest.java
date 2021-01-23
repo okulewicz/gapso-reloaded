@@ -2,9 +2,16 @@ package pl.edu.pw.mini.gapso.initializer;
 
 import org.junit.Assert;
 import org.junit.Test;
+import pl.edu.pw.mini.gapso.bounds.Bounds;
+import pl.edu.pw.mini.gapso.bounds.SimpleBounds;
 import pl.edu.pw.mini.gapso.function.ChaoticFunction;
 import pl.edu.pw.mini.gapso.function.RastriginFunction;
 import pl.edu.pw.mini.gapso.optimizer.RandomOptimizer;
+import pl.edu.pw.mini.gapso.sample.Sample;
+import pl.edu.pw.mini.gapso.sample.SingleSample;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class GlobalModelInitializerTest {
 
@@ -20,22 +27,28 @@ public class GlobalModelInitializerTest {
         Assert.assertFalse(modelInitializer.canSample());
         modelInitializer.resetInitializer(false);
         Assert.assertTrue(modelInitializer.canSample());
-        double[] cum = new double[dimension];
-        for (int i = 0; i < 10; ++i) {
-            double[] x = modelInitializer.getNextSample(rastriginFunction.getBounds());
-            for (int j = 0; j < dimension; ++j) {
-                cum[j] += x[j];
+        for (int testNo = 0; testNo < 10; ++testNo) {
+            double[] cum = new double[dimension];
+            int samplesCount = 30;
+            List<Sample> samplesList = new ArrayList<>();
+            for (int i = 0; i < samplesCount; ++i) {
+                double[] x = modelInitializer.getNextSample(rastriginFunction.getBounds());
+                double y = rastriginFunction.getValue(x);
+                Sample sample = new SingleSample(x, y);
+                samplesList.add(sample);
+                for (int j = 0; j < dimension; ++j) {
+                    cum[j] += x[j];
+                }
             }
-            System.out.println(getDistance(x, rastriginFunction.getOptimumLocation()));
-            System.out.println(getMaxDistance(x, rastriginFunction.getOptimumLocation()));
-            System.out.println(getMinDistance(x, rastriginFunction.getOptimumLocation()));
+            for (int j = 0; j < dimension; ++j) {
+                cum[j] /= samplesCount;
+            }
+            Assert.assertTrue(getDistance(cum, rastriginFunction.getOptimumLocation()) < 1e-1);
+            Assert.assertTrue(getMaxDistance(cum, rastriginFunction.getOptimumLocation()) < 1e-1);
+            Assert.assertTrue(getMinDistance(cum, rastriginFunction.getOptimumLocation()) < 1e-2);
+            Bounds bounds = SimpleBounds.createBoundsFromSamples(samplesList);
+            Assert.assertTrue("Failed at " + testNo, bounds.strictlyContain(rastriginFunction.getOptimumLocation()));
         }
-        for (int j = 0; j < dimension; ++j) {
-            cum[j] /= 10;
-        }
-        System.out.println(getDistance(cum, rastriginFunction.getOptimumLocation()));
-        System.out.println(getMaxDistance(cum, rastriginFunction.getOptimumLocation()));
-        System.out.println(getMinDistance(cum, rastriginFunction.getOptimumLocation()));
         modelInitializer.resetInitializer(true);
         modelInitializer.registerObjectsWithOptimizer(randomOptimizer);
         Assert.assertFalse(modelInitializer.canSample());

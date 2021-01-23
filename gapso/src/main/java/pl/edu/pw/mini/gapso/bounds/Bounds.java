@@ -19,7 +19,7 @@ public abstract class Bounds {
         return true;
     }
 
-    public boolean striclyContain(double[] sample) {
+    public boolean strictlyContain(double[] sample) {
         final double[] lower = getLower();
         final double[] upper = getUpper();
         for (int i = 0; i < sample.length; ++i) {
