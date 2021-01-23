@@ -19,6 +19,7 @@ import java.util.List;
  */
 public class ExampleExperiment {
     public static final String BBOB_PROPERTIES = "bbob.properties";
+    public static final String GIT_PROPERTIES = "git.properties";
     public static final String GAPSO_JSON = "gapso.json";
     public static final String EXDATA = "exdata";
     /**
@@ -157,8 +158,8 @@ public class ExampleExperiment {
     }
 
     private static String buildObserverOptions(String suiteName, BBOBExperimentConfigurator bbobConfigurator) {
-        return "result_folder: " + bbobConfigurator.getExperimentName() +
-                " algorithm_name: " + bbobConfigurator.getExperimentName() +
+        return "result_folder: " + bbobConfigurator.getExperimentName() + "-" + bbobConfigurator.getBuildId() +
+                " algorithm_name: " + bbobConfigurator.getExperimentName() + "-" + bbobConfigurator.getBuildId() +
                 " algorithm_info: " + bbobConfigurator.getExperimentName() +
                 "";
     }

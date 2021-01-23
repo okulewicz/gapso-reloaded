@@ -7,5 +7,7 @@ public interface BBOBExperimentConfigurator {
 
     String getExperimentName();
 
+    String getBuildId();
+
     boolean isFunctionMappingExperiment();
 }

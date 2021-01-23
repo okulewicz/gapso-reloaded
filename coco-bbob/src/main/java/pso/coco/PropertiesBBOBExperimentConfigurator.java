@@ -13,6 +13,7 @@ public class PropertiesBBOBExperimentConfigurator implements BBOBExperimentConfi
     private String dimensionsStr;
     private String experimentName;
     private boolean functionMappingExperiment;
+    private String buildId;
 
     public PropertiesBBOBExperimentConfigurator() {
         final Properties properties = new Properties();
@@ -23,14 +24,24 @@ public class PropertiesBBOBExperimentConfigurator implements BBOBExperimentConfi
                 inputStream.close();
             } catch (IOException e1) {
                 InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("bbob.default.properties");
+                assert inputStream != null;
                 properties.load(inputStream);
                 inputStream.close();
             }
             dimensionsStr = properties.getProperty("bbob.dimensions");
             bbobFunctionStr = properties.getProperty("bbob.function");
             functionMappingExperiment = Boolean.parseBoolean(properties.getProperty("bbob.map.function"));
-
             experimentName = properties.getProperty("experiment.name");
+            try {
+                InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("git.properties");
+                Properties gitProperties = new Properties();
+                assert inputStream != null;
+                gitProperties.load(inputStream);
+                buildId = gitProperties.getProperty("git-commit");
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -39,6 +50,11 @@ public class PropertiesBBOBExperimentConfigurator implements BBOBExperimentConfi
     @Override
     public String getExperimentName() {
         return experimentName;
+    }
+
+    @Override
+    public String getBuildId() {
+        return buildId;
     }
 
     @Override
@@ -58,7 +74,7 @@ public class PropertiesBBOBExperimentConfigurator implements BBOBExperimentConfi
         return Arrays.stream(
                 dimensionsStr
                         .split(","))
-                .mapToInt(item -> Integer.parseInt(item))
+                .mapToInt(Integer::parseInt)
                 .toArray()
                 ;
     }

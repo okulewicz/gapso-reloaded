@@ -28,9 +28,6 @@ build {
     Properties properties = new Properties()
     properties.put("git-commit", getCheckedOutGitCommitHash())
     properties.store(file(propFileName).newOutputStream(),"")
-    doLast {
-        println getCheckedOutGitCommitHash()
-    }
 }
 
 jar {
