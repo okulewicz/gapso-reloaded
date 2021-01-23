@@ -8,11 +8,12 @@ import pl.edu.pw.mini.gapso.function.FunctionWhiteBox;
 import pl.edu.pw.mini.gapso.function.RastriginFunction;
 import pl.edu.pw.mini.gapso.optimizer.RandomOptimizer;
 import pl.edu.pw.mini.gapso.optimizer.SamplingOptimizer;
+import pl.edu.pw.mini.gapso.utils.Generator;
 
 public class GlobalModelBoundsManagerTest {
     @Test
     public void getBounds() {
-        for (int dimension = 2; dimension < 21; dimension += 6) {
+        for (int dimension = Generator.RANDOM.nextInt(4) + 1; dimension < 24; dimension += 6) {
             FunctionWhiteBox rastrigin = new RastriginFunction(dimension);
             double[] optimum = rastrigin.getOptimumLocation();
             Assert.assertEquals(0.0, rastrigin.getValue(optimum), 1e-8);
