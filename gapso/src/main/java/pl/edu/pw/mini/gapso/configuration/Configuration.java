@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import org.apache.commons.io.IOUtils;
 import pl.edu.pw.mini.gapso.initializer.BoundsManager;
 import pl.edu.pw.mini.gapso.initializer.Initializer;
-import pl.edu.pw.mini.gapso.optimizer.move.Move;
+import pl.edu.pw.mini.gapso.optimizer.move.MoveManager;
 import pl.edu.pw.mini.gapso.optimizer.restart.RestartManager;
 
 import java.io.IOException;
@@ -29,8 +29,8 @@ public class Configuration {
     private RestartConfiguration restartManagerDefinition;
     @SuppressWarnings("unused")
     private InitializerConfiguration initializerDefinition;
-    @SuppressWarnings({"unused", "MismatchedReadAndWriteOfArray"})
-    private MoveConfiguration[] moveDefinition;
+
+    private MoveManagerConfiguration moveManagerDefinition;
 
     public int getEvaluationsBudgetPerDimension() {
         return evaluationsBudgetPerDimension;
@@ -67,14 +67,6 @@ public class Configuration {
         return seed;
     }
 
-    public Move[] getMoves() {
-        Move[] returnMoves = new Move[moveDefinition.length];
-        for (int i = 0; i < returnMoves.length; ++i) {
-            returnMoves[i] = moveDefinition[i].getMove();
-        }
-        return returnMoves;
-    }
-
     public int getParticlesCountPerDimension() {
         return particlesCountPerDimension;
     }
@@ -90,5 +82,9 @@ public class Configuration {
 
     public BoundsManager getBoundsManager() {
         return boundsManagerDefinition.getBoundsManager();
+    }
+
+    public MoveManager getMoveManager() {
+        return moveManagerDefinition.getMoveManager();
     }
 }

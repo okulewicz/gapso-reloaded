@@ -27,7 +27,7 @@ public class GAPSOOptimizer extends SamplingOptimizer {
     private final RestartManager _restartManager;
     private final BoundsManager _boundsManager;
     private UpdatableSample totalGlobalBest;
-    private MoveManager moveManager;
+    private MoveManager _moveManager;
     private Bounds bounds;
 
     @Override
@@ -40,19 +40,20 @@ public class GAPSOOptimizer extends SamplingOptimizer {
         successSamplers.add(sampler);
     }
 
-    public GAPSOOptimizer(int particlesCount, int evaluationsBudget, Move[] availableMoves, Initializer initializer, RestartManager restartManager, BoundsManager boundsManager) {
+    public GAPSOOptimizer(int particlesCount, int evaluationsBudget, MoveManager moveManager, Initializer initializer, RestartManager restartManager, BoundsManager boundsManager) {
         _particlesCountPerDimension = particlesCount;
         _evaluationsBudgetPerDimension = evaluationsBudget;
-        _availableMoves = availableMoves;
+        _availableMoves = moveManager.getMoves();
         _initializer = initializer;
         _restartManager = restartManager;
         _boundsManager = boundsManager;
+        this._moveManager = moveManager;
     }
 
     public GAPSOOptimizer() {
         this(Configuration.getInstance().getParticlesCountPerDimension(),
                 Configuration.getInstance().getEvaluationsBudgetPerDimension(),
-                Configuration.getInstance().getMoves(),
+                Configuration.getInstance().getMoveManager(),
                 Configuration.getInstance().getInitializer(),
                 Configuration.getInstance().getRestartManager(),
                 Configuration.getInstance().getBoundsManager());
@@ -75,8 +76,8 @@ public class GAPSOOptimizer extends SamplingOptimizer {
             }
             final List<Particle> particles = swarm.getParticles();
             while (isEnoughOptimizationBudgetLeftAndNeedsOptimization(function)) {
-                List<Move> moves = moveManager.generateMoveSequence(particles.size());
-                moveManager.startNewIteration();
+                List<Move> moves = _moveManager.generateMoveSequence(particles.size());
+                _moveManager.startNewIteration();
                 Iterator<Move> movesIterator = moves.iterator();
                 for (Particle particle : particles) {
                     Move selectedMove = movesIterator.next();
@@ -84,8 +85,8 @@ public class GAPSOOptimizer extends SamplingOptimizer {
                     if (result.getPersonalImprovement() > 0) {
                         successSamplers.forEach(s -> s.tryStoreSample(result.previousBest));
                     }
-                    moveManager.registerPersonalImprovementByMove(selectedMove, result.getPersonalImprovement());
-                    moveManager.registerGlobalImprovementByMove(selectedMove, result.getGlobalImprovement());
+                    _moveManager.registerPersonalImprovementByMove(selectedMove, result.getPersonalImprovement());
+                    _moveManager.registerGlobalImprovementByMove(selectedMove, result.getGlobalImprovement());
                 }
                 if (_restartManager.shouldBeRestarted(particles)) {
                     _boundsManager.registerOptimumLocation(swarm.getGlobalBest());
@@ -117,7 +118,7 @@ public class GAPSOOptimizer extends SamplingOptimizer {
             move.registerObjectsWithOptimizer(this);
         }
         bounds = _boundsManager.getBounds();
-        moveManager = new MoveManager(_availableMoves);
+        _moveManager.reset();
     }
 
     private void resetAfterOptimizationRestart() {
@@ -128,7 +129,7 @@ public class GAPSOOptimizer extends SamplingOptimizer {
         _initializer.registerObjectsWithOptimizer(this);
         bounds = _boundsManager.getBounds();
         _restartManager.reset();
-        moveManager.maySwitchOffAdaptaion();
+        _moveManager.maySwitchOffAdaptation();
     }
 
     private boolean isEnoughOptimizationBudgetLeftAndNeedsOptimization(Function function) {

@@ -26,7 +26,6 @@ public class MoveConfiguration {
         this.parameters = gson.toJsonTree(parameters);
     }
 
-    @SuppressWarnings("unused")
     private double minimalRatio;
 
     public String getName() {

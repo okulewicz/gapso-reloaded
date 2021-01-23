@@ -11,6 +11,7 @@ which consists of the following modules:
  * Restart manager - decides if the population needs to be restarted
  and optimization process started again (possibly within different bounds
  or with different initialization strategy)
+ * MoveManager - sampler of possible moves
  * Moves - the actual optimizers
 
 ## General settings (gapso.json)
@@ -24,7 +25,7 @@ which consists of the following modules:
   "boundsManagerDefinition": {},
   "initializerDefinition": {},
   "restartManagerDefinition": {},
-  "moveDefinition": []
+  "moveManagerDefinition": {}
 }
 ```
 
@@ -104,6 +105,23 @@ which consists of the following modules:
 ```
   * And
 
+## MovesManager  
+
+Moves manager decides what to do with moves weights and adapts them on the basis of improvements
+made by particular moves
+
+```json
+{
+    "adaptMoves": false,
+    "maxHistorySize": 0,
+    "includePersonalImprovements": false,
+    "includeGlobalImprovements": false,
+    "switchingAdaptationOffProbability": 0.0,
+    "moves": []
+}
+
+```
+
 ## Moves
 
   * DE/best/1/bin -
@@ -114,6 +132,7 @@ which consists of the following modules:
   "isAdaptable": true,
   "initialWeight": 1000,
   "minimalAmount": 1,
+  "minimalRatio": 0.0,
   "parameters": {
     "crossProb": 0.5,
     "scale": 1.2,
@@ -122,6 +141,25 @@ which consists of the following modules:
   }
 }
 ```
+
+  * SHADE (without decreasing population size)
+  
+```json
+  {
+    "name": "SHADE",
+    "isAdaptable": true,
+    "initialWeight": 3000,
+    "minimalAmount": 1,
+    "parameters": {
+      "crossProb": 0.9,
+      "scale": 0.6,
+      "pBestRatio": 0.11,
+      "archiveSizeFactor": 2.0,
+      "slots": 6
+    }
+  }
+```
+
   * LocalBestModel - tries to apply the first model with enough samples and current availability
   model is fitted on particles' bests
 
@@ -131,6 +169,7 @@ which consists of the following modules:
       "isAdaptable": true,
       "initialWeight": 500,
       "minimalAmount": 1,
+      "minimalRatio": 0.05,
       "parameters": {
         "models": [
         {
@@ -155,6 +194,7 @@ which consists of the following modules:
   "isAdaptable": false,
   "initialWeight": 0,
   "minimalAmount": 2,
+  "minimalRatio": 0.05,
   "parameters": {
     "models": [
       {
@@ -165,9 +205,35 @@ which consists of the following modules:
         "modelType" : "SimpleSquare",
         "modelUseFrequency": 1
       }
-    ]
+    ],
+    "clusteringType": "NONE|LARGEST|BEST"
   }
 }
 ```
 
+  * NearestSamples - tries to apply the first model with enough samples and current availability
+  model is fitted on subset of samples nearby to currently selected particles' best
+
+```json
+{
+  "name": "NearestSamples",
+  "isAdaptable": false,
+  "initialWeight": 0,
+  "minimalAmount": 2,
+  "minimalRatio": 0.1,
+  "parameters": {
+    "models": [
+      {
+        "modelType" : "FullSquare",
+        "modelUseFrequency": 20
+      },
+      {
+        "modelType" : "SimpleSquare",
+        "modelUseFrequency": 1
+      }
+    ],
+    "clusteringType": "NONE|LARGEST|BEST"
+  }
+}
+```
 
