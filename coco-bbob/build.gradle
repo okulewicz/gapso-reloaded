@@ -22,6 +22,7 @@ dependencies {
 build {
     def propFileName = "${buildDir}/resources/main/git.properties"
     def propFile = new File(propFileName)
+    propFile.mkdirs()
     if (propFile.exists()) {
         propFile.delete()
     }
