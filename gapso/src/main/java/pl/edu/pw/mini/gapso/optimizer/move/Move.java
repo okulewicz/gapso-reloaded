@@ -8,12 +8,14 @@ import java.util.List;
 
 public abstract class Move {
     private final double initialWeight;
-    private int minNumber;
+    private final double minimalRatio;
+    private final int minNumber;
     private double weight;
-    private boolean isAdaptable;
+    private final boolean isAdaptable;
 
     public Move(MoveConfiguration configuration) {
         this.minNumber = configuration.getMinimalAmount();
+        this.minimalRatio = configuration.getMinimalRatio();
         this.initialWeight = this.weight = configuration.getInitialWeight();
         this.isAdaptable = configuration.isAdaptable();
     }
@@ -46,5 +48,9 @@ public abstract class Move {
 
     public void resetWeight() {
         this.weight = this.initialWeight;
+    }
+
+    public double getMinimalRatio() {
+        return minimalRatio;
     }
 }

@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class MoveManager {
     private final Move[] _moves;
     private HashMap<Move, List<List<Double>>> movesImprovementsDictionary;
-    private final static int maxHistorySize = 10;
+    private final int maxHistorySize;
     private final boolean initiallyAdaptMoves;
     private final boolean includePersonalImprovements;
     private final boolean includeGlobalImprovements;
@@ -26,6 +26,7 @@ public class MoveManager {
         includeGlobalImprovements = configuration.isIncludeGlobalImprovements();
         includePersonalImprovements = configuration.isIncludePersonalImprovements();
         switchingAdaptationOffProbability = configuration.getSwitchingAdaptationOffProbability();
+        maxHistorySize = configuration.getMaxHistorySize();
         _moves = moves;
         movesImprovementsDictionary = new HashMap<>();
         for (Move move : _moves) {
@@ -76,7 +77,10 @@ public class MoveManager {
     protected List<Move> generateMovesAccordingToWeights(int size, ArrayList<Pair<Move, Double>> pairs) {
         List<Move> movesSequence = new ArrayList<>();
         for (Move move : _moves) {
-            for (int j = 0; j < move.getMinNumber(); ++j) {
+            final int movesCount = Math.max(
+                    (int) Math.floor(size * move.getMinimalRatio()),
+                    move.getMinNumber());
+            for (int j = 0; j < movesCount; ++j) {
                 movesSequence.add(move);
             }
         }

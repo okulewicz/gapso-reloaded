@@ -48,6 +48,7 @@ public class MoveManagerTest {
         MoveManagerConfiguration moveManagerConfiguration = new MoveManagerConfiguration(
                 false,
                 0,
+                0,
                 false,
                 false,
                 movesConfiguration

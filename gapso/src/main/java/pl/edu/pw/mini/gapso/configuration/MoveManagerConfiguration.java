@@ -11,9 +11,13 @@ public class MoveManagerConfiguration {
     private boolean includePersonalImprovements;
     private boolean includeGlobalImprovements;
     private List<MoveConfiguration> moves;
+    private int maxHistorySize;
 
-    public MoveManagerConfiguration(boolean adaptMoves, double switchingAdaptationOffProbability, boolean includePersonalImprovements, boolean includeGlobalImprovements, List<MoveConfiguration> moves) {
+    public MoveManagerConfiguration(boolean adaptMoves, int maxHistorySize, double switchingAdaptationOffProbability,
+                                    boolean includePersonalImprovements, boolean includeGlobalImprovements,
+                                    List<MoveConfiguration> moves) {
         this.adaptMoves = adaptMoves;
+        this.maxHistorySize = maxHistorySize;
         this.switchingAdaptationOffProbability = switchingAdaptationOffProbability;
         this.includePersonalImprovements = includePersonalImprovements;
         this.includeGlobalImprovements = includeGlobalImprovements;
@@ -42,4 +46,7 @@ public class MoveManagerConfiguration {
         return new MoveManager(movesArray, this);
     }
 
+    public int getMaxHistorySize() {
+        return this.maxHistorySize;
+    }
 }

@@ -49,6 +49,7 @@ public class GAPSOOptimizerTest {
         MoveManagerConfiguration moveManagerConfiguration = new MoveManagerConfiguration(
                 false,
                 0,
+                0,
                 false,
                 false,
                 movesConfiguration
@@ -67,6 +68,7 @@ public class GAPSOOptimizerTest {
         movesConfiguration.add(moveConfiguration);
         MoveManagerConfiguration moveManagerConfiguration = new MoveManagerConfiguration(
                 false,
+                0,
                 0,
                 false,
                 false,

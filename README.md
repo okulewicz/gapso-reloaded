@@ -113,6 +113,7 @@ made by particular moves
 ```json
 {
     "adaptMoves": false,
+    "maxHistorySize": 0,
     "includePersonalImprovements": false,
     "includeGlobalImprovements": false,
     "switchingAdaptationOffProbability": 0.0,
@@ -131,6 +132,7 @@ made by particular moves
   "isAdaptable": true,
   "initialWeight": 1000,
   "minimalAmount": 1,
+  "minimalRatio": 0.0,
   "parameters": {
     "crossProb": 0.5,
     "scale": 1.2,
@@ -167,6 +169,7 @@ made by particular moves
       "isAdaptable": true,
       "initialWeight": 500,
       "minimalAmount": 1,
+      "minimalRatio": 0.05,
       "parameters": {
         "models": [
         {
@@ -191,6 +194,7 @@ made by particular moves
   "isAdaptable": false,
   "initialWeight": 0,
   "minimalAmount": 2,
+  "minimalRatio": 0.05,
   "parameters": {
     "models": [
       {
@@ -207,4 +211,29 @@ made by particular moves
 }
 ```
 
+  * NearestSamples - tries to apply the first model with enough samples and current availability
+  model is fitted on subset of samples nearby to currently selected particles' best
+
+```json
+{
+  "name": "NearestSamples",
+  "isAdaptable": false,
+  "initialWeight": 0,
+  "minimalAmount": 2,
+  "minimalRatio": 0.1,
+  "parameters": {
+    "models": [
+      {
+        "modelType" : "FullSquare",
+        "modelUseFrequency": 20
+      },
+      {
+        "modelType" : "SimpleSquare",
+        "modelUseFrequency": 1
+      }
+    ],
+    "clusteringType": "NONE|LARGEST|BEST"
+  }
+}
+```
 

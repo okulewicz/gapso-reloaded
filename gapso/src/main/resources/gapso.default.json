@@ -26,6 +26,8 @@
   },
   "moveManagerDefinition": {
     "adaptMoves": false,
+    "maxHistorySize": 0,
+    "minimalRatio": 0.0,
     "includePersonalImprovements": false,
     "includeGlobalImprovements": false,
     "switchingAdaptationOffProbability": 0.0,
