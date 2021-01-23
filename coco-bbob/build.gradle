@@ -19,6 +19,20 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
+build {
+    def propFileName = "${buildDir}/resources/main/git.properties"
+    def propFile = new File(propFileName)
+    if (propFile.exists()) {
+        propFile.delete()
+    }
+    Properties properties = new Properties()
+    properties.put("git-commit", getCheckedOutGitCommitHash())
+    properties.store(file(propFileName).newOutputStream(),"")
+    doLast {
+        println getCheckedOutGitCommitHash()
+    }
+}
+
 jar {
     manifest {
         attributes "Main-Class": "pso.coco.ExampleExperiment"
