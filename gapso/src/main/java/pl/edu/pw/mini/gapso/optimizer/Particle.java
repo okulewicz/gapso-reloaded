@@ -73,9 +73,15 @@ public class Particle {
         return new SingleSample(initialLocation, value);
     }
 
-    public void move(Move availableMove) {
+    public ParticleMoveResults move(Move availableMove) {
         current = getSampleWithinFunctionBounds(availableMove);
+        ParticleMoveResults pmr = new ParticleMoveResults(
+                globalBest.getY() - current.getY(),
+                best.getY() - current.getY(),
+                best
+        );
         tryUpdatePersonalBest();
+        return pmr;
     }
 
     private void tryUpdatePersonalBest() {

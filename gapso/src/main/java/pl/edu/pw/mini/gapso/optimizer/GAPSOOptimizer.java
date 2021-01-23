@@ -77,20 +77,16 @@ public class GAPSOOptimizer extends SamplingOptimizer {
             }
             while (isEnoughOptimizationBudgetLeftAndNeedsOptimization(function)) {
                 List<Move> moves = moveManager.generateMoveSequence(particles.size());
+                moveManager.startNewIteration();
                 Iterator<Move> movesIterator = moves.iterator();
                 for (Particle particle : particles) {
                     Move selectedMove = movesIterator.next();
-                    double globalBestValue = globalBest.getY();
-                    Sample personalBest = particle.getBest();
-                    final double personalBestValue = personalBest.getY();
-                    particle.move(selectedMove);
-                    final Sample newPersonalBest = particle.getBest();
-                    double newPersonalBestValue = newPersonalBest.getY();
-                    if (newPersonalBestValue < personalBestValue) {
-                        successSamplers.forEach(s -> s.tryStoreSample(personalBest));
+                    ParticleMoveResults result = particle.move(selectedMove);
+                    if (result.getPersonalImprovement() > 0) {
+                        successSamplers.forEach(s -> s.tryStoreSample(result.previousBest));
                     }
-                    moveManager.registerPersonalImprovementByMove(selectedMove, personalBestValue - newPersonalBestValue);
-                    moveManager.registerGlobalImprovementByMove(selectedMove, globalBestValue - newPersonalBestValue);
+                    moveManager.registerPersonalImprovementByMove(selectedMove, result.getPersonalImprovement());
+                    moveManager.registerGlobalImprovementByMove(selectedMove, result.getGlobalImprovement());
                 }
                 if (_restartManager.shouldBeRestarted(particles)) {
                     _boundsManager.registerOptimumLocation(globalBest);
@@ -133,7 +129,7 @@ public class GAPSOOptimizer extends SamplingOptimizer {
         _initializer.registerObjectsWithOptimizer(this);
         bounds = _boundsManager.getBounds();
         _restartManager.reset();
-        moveManager.setNoAdaptation();
+        moveManager.maySwitchOffAdaptaion();
     }
 
     private boolean isEnoughOptimizationBudgetLeftAndNeedsOptimization(Function function) {

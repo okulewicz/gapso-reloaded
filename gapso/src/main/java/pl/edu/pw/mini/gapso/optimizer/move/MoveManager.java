@@ -12,12 +12,14 @@ import java.util.stream.Collectors;
 
 public class MoveManager {
     private final Move[] _moves;
-    private final static int maxSize = 10;
+    private final static int maxHistorySize = 10;
     private HashMap<Move, List<List<Double>>> movesImprovementsDictionary;
-    private boolean adaptation;
+    private boolean adaptMoves = true;
+    private double switchingAdaptationOffProbability = 0.5;
+    private boolean includePersonalImprovements = false;
+    private boolean includeGlobalImprovements = true;
 
     public MoveManager(Move[] moves) {
-        adaptation = true;
         _moves = moves;
         movesImprovementsDictionary = new HashMap<>();
         for (Move move : _moves) {
@@ -26,18 +28,8 @@ public class MoveManager {
     }
 
     public List<Move> generateMoveSequence(int size) {
-        if (adaptation) {
+        if (adaptMoves) {
             recomputeWeights();
-        }
-        for (Move move : _moves) {
-            movesImprovementsDictionary.get(move).add(0, new ArrayList<>());
-            final int movesSize = movesImprovementsDictionary.get(move).size();
-            if (movesSize > maxSize) {
-                movesImprovementsDictionary.get(move).remove(movesSize - 1);
-            }
-        }
-        for (Move move : _moves) {
-            move.newIteration();
         }
         int minAmount = Arrays.stream(_moves).mapToInt(Move::getMinNumber).sum();
         if (minAmount > size) {
@@ -53,6 +45,24 @@ public class MoveManager {
                 pairs.add(new Pair<>(move, move.getWeight()));
             }
         }
+        generateMovesAccordingToWeights(size, movesSequence, pairs);
+        return randomizeMovesOrder(movesSequence);
+    }
+
+    public void startNewIteration() {
+        for (Move move : _moves) {
+            movesImprovementsDictionary.get(move).add(0, new ArrayList<>());
+            final int movesSize = movesImprovementsDictionary.get(move).size();
+            if (movesSize > maxHistorySize) {
+                movesImprovementsDictionary.get(move).remove(movesSize - 1);
+            }
+        }
+        for (Move move : _moves) {
+            move.newIteration();
+        }
+    }
+
+    protected void generateMovesAccordingToWeights(int size, List<Move> movesSequence, ArrayList<Pair<Move, Double>> pairs) {
         if (movesSequence.size() < size) {
             EnumeratedDistribution<Move> enumeratedDistribution = new EnumeratedDistribution<>(
                     Generator.RANDOM,
@@ -63,13 +73,12 @@ public class MoveManager {
                             enumeratedDistribution.sample(size - movesSequence.size(), new Move[0]))
                             .collect(Collectors.toList()));
         }
-        return randomizeMovesOrder(movesSequence);
     }
 
     private void recomputeWeights() {
         boolean noPositiveWeights = true;
         for (Move move : _moves) {
-            if (move.isAdaptable() && movesImprovementsDictionary.get(move).size() >= maxSize) {
+            if (move.isAdaptable() && movesImprovementsDictionary.get(move).size() >= maxHistorySize) {
                 double sum = movesImprovementsDictionary.get(move)
                         .stream()
                         .mapToDouble(
@@ -113,16 +122,20 @@ public class MoveManager {
         if (deltaY > 0) {
             selectedMove.registerPersonalImprovement(deltaY);
         }
-        movesImprovementsDictionary.get(selectedMove).get(0).add(Math.max(deltaY, 0.0));
+        if (includePersonalImprovements) {
+            movesImprovementsDictionary.get(selectedMove).get(0).add(Math.max(deltaY, 0.0));
+        }
     }
 
     public void registerGlobalImprovementByMove(Move selectedMove, double deltaY) {
-        movesImprovementsDictionary.get(selectedMove).get(0).add(Math.max(deltaY, 0.0));
+        if (includeGlobalImprovements) {
+            movesImprovementsDictionary.get(selectedMove).get(0).add(Math.max(deltaY, 0.0));
+        }
     }
 
-    public void setNoAdaptation() {
-        if (Generator.RANDOM.nextDouble() < 0.5) {
-            adaptation = false;
+    public void maySwitchOffAdaptaion() {
+        if (Generator.RANDOM.nextDouble() < switchingAdaptationOffProbability) {
+            adaptMoves = false;
             for (Move move : _moves) {
                 if (move.isAdaptable()) {
                     move.resetWeight();
