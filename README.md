@@ -139,6 +139,25 @@ made by particular moves
   }
 }
 ```
+
+  * SHADE (without decreasing population size)
+  
+```json
+  {
+    "name": "SHADE",
+    "isAdaptable": true,
+    "initialWeight": 3000,
+    "minimalAmount": 1,
+    "parameters": {
+      "crossProb": 0.9,
+      "scale": 0.6,
+      "pBestRatio": 0.11,
+      "archiveSizeFactor": 2.0,
+      "slots": 6
+    }
+  }
+```
+
   * LocalBestModel - tries to apply the first model with enough samples and current availability
   model is fitted on particles' bests
 
@@ -182,7 +201,8 @@ made by particular moves
         "modelType" : "SimpleSquare",
         "modelUseFrequency": 1
       }
-    ]
+    ],
+    "clusteringType": "NONE|LARGEST|BEST"
   }
 }
 ```
