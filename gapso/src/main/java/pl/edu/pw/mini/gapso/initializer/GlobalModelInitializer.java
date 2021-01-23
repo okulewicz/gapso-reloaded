@@ -15,7 +15,7 @@ import java.util.List;
 public class GlobalModelInitializer extends Initializer {
     public static final String NAME = "GlobalModel";
     public static final int SAMPLE_COUNT_MUL_FACTOR = 10;
-    public static final double DESIRED_MODEL_QUALITY = 0.98;
+    public static final double DESIRED_MODEL_QUALITY = 0.95;
     private ArrayList<Model> modelSequence;
     private AllSamplesSampler sampler;
     private boolean canSample;
@@ -35,12 +35,18 @@ public class GlobalModelInitializer extends Initializer {
             if (sampler.getSamplesCount() >= SAMPLE_COUNT_MUL_FACTOR * minSamplesCount) {
                 List<Sample> samples = sampler.getSamples(minSamplesCount);
                 returnSample = model.getOptimumLocation(samples, bounds);
-                if (returnSample == null)
+                if (model.getRSquared() < DESIRED_MODEL_QUALITY) {
+                    returnSample = null;
                     continue;
+                }
+                if (returnSample == null) {
+                    continue;
+                }
                 break;
             }
         }
         if (returnSample == null) {
+            canSample = false;
             RandomInitializer ri = new RandomInitializer();
             returnSample = ri.getNextSample(bounds);
         }
@@ -58,7 +64,9 @@ public class GlobalModelInitializer extends Initializer {
         }
         Sample sample = sampler.getSamples(1).get(0);
         final int dimension = sample.getX().length;
-        for (Model model : modelSequence) {
+        Model selectedModel = null;
+        for (int i = 0; i < modelSequence.size(); ++i) {
+            Model model = modelSequence.get(i);
             final int desiredSamplesCount = SAMPLE_COUNT_MUL_FACTOR * model.getMinSamplesCount(dimension);
             if (sampler.getSamplesCount() >= desiredSamplesCount) {
                 List<Sample> samples = sampler.getSamples(desiredSamplesCount);
@@ -87,8 +95,8 @@ public class GlobalModelInitializer extends Initializer {
                 modelSequence.clear();
             }
             modelSequence = new ArrayList<>();
-            modelSequence.add(new FullSquareModel());
             modelSequence.add(new SimpleSquareModel());
+            modelSequence.add(new FullSquareModel());
         }
         canSample = assessSamplingAbility();
     }
