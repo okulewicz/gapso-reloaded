@@ -14,7 +14,7 @@ import java.util.List;
 
 public class GlobalModelInitializer extends Initializer {
     public static final String NAME = "GlobalModel";
-    public static final int SAMPLE_COUNT_MUL_FACTOR = 10;
+    public static final int SAMPLE_COUNT_MUL_FACTOR = 40;
     public static final double DESIRED_MODEL_QUALITY = 0.98;
     private ArrayList<Model> modelSequence;
     private AllSamplesSampler sampler;
@@ -33,7 +33,7 @@ public class GlobalModelInitializer extends Initializer {
         for (Model model : modelSequence) {
             final int minSamplesCount = model.getMinSamplesCount(dimension);
             if (sampler.getSamplesCount() >= SAMPLE_COUNT_MUL_FACTOR * minSamplesCount) {
-                List<Sample> samples = sampler.getSamples(minSamplesCount);
+                List<Sample> samples = sampler.getSamples(SAMPLE_COUNT_MUL_FACTOR * minSamplesCount);
                 returnSample = model.getOptimumLocation(samples, bounds);
                 if (returnSample == null) {
                     continue;
