@@ -2,6 +2,7 @@ package pl.edu.pw.mini.gapso.optimizer.move;
 
 import org.apache.commons.math3.distribution.EnumeratedDistribution;
 import org.apache.commons.math3.util.Pair;
+import pl.edu.pw.mini.gapso.configuration.MoveManagerConfiguration;
 import pl.edu.pw.mini.gapso.utils.Generator;
 
 import java.util.ArrayList;
@@ -12,14 +13,19 @@ import java.util.stream.Collectors;
 
 public class MoveManager {
     private final Move[] _moves;
-    private final static int maxHistorySize = 10;
     private HashMap<Move, List<List<Double>>> movesImprovementsDictionary;
-    private boolean adaptMoves = true;
-    private double switchingAdaptationOffProbability = 0.5;
-    private boolean includePersonalImprovements = false;
-    private boolean includeGlobalImprovements = true;
+    private final static int maxHistorySize = 10;
+    private final boolean initiallyAdaptMoves;
+    private final boolean includePersonalImprovements;
+    private final boolean includeGlobalImprovements;
+    private final double switchingAdaptationOffProbability;
+    private boolean adaptMoves;
 
-    public MoveManager(Move[] moves) {
+    public MoveManager(Move[] moves, MoveManagerConfiguration configuration) {
+        adaptMoves = initiallyAdaptMoves = configuration.isAdaptMoves();
+        includeGlobalImprovements = configuration.isIncludeGlobalImprovements();
+        includePersonalImprovements = configuration.isIncludePersonalImprovements();
+        switchingAdaptationOffProbability = configuration.getSwitchingAdaptationOffProbability();
         _moves = moves;
         movesImprovementsDictionary = new HashMap<>();
         for (Move move : _moves) {
@@ -28,25 +34,30 @@ public class MoveManager {
     }
 
     public List<Move> generateMoveSequence(int size) {
-        if (adaptMoves) {
+        if (initiallyAdaptMoves) {
             recomputeWeights();
         }
-        int minAmount = Arrays.stream(_moves).mapToInt(Move::getMinNumber).sum();
-        if (minAmount > size) {
-            throw new IllegalArgumentException("Too many moves for too little slots");
-        }
-        List<Move> movesSequence = new ArrayList<>();
+        checkConfigurationConsistency(size);
+        final ArrayList<Pair<Move, Double>> pairs = getMovesDistributionWeights();
+        List<Move> movesSequence = generateMovesAccordingToWeights(size, pairs);
+        return randomizeMovesOrder(movesSequence);
+    }
+
+    protected ArrayList<Pair<Move, Double>> getMovesDistributionWeights() {
         final ArrayList<Pair<Move, Double>> pairs = new ArrayList<>();
         for (Move move : _moves) {
-            for (int j = 0; j < move.getMinNumber(); ++j) {
-                movesSequence.add(move);
-            }
             if (move.isAdaptable()) {
                 pairs.add(new Pair<>(move, move.getWeight()));
             }
         }
-        generateMovesAccordingToWeights(size, movesSequence, pairs);
-        return randomizeMovesOrder(movesSequence);
+        return pairs;
+    }
+
+    protected void checkConfigurationConsistency(int size) {
+        int minAmount = Arrays.stream(_moves).mapToInt(Move::getMinNumber).sum();
+        if (minAmount > size) {
+            throw new IllegalArgumentException("Too many moves for too little slots");
+        }
     }
 
     public void startNewIteration() {
@@ -62,7 +73,13 @@ public class MoveManager {
         }
     }
 
-    protected void generateMovesAccordingToWeights(int size, List<Move> movesSequence, ArrayList<Pair<Move, Double>> pairs) {
+    protected List<Move> generateMovesAccordingToWeights(int size, ArrayList<Pair<Move, Double>> pairs) {
+        List<Move> movesSequence = new ArrayList<>();
+        for (Move move : _moves) {
+            for (int j = 0; j < move.getMinNumber(); ++j) {
+                movesSequence.add(move);
+            }
+        }
         if (movesSequence.size() < size) {
             EnumeratedDistribution<Move> enumeratedDistribution = new EnumeratedDistribution<>(
                     Generator.RANDOM,
@@ -73,6 +90,7 @@ public class MoveManager {
                             enumeratedDistribution.sample(size - movesSequence.size(), new Move[0]))
                             .collect(Collectors.toList()));
         }
+        return movesSequence;
     }
 
     private void recomputeWeights() {
@@ -90,7 +108,6 @@ public class MoveManager {
                                 list -> (int) list.stream().mapToDouble(el -> el).count()
                         ).sum();
                 double weight = sum / count;
-                //TODO beware weight will not be reset after restart
                 move.setWeight(weight);
                 if (weight > 0.0) {
                     noPositiveWeights = false;
@@ -133,7 +150,7 @@ public class MoveManager {
         }
     }
 
-    public void maySwitchOffAdaptaion() {
+    public void maySwitchOffAdaptation() {
         if (Generator.RANDOM.nextDouble() < switchingAdaptationOffProbability) {
             adaptMoves = false;
             for (Move move : _moves) {
@@ -142,5 +159,14 @@ public class MoveManager {
                 }
             }
         }
+    }
+
+    public void reset() {
+        adaptMoves = initiallyAdaptMoves;
+        Arrays.stream(_moves).forEach(Move::resetWeight);
+    }
+
+    public Move[] getMoves() {
+        return _moves;
     }
 }

@@ -27,7 +27,8 @@ public class ConfigurationTest {
             "      }\n" +
             "    }\n" +
             "  ,\n" +
-            "  \"moveDefinition\": [\n" +
+            "  \"moveManagerDefinition\": {\n" +
+            "  \"moves\": [\n" +
             "    {\n" +
             "      \"name\": \"DE/best/1/bin\",\n" +
             "      \"isAdaptable\": true,\n" +
@@ -39,6 +40,7 @@ public class ConfigurationTest {
             "      }\n" +
             "    }\n" +
             "  ]\n" +
+            "    }\n" +
             "}";
 
     String JSONStringWithSeqInit = "{\n" +
@@ -64,7 +66,8 @@ public class ConfigurationTest {
             "      \"threshold\": 1e-4\n" +
             "    }\n" +
             "  },\n" +
-            " \"moveDefinition\": [\n" +
+            "  \"moveManagerDefinition\": {\n" +
+            "  \"moves\": [\n" +
             "    {\n" +
             "      \"name\": \"DE/best/1/bin\",\n" +
             "      \"isAdaptable\": true,\n" +
@@ -94,6 +97,7 @@ public class ConfigurationTest {
             "      }\n" +
             "    }\n" +
             "  ]\n" +
+            "    }\n" +
             "}";
 
     @Test
@@ -102,9 +106,9 @@ public class ConfigurationTest {
         Assert.assertEquals(1, configuration.getSeed());
         Assert.assertEquals(10, configuration.getParticlesCountPerDimension());
         Assert.assertEquals(100, configuration.getEvaluationsBudgetPerDimension());
-        Assert.assertNotNull(configuration.getMoves());
-        Assert.assertEquals(2, configuration.getMoves().length);
-        Move[] moves = configuration.getMoves();
+        Assert.assertNotNull(configuration.getMoveManager());
+        Assert.assertEquals(2, configuration.getMoveManager().getMoves().length);
+        Move[] moves = configuration.getMoveManager().getMoves();
         Assert.assertEquals(DEBest1Bin.class,
                 moves[0].getClass());
         Assert.assertEquals(LocalBestModel.class,
@@ -124,9 +128,9 @@ public class ConfigurationTest {
         Assert.assertEquals(1, configuration.getSeed());
         Assert.assertEquals(10, configuration.getParticlesCountPerDimension());
         Assert.assertEquals(1000, configuration.getEvaluationsBudgetPerDimension());
-        Assert.assertNotNull(configuration.getMoves());
-        Assert.assertEquals(1, configuration.getMoves().length);
-        Move[] moves = configuration.getMoves();
+        Assert.assertNotNull(configuration.getMoveManager().getMoves());
+        Assert.assertEquals(1, configuration.getMoveManager().getMoves().length);
+        Move[] moves = configuration.getMoveManager().getMoves();
         Assert.assertEquals(DEBest1Bin.class,
                 moves[0].getClass());
         Assert.assertNotNull(configuration.getRestartManager());

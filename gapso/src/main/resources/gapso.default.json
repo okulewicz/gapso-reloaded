@@ -24,18 +24,24 @@
       "threshold": 1e-4
     }
   },
-  "moveDefinition": [
-    {
-      "name": "DE/best/1/bin",
-      "isAdaptable": true,
-      "initialWeight": 1000,
-      "minimalAmount": 1,
-      "parameters": {
-        "crossProb": 0.9,
-        "scale": 0.5,
-        "constantCrossProb": true,
-        "constantScale": false
+  "moveManagerDefinition": {
+    "adaptMoves": false,
+    "includePersonalImprovements": false,
+    "includeGlobalImprovements": false,
+    "switchingAdaptationOffProbability": 0.0,
+    "moves": [
+      {
+        "name": "DE/best/1/bin",
+        "isAdaptable": true,
+        "initialWeight": 1000,
+        "minimalAmount": 1,
+        "parameters": {
+          "crossProb": 0.9,
+          "scale": 0.5,
+          "constantCrossProb": true,
+          "constantScale": false
+        }
       }
-    }
-  ]
+    ]
+  }
 }

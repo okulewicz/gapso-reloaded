@@ -11,6 +11,7 @@ which consists of the following modules:
  * Restart manager - decides if the population needs to be restarted
  and optimization process started again (possibly within different bounds
  or with different initialization strategy)
+ * MoveManager - sampler of possible moves
  * Moves - the actual optimizers
 
 ## General settings (gapso.json)
@@ -24,7 +25,7 @@ which consists of the following modules:
   "boundsManagerDefinition": {},
   "initializerDefinition": {},
   "restartManagerDefinition": {},
-  "moveDefinition": []
+  "moveManagerDefinition": {}
 }
 ```
 
@@ -103,6 +104,22 @@ which consists of the following modules:
 }
 ```
   * And
+
+## MovesManager  
+
+Moves manager decides what to do with moves weights and adapts them on the basis of improvements
+made by particular moves
+
+```json
+{
+    "adaptMoves": false,
+    "includePersonalImprovements": false,
+    "includeGlobalImprovements": false,
+    "switchingAdaptationOffProbability": 0.0,
+    "moves": []
+}
+
+```
 
 ## Moves
 

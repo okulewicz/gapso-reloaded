@@ -3,6 +3,7 @@ package pl.edu.pw.mini.gapso.optimizer.move;
 import org.junit.Assert;
 import org.junit.Test;
 import pl.edu.pw.mini.gapso.configuration.MoveConfiguration;
+import pl.edu.pw.mini.gapso.configuration.MoveManagerConfiguration;
 import pl.edu.pw.mini.gapso.model.SimpleSquareModel;
 import pl.edu.pw.mini.gapso.optimizer.GAPSOOptimizerTest;
 import pl.edu.pw.mini.gapso.optimizer.move.ModelMove.ModelParameters;
@@ -40,12 +41,18 @@ public class MoveManagerTest {
                 true,
                 new DEBest1Bin.DEBest1BinConfiguration(1.0, 1.0)
         );
-        final Move deMove = moveConfigurationDE.getMove();
-        final Move lbmMove = moveConfigurationModel.getMove();
-        MoveManager moveManager = new MoveManager(new Move[]{
-                deMove,
-                lbmMove
-        });
+
+        List<MoveConfiguration> movesConfiguration = new ArrayList<>();
+        movesConfiguration.add(moveConfigurationDE);
+        movesConfiguration.add(moveConfigurationModel);
+        MoveManagerConfiguration moveManagerConfiguration = new MoveManagerConfiguration(
+                false,
+                0,
+                false,
+                false,
+                movesConfiguration
+        );
+        MoveManager moveManager = moveManagerConfiguration.getMoveManager();
 
         try {
             moveManager.generateMoveSequence(expectedLBM);
@@ -59,12 +66,16 @@ public class MoveManagerTest {
         List<Integer> indexes = new ArrayList<>();
         for (int i = 0; i < 100; ++i) {
             List<Move> moveSequence = moveManager.generateMoveSequence(3);
-            indexes.add(moveSequence.indexOf(deMove));
+            for (Move move : moveSequence) {
+                if (move instanceof DEBest1Bin) {
+                    indexes.add(moveSequence.indexOf(move));
+                }
+            }
         }
         Set<Integer> uniqueIndexes = new HashSet<>(indexes);
         Assert.assertTrue("Should be more than one index position in multiple tries", uniqueIndexes.size() > 1);
 
-        GAPSOOptimizerTest.optimizeWithMoves(new Move[]{deMove, lbmMove});
+        GAPSOOptimizerTest.optimizeWithMoves(moveManager);
     }
 
     private void testSequence(int expectedLBM, MoveManager moveManager, int size) {
