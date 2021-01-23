@@ -9,6 +9,17 @@ import java.util.Arrays;
 import java.util.Properties;
 
 public class PropertiesBBOBExperimentConfigurator implements BBOBExperimentConfigurator {
+    public static final String BBOB_PROPERTIES = "bbob.properties";
+    public static final String GIT_PROPERTIES = "git.properties";
+    public static final String GAPSO_JSON = "gapso.json";
+    public static final String EXDATA = "exdata";
+    public static final String GIT_COMMIT = "git-commit";
+    public static final String EXPERIMENT_NAME = "experiment.name";
+    public static final String BBOB_MAP_FUNCTION = "bbob.map.function";
+    public static final String BBOB_FUNCTION = "bbob.function";
+    public static final String BBOB_DIMENSIONS = "bbob.dimensions";
+    public static final String BBOB_DEFAULT_PROPERTIES = "bbob.default.properties";
+
     private String bbobFunctionStr;
     private String dimensionsStr;
     private String experimentName;
@@ -19,25 +30,25 @@ public class PropertiesBBOBExperimentConfigurator implements BBOBExperimentConfi
         final Properties properties = new Properties();
         try {
             try {
-                InputStream inputStream = Files.newInputStream(Paths.get("bbob.properties"), StandardOpenOption.READ);
+                InputStream inputStream = Files.newInputStream(Paths.get(BBOB_PROPERTIES), StandardOpenOption.READ);
                 properties.load(inputStream);
                 inputStream.close();
             } catch (IOException e1) {
-                InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("bbob.default.properties");
+                InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(BBOB_DEFAULT_PROPERTIES);
                 assert inputStream != null;
                 properties.load(inputStream);
                 inputStream.close();
             }
-            dimensionsStr = properties.getProperty("bbob.dimensions");
-            bbobFunctionStr = properties.getProperty("bbob.function");
-            functionMappingExperiment = Boolean.parseBoolean(properties.getProperty("bbob.map.function"));
-            experimentName = properties.getProperty("experiment.name");
+            dimensionsStr = properties.getProperty(BBOB_DIMENSIONS);
+            bbobFunctionStr = properties.getProperty(BBOB_FUNCTION);
+            functionMappingExperiment = Boolean.parseBoolean(properties.getProperty(BBOB_MAP_FUNCTION));
+            experimentName = properties.getProperty(EXPERIMENT_NAME);
             try {
-                InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("git.properties");
+                InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(GIT_PROPERTIES);
                 Properties gitProperties = new Properties();
                 assert inputStream != null;
                 gitProperties.load(inputStream);
-                buildId = gitProperties.getProperty("git-commit");
+                buildId = gitProperties.getProperty(GIT_COMMIT);
 
             } catch (IOException e) {
                 e.printStackTrace();

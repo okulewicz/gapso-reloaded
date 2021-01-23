@@ -12,16 +12,14 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import static pso.coco.PropertiesBBOBExperimentConfigurator.*;
+
 /**
  * An example of benchmarking random search on a COCO suite.
  * <p>
  * Set the parameter BUDGET_MULTIPLIER to suit your needs.
  */
 public class ExampleExperiment {
-    public static final String BBOB_PROPERTIES = "bbob.properties";
-    public static final String GIT_PROPERTIES = "git.properties";
-    public static final String GAPSO_JSON = "gapso.json";
-    public static final String EXDATA = "exdata";
     /**
      * The problem to be optimized (needed in order to simplify the interface
      * between the optimization algorithm and the COCO platform).
@@ -108,7 +106,7 @@ public class ExampleExperiment {
                     continue;
                 Function function = new GAPSOFunctionProblemWrapper(PROBLEM);
                 Optimizer optimizer = new GAPSOOptimizer();
-                optimizer.optimize(function);
+                System.out.println(Arrays.toString(optimizer.optimize(function).getX()));
                 System.out.println(PROBLEM.getEvaluations());
 
                 /* Keep track of time */
