@@ -22,10 +22,11 @@ public class MoveManager {
     private boolean adaptMoves;
 
     public MoveManager(Move[] moves, MoveManagerConfiguration configuration) {
-        adaptMoves = initiallyAdaptMoves = configuration.isAdaptMoves();
+        initiallyAdaptMoves = configuration.isAdaptMoves();
         includeGlobalImprovements = configuration.isIncludeGlobalImprovements();
         includePersonalImprovements = configuration.isIncludePersonalImprovements();
         switchingAdaptationOffProbability = configuration.getSwitchingAdaptationOffProbability();
+        adaptMoves = initiallyAdaptMoves;
         maxHistorySize = configuration.getMaxHistorySize();
         _moves = moves;
         movesImprovementsDictionary = new HashMap<>();
@@ -35,7 +36,7 @@ public class MoveManager {
     }
 
     public List<Move> generateMoveSequence(int size) {
-        if (initiallyAdaptMoves) {
+        if (adaptMoves) {
             recomputeWeights();
         }
         checkConfigurationConsistency(size);
