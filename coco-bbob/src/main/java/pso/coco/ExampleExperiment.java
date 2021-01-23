@@ -11,7 +11,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * An example of benchmarking random search on a COCO suite.
@@ -72,7 +71,11 @@ public class ExampleExperiment {
     private static void exampleExperiment(String suiteName, String observerName) {
         List<String> beforeStartDirectories;
         File exdataDir = getExperimentDataDirHandle();
-        beforeStartDirectories = Arrays.asList(Objects.requireNonNullElse(exdataDir.list(), new String[0]));
+        String[] fileList = exdataDir.list();
+        if (fileList == null) {
+            fileList = new String[0];
+        }
+        beforeStartDirectories = Arrays.asList(fileList);
 
         final BBOBExperimentConfigurator bbobConfigurator = new PropertiesBBOBExperimentConfigurator();
         int dimension;
