@@ -1,8 +1,8 @@
 package pl.edu.pw.mini.gapso.initializer;
 
 import pl.edu.pw.mini.gapso.bounds.Bounds;
+import pl.edu.pw.mini.gapso.bounds.SimpleBounds;
 import pl.edu.pw.mini.gapso.model.FullSquareModel;
-import pl.edu.pw.mini.gapso.model.LinearModel;
 import pl.edu.pw.mini.gapso.model.Model;
 import pl.edu.pw.mini.gapso.model.SimpleSquareModel;
 import pl.edu.pw.mini.gapso.optimizer.SamplingOptimizer;
@@ -12,12 +12,15 @@ import pl.edu.pw.mini.gapso.sample.sampler.AllSamplesSampler;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ModelInitializer extends Initializer {
-    public static final String NAME = "Model";
+public class GlobalModelInitializer extends Initializer {
+    public static final String NAME = "GlobalModel";
+    public static final int SAMPLE_COUNT_MUL_FACTOR = 10;
+    public static final double DESIRED_MODEL_QUALITY = 0.98;
     private ArrayList<Model> modelSequence;
     private AllSamplesSampler sampler;
+    private boolean canSample;
 
-    public ModelInitializer() {
+    public GlobalModelInitializer() {
         resetInitializer(true);
     }
 
@@ -27,15 +30,13 @@ public class ModelInitializer extends Initializer {
         Sample sample = sampler.getSamples(1).get(0);
         final int dimension = sample.getX().length;
         double[] returnSample = null;
-        for (int i = 0; i < modelSequence.size(); ++i) {
-            Model model = modelSequence.get(i);
+        for (Model model : modelSequence) {
             final int minSamplesCount = model.getMinSamplesCount(dimension);
-            if (sampler.getSamplesCount() >= minSamplesCount) {
+            if (sampler.getSamplesCount() >= SAMPLE_COUNT_MUL_FACTOR * minSamplesCount) {
                 List<Sample> samples = sampler.getSamples(minSamplesCount);
                 returnSample = model.getOptimumLocation(samples, bounds);
                 if (returnSample == null)
                     continue;
-                modelSequence.remove(model);
                 break;
             }
         }
@@ -48,14 +49,26 @@ public class ModelInitializer extends Initializer {
 
     @Override
     public boolean canSample() {
+        return canSample;
+    }
+
+    protected boolean assessSamplingAbility() {
         if (sampler.getSamplesCount() == 0) {
             return false;
         }
         Sample sample = sampler.getSamples(1).get(0);
         final int dimension = sample.getX().length;
         for (Model model : modelSequence) {
-            if (sampler.getSamplesCount() >= model.getMinSamplesCount(dimension)) {
-                return true;
+            final int desiredSamplesCount = SAMPLE_COUNT_MUL_FACTOR * model.getMinSamplesCount(dimension);
+            if (sampler.getSamplesCount() >= desiredSamplesCount) {
+                List<Sample> samples = sampler.getSamples(desiredSamplesCount);
+                final Bounds boundsFromSamples = SimpleBounds.createBoundsFromSamples(samples);
+                double[] optimumEstimation = model.getOptimumLocation(samples, boundsFromSamples);
+                if (boundsFromSamples.striclyContain(optimumEstimation)) {
+                    if (model.getRSquared() > DESIRED_MODEL_QUALITY) {
+                        return true;
+                    }
+                }
             }
         }
         return false;
@@ -68,13 +81,15 @@ public class ModelInitializer extends Initializer {
 
     @Override
     public void resetInitializer(boolean hardReset) {
-        sampler = new AllSamplesSampler();
-        if (modelSequence != null) {
-            modelSequence.clear();
+        if (hardReset) {
+            sampler = new AllSamplesSampler();
+            if (modelSequence != null) {
+                modelSequence.clear();
+            }
+            modelSequence = new ArrayList<>();
+            modelSequence.add(new FullSquareModel());
+            modelSequence.add(new SimpleSquareModel());
         }
-        modelSequence = new ArrayList<>();
-        modelSequence.add(new FullSquareModel());
-        modelSequence.add(new SimpleSquareModel());
-        modelSequence.add(new LinearModel());
+        canSample = assessSamplingAbility();
     }
 }

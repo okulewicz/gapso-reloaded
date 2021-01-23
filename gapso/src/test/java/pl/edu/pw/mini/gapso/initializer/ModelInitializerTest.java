@@ -42,7 +42,7 @@ public class ModelInitializerTest {
             initializer.getNextSample(function.getBounds());
             Assert.assertFalse(initializer.canSample());
             initializer.resetInitializer(false);
-            Assert.assertTrue(initializer.canSample());
+            Assert.assertFalse(initializer.canSample());
             samplingOptimizer.samplerList.clear();
             initializer.resetInitializer(true);
             Assert.assertFalse(initializer.canSample());

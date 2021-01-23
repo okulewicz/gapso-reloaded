@@ -125,7 +125,7 @@ public class GAPSOOptimizer extends SamplingOptimizer {
         //TODO: this needs to be tested somehow
         samplers.clear();
         successSamplers.clear();
-        _initializer.resetInitializer(true);
+        _initializer.resetInitializer(false);
         _initializer.registerObjectsWithOptimizer(this);
         bounds = _boundsManager.getBounds();
         _restartManager.reset();

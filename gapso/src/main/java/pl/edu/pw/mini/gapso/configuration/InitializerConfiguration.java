@@ -1,10 +1,8 @@
 package pl.edu.pw.mini.gapso.configuration;
 
 import com.google.gson.JsonElement;
-import pl.edu.pw.mini.gapso.initializer.Initializer;
-import pl.edu.pw.mini.gapso.initializer.ModelInitializer;
-import pl.edu.pw.mini.gapso.initializer.RandomInitializer;
-import pl.edu.pw.mini.gapso.initializer.SequenceInitializer;
+import pl.edu.pw.mini.gapso.initializer.*;
+import pl.edu.pw.mini.gapso.optimizer.move.GlobalModel;
 
 public class InitializerConfiguration {
     @SuppressWarnings("unused")
@@ -27,6 +25,9 @@ public class InitializerConfiguration {
         }
         if (getName().equals(ModelInitializer.NAME)) {
             return new ModelInitializer();
+        }
+        if (getName().equals(GlobalModel.NAME)) {
+            return new GlobalModelInitializer();
         }
         if (getName().equals(SequenceInitializer.NAME)) {
             return new SequenceInitializer(this);
