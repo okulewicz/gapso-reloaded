@@ -26,9 +26,9 @@ public class MoveManager {
         includeGlobalImprovements = configuration.isIncludeGlobalImprovements();
         includePersonalImprovements = configuration.isIncludePersonalImprovements();
         switchingAdaptationOffProbability = configuration.getSwitchingAdaptationOffProbability();
-        adaptMoves = initiallyAdaptMoves;
         maxHistorySize = configuration.getMaxHistorySize();
         _moves = moves;
+        reset();
         movesImprovementsDictionary = new HashMap<>();
         for (Move move : _moves) {
             movesImprovementsDictionary.put(move, new ArrayList<>());
