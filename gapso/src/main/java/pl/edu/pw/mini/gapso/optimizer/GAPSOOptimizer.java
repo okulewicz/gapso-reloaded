@@ -67,14 +67,13 @@ public class GAPSOOptimizer extends SamplingOptimizer {
         bounds = function.getBounds();
         while (isEnoughOptimizationBudgetLeftAndNeedsOptimization(function)) {
             Function functionWrapper = createSamplingWrapper(function, samplers, bounds);
-            UpdatableSample globalBest = UpdatableSample.generateInitialSample(functionWrapper.getDimension());
-            Particle.IndexContainer indexContainer = new Particle.IndexContainer();
-            List<Particle> particles = new ArrayList<>();
+            Swarm swarm = new Swarm();
             for (int i = 0; i < particleCount; ++i) {
                 assert _initializer.canSample();
                 double[] initialLocation = _initializer.getNextSample(functionWrapper.getBounds());
-                new Particle(initialLocation, functionWrapper, globalBest, indexContainer, particles);
+                new Particle(initialLocation, functionWrapper, swarm);
             }
+            final List<Particle> particles = swarm.getParticles();
             while (isEnoughOptimizationBudgetLeftAndNeedsOptimization(function)) {
                 List<Move> moves = moveManager.generateMoveSequence(particles.size());
                 moveManager.startNewIteration();
@@ -89,17 +88,17 @@ public class GAPSOOptimizer extends SamplingOptimizer {
                     moveManager.registerGlobalImprovementByMove(selectedMove, result.getGlobalImprovement());
                 }
                 if (_restartManager.shouldBeRestarted(particles)) {
-                    _boundsManager.registerOptimumLocation(globalBest);
+                    _boundsManager.registerOptimumLocation(swarm.getGlobalBest());
                     resetAfterOptimizationRestart();
                     break;
                 }
             }
-            tryUpdateTotalGlobalBest(totalGlobalBest, globalBest);
+            tryUpdateTotalGlobalBest(totalGlobalBest, swarm.getGlobalBest());
         }
         return totalGlobalBest;
     }
 
-    private void tryUpdateTotalGlobalBest(UpdatableSample totalGlobalBest, UpdatableSample globalBest) {
+    private void tryUpdateTotalGlobalBest(UpdatableSample totalGlobalBest, Sample globalBest) {
         if (totalGlobalBest.getY() > globalBest.getY()) {
             totalGlobalBest.updateSample(globalBest);
         }
