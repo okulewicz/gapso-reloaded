@@ -53,7 +53,7 @@ public class GlobalModelInitializer extends Initializer {
         final int dimension = sample.getX().length;
         List<Sample> resultSamples = new ArrayList<>();
 
-        Bounds estimatedBounds = SimpleBounds.createBoundsFromSamples(sampler.getSamples(Math.min(100, sampler.getSamplesCount())));
+        Bounds estimatedBounds = sampler.getBounds();
 
         for (int tr = 0; tr < 3 * DESIRED_GOOD_SAMPLES; ++tr) {
             for (Model model : modelSequence) {
@@ -79,7 +79,6 @@ public class GlobalModelInitializer extends Initializer {
             }
         }
         if (boundsToGenerate != null) {
-            sampler.clear();
             double[] tempLower = new double[dimension];
             double[] tempUpper = new double[dimension];
             for (int d = 0; d < dimension; ++d) {
