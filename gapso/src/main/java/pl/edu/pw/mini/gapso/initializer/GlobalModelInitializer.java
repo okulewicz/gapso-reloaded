@@ -78,6 +78,8 @@ public class GlobalModelInitializer extends Initializer {
                 }
             }
         }
+        sampler.clear();
+        /*
         if (boundsToGenerate != null) {
             sampler.clear();
             double[] tempLower = new double[dimension];
@@ -89,6 +91,7 @@ public class GlobalModelInitializer extends Initializer {
             boundsToGenerate = new SimpleBounds(tempLower, tempUpper);
             return true;
         }
+         */
         return false;
     }
 
