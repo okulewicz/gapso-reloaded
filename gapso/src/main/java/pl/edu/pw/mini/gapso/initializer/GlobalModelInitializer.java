@@ -79,6 +79,7 @@ public class GlobalModelInitializer extends Initializer {
             }
         }
         if (boundsToGenerate != null) {
+            sampler.clear();
             double[] tempLower = new double[dimension];
             double[] tempUpper = new double[dimension];
             for (int d = 0; d < dimension; ++d) {
