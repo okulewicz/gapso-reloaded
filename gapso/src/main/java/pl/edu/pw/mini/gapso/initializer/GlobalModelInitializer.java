@@ -21,7 +21,7 @@ public class GlobalModelInitializer extends Initializer {
     public static final int SAMPLE_COUNT_MUL_FACTOR = 20;
     public static final double DESIRED_MODEL_QUALITY = 0.9;
     public static final int DESIRED_GOOD_SAMPLES = 20;
-    public static final double ENLARGMENT_FACTOR = 0.2;
+    public static final double ENLARGMENT_FACTOR = 0.1;
     private ArrayList<Model> modelSequence;
     private AllSamplesSampler sampler;
     private boolean canSample;
