@@ -25,4 +25,8 @@ public class AllSamplesSampler extends Sampler {
         }
         return returnedSamples;
     }
+
+    public void clear() {
+        samples.clear();
+    }
 }

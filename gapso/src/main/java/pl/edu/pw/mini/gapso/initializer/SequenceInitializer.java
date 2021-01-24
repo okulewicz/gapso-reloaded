@@ -37,7 +37,7 @@ public class SequenceInitializer extends Initializer {
     public void resetInitializer(boolean hardReset) {
         for (Initializer initializer : _initializers) {
             initializer.resetInitializer(hardReset);
-        }
+         }
     }
 
     public SequenceInitializer(List<Initializer> initializers) {

@@ -106,7 +106,10 @@ public class ExampleExperiment {
                     continue;
                 Function function = new GAPSOFunctionProblemWrapper(PROBLEM);
                 Optimizer optimizer = new GAPSOOptimizer();
-                System.out.println(Arrays.toString(optimizer.optimize(function).getX()));
+                //System.out.println(Arrays.toString(
+                optimizer.optimize(function)
+                //                .getX()))
+                ;
                 System.out.println(PROBLEM.getEvaluations());
 
                 /* Keep track of time */
