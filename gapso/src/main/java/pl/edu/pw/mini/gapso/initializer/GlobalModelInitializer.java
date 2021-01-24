@@ -18,8 +18,8 @@ import java.util.stream.Collectors;
 
 public class GlobalModelInitializer extends Initializer {
     public static final String NAME = "GlobalModel";
-    public static final int SAMPLE_COUNT_MUL_FACTOR = 30;
-    public static final double DESIRED_MODEL_QUALITY = 0.8;
+    public static final int SAMPLE_COUNT_MUL_FACTOR = 20;
+    public static final double DESIRED_MODEL_QUALITY = 0.9;
     public static final int DESIRED_GOOD_SAMPLES = 20;
     private ArrayList<Model> modelSequence;
     private AllSamplesSampler sampler;
@@ -83,8 +83,12 @@ public class GlobalModelInitializer extends Initializer {
             double[] tempLower = new double[dimension];
             double[] tempUpper = new double[dimension];
             for (int d = 0; d < dimension; ++d) {
-                tempLower[d] = (estimatedBounds.getLower()[d] + boundsToGenerate.getLower()[d]) / 2.0;
-                tempUpper[d] = (estimatedBounds.getUpper()[d] + boundsToGenerate.getUpper()[d]) / 2.0;
+                double upperLower = Math.max(estimatedBounds.getLower()[d], boundsToGenerate.getLower()[d]);
+                double lowerSpread = Math.abs(estimatedBounds.getLower()[d] - boundsToGenerate.getLower()[d]);
+                double lowerUpper = Math.min(estimatedBounds.getUpper()[d], boundsToGenerate.getUpper()[d]);
+                double upperSpread = Math.abs(estimatedBounds.getUpper()[d] - boundsToGenerate.getUpper()[d]);
+                tempLower[d] = upperLower - lowerSpread * 0.1;
+                tempUpper[d] = lowerUpper + upperSpread * 0.1;
             }
             boundsToGenerate = new SimpleBounds(tempLower, tempUpper);
             return true;
