@@ -21,6 +21,7 @@ public class GlobalModelInitializer extends Initializer {
     public static final int SAMPLE_COUNT_MUL_FACTOR = 20;
     public static final double DESIRED_MODEL_QUALITY = 0.9;
     public static final int DESIRED_GOOD_SAMPLES = 20;
+    public static final double ENLARGMENT_FACTOR = 0.2;
     private ArrayList<Model> modelSequence;
     private AllSamplesSampler sampler;
     private boolean canSample;
@@ -87,8 +88,8 @@ public class GlobalModelInitializer extends Initializer {
                 double lowerSpread = Math.abs(estimatedBounds.getLower()[d] - boundsToGenerate.getLower()[d]);
                 double lowerUpper = Math.min(estimatedBounds.getUpper()[d], boundsToGenerate.getUpper()[d]);
                 double upperSpread = Math.abs(estimatedBounds.getUpper()[d] - boundsToGenerate.getUpper()[d]);
-                tempLower[d] = upperLower - lowerSpread * 0.1;
-                tempUpper[d] = lowerUpper + upperSpread * 0.1;
+                tempLower[d] = upperLower - lowerSpread * ENLARGMENT_FACTOR;
+                tempUpper[d] = lowerUpper + upperSpread * ENLARGMENT_FACTOR;
             }
             boundsToGenerate = new SimpleBounds(tempLower, tempUpper);
             return true;
