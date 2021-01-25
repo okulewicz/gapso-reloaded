@@ -14,6 +14,7 @@ import java.util.List;
 
 public class ModelInitializer extends Initializer {
     public static final String NAME = "Model";
+    public static final double R_SQUARED = 0.99;
     private ArrayList<Model> modelSequence;
     private AllSamplesSampler sampler;
 
@@ -31,8 +32,11 @@ public class ModelInitializer extends Initializer {
             Model model = modelSequence.get(i);
             final int minSamplesCount = model.getMinSamplesCount(dimension);
             if (sampler.getSamplesCount() >= minSamplesCount) {
-                List<Sample> samples = sampler.getSamples(minSamplesCount);
+                List<Sample> samples = sampler.getSamples(sampler.getSamplesCount());
                 returnSample = model.getOptimumLocation(samples, bounds);
+                if (model.getRSquared() < R_SQUARED) {
+                    returnSample = null;
+                }
                 if (returnSample == null)
                     continue;
                 modelSequence.remove(model);
@@ -74,6 +78,7 @@ public class ModelInitializer extends Initializer {
         }
         assert modelSequence != null;
         modelSequence.clear();
+        modelSequence.add(new FullSquareModel());
         modelSequence.add(new FullSquareModel());
         modelSequence.add(new SimpleSquareModel());
         modelSequence.add(new LinearModel());
