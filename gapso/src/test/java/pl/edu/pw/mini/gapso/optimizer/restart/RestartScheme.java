@@ -10,6 +10,7 @@ public class RestartScheme {
 
     public static double[][] samples = new double[][]{
             {0.0, 0.0},
+            {-BORDERLINE_CASE_THRESHOLD / 10, BORDERLINE_CASE_THRESHOLD / 10},
             {BORDERLINE_CASE_THRESHOLD / 10, BORDERLINE_CASE_THRESHOLD / 10},
             {BORDERLINE_CASE_THRESHOLD, BORDERLINE_CASE_THRESHOLD / 10},
             {BORDERLINE_CASE_THRESHOLD, BORDERLINE_CASE_THRESHOLD},

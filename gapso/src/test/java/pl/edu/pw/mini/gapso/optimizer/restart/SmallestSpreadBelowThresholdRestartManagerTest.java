@@ -13,8 +13,9 @@ public class SmallestSpreadBelowThresholdRestartManagerTest {
 
         boolean[] restarts = new boolean[]{
                 false,
+                false,
                 true,
-                true,
+                false,
                 false,
                 false
         };

@@ -34,7 +34,7 @@ public class SmallestSpreadBelowThresholdRestartManager extends ThresholdRestart
                             .summaryStatistics();
             double minOpt = statistics.getMin();
             double maxOpt = statistics.getMax();
-            if (maxOpt - minOpt < _threshold) {
+            if (maxOpt - minOpt <= _threshold * Math.max(Math.abs(maxOpt), Math.abs(minOpt))) {
                 return true;
             }
         }
