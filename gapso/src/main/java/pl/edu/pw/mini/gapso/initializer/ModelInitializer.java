@@ -78,9 +78,10 @@ public class ModelInitializer extends Initializer {
         }
         assert modelSequence != null;
         modelSequence.clear();
-        modelSequence.add(new FullSquareModel());
+        modelSequence.add(new LinearModel());
+        modelSequence.add(new SimpleSquareModel());
         modelSequence.add(new FullSquareModel());
         modelSequence.add(new SimpleSquareModel());
-        modelSequence.add(new LinearModel());
+        modelSequence.add(new FullSquareModel());
     }
 }
