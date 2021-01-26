@@ -33,6 +33,7 @@ public class RandomRegionBoundsManager extends BoundsManager {
 
     }
 
+    //TODO: Test getting bounds after registering optima
     @Override
     public Bounds getBounds() {
         currentBounds = boundsList.get(Generator.RANDOM.nextInt(boundsList.size()));
