@@ -2,7 +2,7 @@ package pl.edu.pw.mini.gapso.configuration;
 
 import com.google.gson.Gson;
 import org.apache.commons.io.IOUtils;
-import pl.edu.pw.mini.gapso.initializer.BoundsManager;
+import pl.edu.pw.mini.gapso.bounds.BoundsManager;
 import pl.edu.pw.mini.gapso.initializer.Initializer;
 import pl.edu.pw.mini.gapso.optimizer.move.MoveManager;
 import pl.edu.pw.mini.gapso.optimizer.restart.RestartManager;

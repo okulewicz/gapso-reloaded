@@ -2,12 +2,13 @@ package pl.edu.pw.mini.gapso.optimizer;
 
 import org.junit.Assert;
 import org.junit.Test;
+import pl.edu.pw.mini.gapso.bounds.BoundsManager;
+import pl.edu.pw.mini.gapso.bounds.ResetAllBoundsManager;
 import pl.edu.pw.mini.gapso.configuration.BoundsManagerConfiguration;
 import pl.edu.pw.mini.gapso.configuration.MoveConfiguration;
 import pl.edu.pw.mini.gapso.configuration.MoveManagerConfiguration;
 import pl.edu.pw.mini.gapso.function.ConvexSquareFunction;
 import pl.edu.pw.mini.gapso.function.FunctionWhiteBox;
-import pl.edu.pw.mini.gapso.initializer.BoundsManager;
 import pl.edu.pw.mini.gapso.initializer.RandomInitializer;
 import pl.edu.pw.mini.gapso.optimizer.move.DEBest1Bin;
 import pl.edu.pw.mini.gapso.optimizer.move.MoveManager;

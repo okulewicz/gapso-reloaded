@@ -1,8 +1,5 @@
-package pl.edu.pw.mini.gapso.initializer;
+package pl.edu.pw.mini.gapso.bounds;
 
-import pl.edu.pw.mini.gapso.bounds.Bounds;
-import pl.edu.pw.mini.gapso.bounds.SimpleBounds;
-import pl.edu.pw.mini.gapso.bounds.SplittableBounds;
 import pl.edu.pw.mini.gapso.configuration.BoundsManagerConfiguration;
 import pl.edu.pw.mini.gapso.model.FullSquareModel;
 import pl.edu.pw.mini.gapso.model.Model;

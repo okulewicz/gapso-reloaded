@@ -1,9 +1,9 @@
 package pl.edu.pw.mini.gapso.optimizer;
 
 import pl.edu.pw.mini.gapso.bounds.Bounds;
+import pl.edu.pw.mini.gapso.bounds.BoundsManager;
 import pl.edu.pw.mini.gapso.configuration.Configuration;
 import pl.edu.pw.mini.gapso.function.Function;
-import pl.edu.pw.mini.gapso.initializer.BoundsManager;
 import pl.edu.pw.mini.gapso.initializer.Initializer;
 import pl.edu.pw.mini.gapso.optimizer.move.Move;
 import pl.edu.pw.mini.gapso.optimizer.move.MoveManager;

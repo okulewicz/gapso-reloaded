@@ -3,6 +3,7 @@ package pl.edu.pw.mini.gapso.initializer;
 import org.junit.Assert;
 import org.junit.Test;
 import pl.edu.pw.mini.gapso.bounds.Bounds;
+import pl.edu.pw.mini.gapso.bounds.GlobalModelBoundsManager;
 import pl.edu.pw.mini.gapso.configuration.BoundsManagerConfiguration;
 import pl.edu.pw.mini.gapso.function.Function;
 import pl.edu.pw.mini.gapso.function.FunctionWhiteBox;
