@@ -31,6 +31,7 @@ public class SHADE extends Move {
     private List<Double> deltas;
     private List<Double> successfulCrossProb;
     private List<Double> successfulScales;
+    private int lastChoice;
 
     public SHADE(MoveConfiguration moveConfiguration) {
         super(moveConfiguration);
@@ -93,6 +94,7 @@ public class SHADE extends Move {
         while (randomIndex2 == randomIndex1 || randomIndex2 == currentIndex || randomIndex2 == pBestIndex) {
             randomIndex2 = Generator.RANDOM.nextInt(particlesCount + _archive.getSamplesCount());
         }
+        lastChoice = Generator.RANDOM.nextInt(_slots);
         lastScale = generateScale();
         lastCrossProb = generateCrossProb();
         final Sample currentSample = particleList.get(currentIndex).getBest();
@@ -118,7 +120,7 @@ public class SHADE extends Move {
     }
 
     private int getPBestParticleIndex(List<Particle> particleList) {
-        final int worstPBest = Math.max(1, (int) (particleList.size() * _pBestRatio));
+        final int worstPBest = Math.max(1, (int) Math.round(particleList.size() * _pBestRatio));
         final int[] pBests = particleList
                 .stream()
                 .sorted(Comparator.comparingDouble(p -> p.getBest().getY()))
@@ -130,14 +132,17 @@ public class SHADE extends Move {
     }
 
     private double generateCrossProb() {
-        NormalDistribution cauchyDistribution = new NormalDistribution(Generator.RANDOM,
-                Math.max(0, _crossProbs[activeSlot]), 0.1);
-        return Math.max(0.25, cauchyDistribution.sample());
+        if (Double.isNaN(_crossProbs[activeSlot])) {
+            return 0.0;
+        }
+        NormalDistribution normalDistribution = new NormalDistribution(Generator.RANDOM,
+                _crossProbs[lastChoice], 0.1);
+        return normalDistribution.sample();
     }
 
     private double generateScale() {
-        CauchyDistribution cauchyDistribution = new CauchyDistribution(Generator.RANDOM, _scales[activeSlot], 0.1);
-        return Math.max(0, Math.min(cauchyDistribution.sample(), 0.9));
+        CauchyDistribution cauchyDistribution = new CauchyDistribution(Generator.RANDOM, _scales[lastChoice], 0.1);
+        return cauchyDistribution.sample();
     }
 
     @Override
@@ -169,7 +174,11 @@ public class SHADE extends Move {
     @Override
     public void newIteration() {
         if (!deltas.isEmpty()) {
-            _crossProbs[activeSlot] = computeMeanWL(deltas, successfulCrossProb);
+            if (successfulCrossProb.stream().mapToDouble(o -> o).max().orElse(-1) < 0) {
+                _crossProbs[activeSlot] = Double.NaN;
+            } else {
+                _crossProbs[activeSlot] = computeMeanWL(deltas, successfulCrossProb);
+            }
             _scales[activeSlot] = computeMeanWL(deltas, successfulScales);
             deltas.clear();
             successfulScales.clear();
