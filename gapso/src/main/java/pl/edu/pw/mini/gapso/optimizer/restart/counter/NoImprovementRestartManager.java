@@ -14,9 +14,12 @@ public class NoImprovementRestartManager extends RestartManager {
     double bestValue = Double.POSITIVE_INFINITY;
     int tests = 0;
 
+    public NoImprovementRestartManager(Configuration configuration) {
+        this.evaluationsPerDimensionLimit = configuration.getEvaluationsPerDimensionLimit();
+    }
+
     public NoImprovementRestartManager(JsonElement parameters) {
-        Configuration conf = Util.GSON.fromJson(parameters, Configuration.class);
-        this.evaluationsPerDimensionLimit = conf.getEvaluationsPerDimensionLimit();
+        this(Util.GSON.fromJson(parameters, Configuration.class));
     }
 
     @Override
@@ -29,7 +32,7 @@ public class NoImprovementRestartManager extends RestartManager {
         } else {
             tests += particleList.size();
         }
-        return evaluationsPerDimensionLimit * best.getX().length < tests;
+        return evaluationsPerDimensionLimit * best.getX().length <= tests;
     }
 
     public static class Configuration {
