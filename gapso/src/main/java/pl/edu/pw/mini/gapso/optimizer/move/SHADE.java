@@ -174,7 +174,7 @@ public class SHADE extends Move {
     @Override
     public void newIteration() {
         if (!deltas.isEmpty()) {
-            if (successfulCrossProb.stream().mapToDouble(o -> o).max().orElse(-1) < 0) {
+            if (Double.isNaN(_crossProbs[activeSlot]) || successfulCrossProb.stream().mapToDouble(o -> o).max().orElse(-1) < 0) {
                 _crossProbs[activeSlot] = Double.NaN;
             } else {
                 _crossProbs[activeSlot] = computeMeanWL(deltas, successfulCrossProb);
