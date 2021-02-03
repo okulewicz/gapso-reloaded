@@ -154,7 +154,7 @@ public class SHADE extends Move {
         Arrays.fill(_scales, _scale);
         _crossProbs = new double[_slots];
         Arrays.fill(_crossProbs, _crossProb);
-        _archive = new LimitedCapacitySampler((int) (_archiveSizeFactor * particleCount));
+        _archive = new LimitedCapacitySampler((int) Math.max(1, Math.round(_archiveSizeFactor * particleCount)));
         activeSlot = 0;
         resetWeight();
     }

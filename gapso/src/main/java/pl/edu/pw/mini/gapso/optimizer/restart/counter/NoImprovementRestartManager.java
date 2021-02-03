@@ -20,7 +20,7 @@ public class NoImprovementRestartManager extends RestartManager {
             bestValue = globalBestValue;
             tests = 0;
         } else {
-            tests++;
+            tests += particleList.size();
         }
         return MAX_TESTS * best.getX().length < tests;
     }
