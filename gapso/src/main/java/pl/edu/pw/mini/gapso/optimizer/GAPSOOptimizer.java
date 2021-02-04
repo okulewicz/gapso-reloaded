@@ -89,8 +89,9 @@ public class GAPSOOptimizer extends SamplingOptimizer {
                     _moveManager.registerGlobalImprovementByMove(selectedMove, result.getGlobalImprovement());
                 }
                 if (_restartManager.shouldBeRestarted(particles)) {
+                    //TODO: needs to be parameterized!
                     particleCount *= 2;
-                    particleCount = Math.min(particleCount, 20 * function.getDimension());
+                    particleCount = Math.min(particleCount, 30 * function.getDimension());
                     _boundsManager.registerOptimumLocation(swarm.getGlobalBest());
                     swarm.getParticles().clear();
                     resetAfterOptimizationRestart();
