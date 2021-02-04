@@ -91,6 +91,7 @@ public class GAPSOOptimizer extends SamplingOptimizer {
                 if (_restartManager.shouldBeRestarted(particles)) {
                     particleCount *= 2;
                     _boundsManager.registerOptimumLocation(swarm.getGlobalBest());
+                    swarm.getParticles().clear();
                     resetAfterOptimizationRestart();
                     break;
                 }
