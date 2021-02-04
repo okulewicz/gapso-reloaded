@@ -134,7 +134,10 @@ public class SHADE extends Move {
     private double generateCrossProb() {
         NormalDistribution normalDistribution = new NormalDistribution(Generator.RANDOM,
                 _crossProbs[lastChoice], 0.1);
-        return normalDistribution.sample();
+        return
+                Math.max(0,
+                        Math.min(1,
+                                normalDistribution.sample()));
     }
 
     private double generateScale() {
