@@ -94,7 +94,6 @@ public class SHADE extends Move {
         while (randomIndex2 == randomIndex1 || randomIndex2 == currentIndex || randomIndex2 == pBestIndex) {
             randomIndex2 = Generator.RANDOM.nextInt(particlesCount + _archive.getSamplesCount());
         }
-        lastChoice = Generator.RANDOM.nextInt(_slots);
         lastScale = generateScale();
         lastCrossProb = generateCrossProb();
         final Sample currentSample = particleList.get(currentIndex).getBest();
@@ -144,8 +143,7 @@ public class SHADE extends Move {
         double sample = -1.0;
         while (sample <= 0) {
             double r = Generator.RANDOM.nextDouble();
-            double scale = 0.1 * Math.tan(Math.PI * (r - 0.5));
-            CauchyDistribution cauchyDistribution = new CauchyDistribution(Generator.RANDOM, _scales[lastChoice], scale);
+            CauchyDistribution cauchyDistribution = new CauchyDistribution(Generator.RANDOM, _scales[lastChoice], 0.1);
             sample = cauchyDistribution.sample();
             sample = Math.min(sample, 1.0);
         }
@@ -180,6 +178,7 @@ public class SHADE extends Move {
 
     @Override
     public void newIteration() {
+        lastChoice = Generator.RANDOM.nextInt(_slots);
         if (!deltas.isEmpty()) {
             _crossProbs[activeSlot] = computeMeanWL(deltas, successfulCrossProb);
             _scales[activeSlot] = computeMeanWL(deltas, successfulScales);
