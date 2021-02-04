@@ -31,6 +31,8 @@ public class Configuration {
     private InitializerConfiguration initializerDefinition;
 
     private MoveManagerConfiguration moveManagerDefinition;
+    private double particlesCountMultiplier;
+    private int maxParticlesCountPerDimension;
 
     public int getEvaluationsBudgetPerDimension() {
         return evaluationsBudgetPerDimension;
@@ -71,6 +73,14 @@ public class Configuration {
         return particlesCountPerDimension;
     }
 
+    public double getParticlesCountMultiplier() {
+        return particlesCountMultiplier;
+    }
+
+    public int getMaxParticlesCountPerDimension() {
+        return maxParticlesCountPerDimension;
+    }
+
     public Initializer getInitializer() {
         return initializerDefinition.getInitializer();
     }
@@ -87,4 +97,6 @@ public class Configuration {
     public MoveManager getMoveManager() {
         return moveManagerDefinition.getMoveManager();
     }
+
+
 }

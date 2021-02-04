@@ -25,7 +25,7 @@ public class GAPSOOptimizerTest {
         BoundsManagerConfiguration boundsManagerConfiguration =
                 new BoundsManagerConfiguration(ResetAllBoundsManager.NAME, null);
         BoundsManager boundsManager = new ResetAllBoundsManager(boundsManagerConfiguration);
-        GAPSOOptimizer optimizer = new GAPSOOptimizer(10, 1000,
+        GAPSOOptimizer optimizer = new GAPSOOptimizer(10, 1.0, Integer.MAX_VALUE, 1000,
                 moveManager, new RandomInitializer(),
                 new SmallestSpreadBelowThresholdRestartManager(1e-8),
                 boundsManager);

@@ -29,6 +29,8 @@ public class GAPSOOptimizer extends SamplingOptimizer {
     private UpdatableSample totalGlobalBest;
     private MoveManager _moveManager;
     private Bounds bounds;
+    private double _particlesCountMultiplier;
+    private int _maxParticlesPerDimension;
 
     @Override
     public void registerSampler(Sampler sampler) {
@@ -40,8 +42,17 @@ public class GAPSOOptimizer extends SamplingOptimizer {
         successSamplers.add(sampler);
     }
 
-    public GAPSOOptimizer(int particlesCount, int evaluationsBudget, MoveManager moveManager, Initializer initializer, RestartManager restartManager, BoundsManager boundsManager) {
+    public GAPSOOptimizer(int particlesCount,
+                          double particlesCountMultiplier,
+                          int maxParticlesPerDimension,
+                          int evaluationsBudget,
+                          MoveManager moveManager,
+                          Initializer initializer,
+                          RestartManager restartManager,
+                          BoundsManager boundsManager) {
         _particlesCountPerDimension = particlesCount;
+        _particlesCountMultiplier = particlesCountMultiplier;
+        _maxParticlesPerDimension = maxParticlesPerDimension;
         _evaluationsBudgetPerDimension = evaluationsBudget;
         _availableMoves = moveManager.getMoves();
         _initializer = initializer;
@@ -52,6 +63,8 @@ public class GAPSOOptimizer extends SamplingOptimizer {
 
     public GAPSOOptimizer() {
         this(Configuration.getInstance().getParticlesCountPerDimension(),
+                Configuration.getInstance().getParticlesCountMultiplier(),
+                Configuration.getInstance().getMaxParticlesCountPerDimension(),
                 Configuration.getInstance().getEvaluationsBudgetPerDimension(),
                 Configuration.getInstance().getMoveManager(),
                 Configuration.getInstance().getInitializer(),
@@ -90,8 +103,8 @@ public class GAPSOOptimizer extends SamplingOptimizer {
                 }
                 if (_restartManager.shouldBeRestarted(particles)) {
                     //TODO: needs to be parameterized!
-                    particleCount *= 2;
-                    particleCount = Math.min(particleCount, 30 * function.getDimension());
+                    particleCount = (int) Math.round(_particlesCountMultiplier * particleCount);
+                    particleCount = Math.min(particleCount, _maxParticlesPerDimension * function.getDimension());
                     _boundsManager.registerOptimumLocation(swarm.getGlobalBest());
                     swarm.getParticles().clear();
                     resetAfterOptimizationRestart();

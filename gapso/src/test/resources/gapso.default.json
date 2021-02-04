@@ -1,6 +1,8 @@
 {
   "seed": 1,
   "particlesCountPerDimension": 10,
+  "particlesCountMultiplier": 1.0,
+  "maxParticlesCountPerDimension": 100000,
   "evaluationsBudgetPerDimension": 100,
   "boundsManagerDefinition": {
     "name": "ResetAll"
