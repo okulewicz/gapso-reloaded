@@ -63,7 +63,7 @@ public class GAPSOOptimizer extends SamplingOptimizer {
     public Sample optimize(Function function) {
         totalGlobalBest = UpdatableSample.generateInitialSample(function.getDimension());
         _boundsManager.setInitialBounds(function.getBounds());
-        final int particleCount = _particlesCountPerDimension * function.getDimension();
+        int particleCount = _particlesCountPerDimension * function.getDimension();
         resetAndConfigureBeforeOptimization(particleCount);
         bounds = function.getBounds();
         while (isEnoughOptimizationBudgetLeftAndNeedsOptimization(function)) {
@@ -89,6 +89,7 @@ public class GAPSOOptimizer extends SamplingOptimizer {
                     _moveManager.registerGlobalImprovementByMove(selectedMove, result.getGlobalImprovement());
                 }
                 if (_restartManager.shouldBeRestarted(particles)) {
+                    particleCount *= 2;
                     _boundsManager.registerOptimumLocation(swarm.getGlobalBest());
                     resetAfterOptimizationRestart();
                     break;
