@@ -141,15 +141,15 @@ public class SHADE extends Move {
     }
 
     private double generateScale() {
-        CauchyDistribution cauchyDistribution = new CauchyDistribution(Generator.RANDOM, _scales[lastChoice], 0.1);
-        return
-                Math.max(
-                        0.25,
-                        Math.min(
-                                1.2,
-                                cauchyDistribution.sample()
-                        )
-                );
+        double sample = -1.0;
+        while (sample <= 0) {
+            double r = Generator.RANDOM.nextDouble();
+            double scale = 0.1 * Math.tan(Math.PI * (r - 0.5));
+            CauchyDistribution cauchyDistribution = new CauchyDistribution(Generator.RANDOM, _scales[lastChoice], scale);
+            sample = cauchyDistribution.sample();
+            sample = Math.min(sample, 1.0);
+        }
+        return sample;
     }
 
     @Override
