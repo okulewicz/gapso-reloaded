@@ -142,7 +142,6 @@ public class SHADE extends Move {
     private double generateScale() {
         double sample = -1.0;
         while (sample <= 0) {
-            double r = Generator.RANDOM.nextDouble();
             CauchyDistribution cauchyDistribution = new CauchyDistribution(Generator.RANDOM, _scales[lastChoice], 0.1);
             sample = cauchyDistribution.sample();
             sample = Math.min(sample, 1.0);
