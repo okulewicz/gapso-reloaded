@@ -132,9 +132,6 @@ public class SHADE extends Move {
     }
 
     private double generateCrossProb() {
-        if (Double.isNaN(_crossProbs[activeSlot])) {
-            return 0.0;
-        }
         NormalDistribution normalDistribution = new NormalDistribution(Generator.RANDOM,
                 _crossProbs[lastChoice], 0.1);
         return normalDistribution.sample();
@@ -174,11 +171,7 @@ public class SHADE extends Move {
     @Override
     public void newIteration() {
         if (!deltas.isEmpty()) {
-            if (Double.isNaN(_crossProbs[activeSlot]) || successfulCrossProb.stream().mapToDouble(o -> o).max().orElse(-1) < 0) {
-                _crossProbs[activeSlot] = Double.NaN;
-            } else {
-                _crossProbs[activeSlot] = computeMeanWL(deltas, successfulCrossProb);
-            }
+            _crossProbs[activeSlot] = computeMeanWL(deltas, successfulCrossProb);
             _scales[activeSlot] = computeMeanWL(deltas, successfulScales);
             deltas.clear();
             successfulScales.clear();
