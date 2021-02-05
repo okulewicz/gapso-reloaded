@@ -68,6 +68,9 @@ public class MoveConfiguration {
         if (getName().equals(NearestSamplesModel.NAME)) {
             return new NearestSamplesModel(this);
         }
+        if (getName().equals(CMAESLike.NAME)) {
+            return new CMAESLike(this);
+        }
         throw new IllegalArgumentException("Unknown move " + getName());
     }
 }

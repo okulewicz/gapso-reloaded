@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class CMAESLike extends Move {
+    public static final String NAME = "CMA-ES-like";
     private boolean isFirstInIteration;
     private double[] oldMu;
     private double[] newMu;
@@ -67,7 +68,7 @@ public class CMAESLike extends Move {
         double[] mean = new double[dimension];
         for (int sIdx = 0; sIdx < lambda; ++sIdx) {
             for (int dimIdx = 0; dimIdx < dimension; ++dimIdx) {
-                newMu[dimIdx] += w[sIdx] * samples.get(sIdx).getX()[dimIdx];
+                mean[dimIdx] += w[sIdx] * samples.get(sIdx).getX()[dimIdx];
             }
         }
         return mean;
