@@ -99,7 +99,6 @@ public class GAPSOOptimizer extends SamplingOptimizer {
                     Move selectedMove = movesIterator.next();
                     ParticleMoveResults result = particle.move(selectedMove);
                     if (result == null) {
-                        exception = true;
                         moves = _moveManager.generateMoveSequence(particles.size() - pIdx);
                         movesIterator = moves.iterator();
                         pIdx--;
@@ -111,7 +110,7 @@ public class GAPSOOptimizer extends SamplingOptimizer {
                     _moveManager.registerPersonalImprovementByMove(selectedMove, result.getPersonalImprovement());
                     _moveManager.registerGlobalImprovementByMove(selectedMove, result.getGlobalImprovement());
                 }
-                if (exception || _restartManager.shouldBeRestarted(particles)) {
+                if (_restartManager.shouldBeRestarted(particles)) {
                     //TODO: needs to be parameterized!
                     particleCount = (int) Math.round(_particlesCountMultiplier * particleCount);
                     particleCount = Math.min(particleCount, _maxParticlesPerDimension * function.getDimension());
