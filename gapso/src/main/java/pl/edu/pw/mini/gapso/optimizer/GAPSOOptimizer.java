@@ -1,7 +1,5 @@
 package pl.edu.pw.mini.gapso.optimizer;
 
-import org.apache.commons.math3.exception.MaxCountExceededException;
-import org.apache.commons.math3.linear.SingularMatrixException;
 import pl.edu.pw.mini.gapso.bounds.Bounds;
 import pl.edu.pw.mini.gapso.bounds.BoundsManager;
 import pl.edu.pw.mini.gapso.configuration.Configuration;
@@ -98,22 +96,16 @@ public class GAPSOOptimizer extends SamplingOptimizer {
                 boolean exception = false;
                 for (Particle particle : particles) {
                     Move selectedMove = movesIterator.next();
-                    try {
-                        ParticleMoveResults result = particle.move(selectedMove);
-                        if (result.getPersonalImprovement() > 0) {
-                            successSamplers.forEach(s -> s.tryStoreSample(result.previousBest));
-                        }
-                        _moveManager.registerPersonalImprovementByMove(selectedMove, result.getPersonalImprovement());
-                        _moveManager.registerGlobalImprovementByMove(selectedMove, result.getGlobalImprovement());
-                    } catch (SingularMatrixException sme) {
+                    ParticleMoveResults result = particle.move(selectedMove);
+                    if (result == null) {
                         exception = true;
-                        System.err.println(sme.getLocalizedMessage());
-                        break;
-                    } catch (MaxCountExceededException mcee) {
-                        exception = true;
-                        System.err.println(mcee.getLocalizedMessage());
                         break;
                     }
+                    if (result.getPersonalImprovement() > 0) {
+                        successSamplers.forEach(s -> s.tryStoreSample(result.previousBest));
+                    }
+                    _moveManager.registerPersonalImprovementByMove(selectedMove, result.getPersonalImprovement());
+                    _moveManager.registerGlobalImprovementByMove(selectedMove, result.getGlobalImprovement());
                 }
                 if (exception || _restartManager.shouldBeRestarted(particles)) {
                     //TODO: needs to be parameterized!

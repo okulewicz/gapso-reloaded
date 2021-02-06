@@ -64,8 +64,12 @@ public class CMAESLike extends Move {
             }
             newM = computeMean(samples);
             computeCovarianceMatrixAndUpdateSigma(samples);
-            mvnd = new MultivariateNormalDistribution(Generator.RANDOM, newM, C.scalarMultiply(sigma).getData());
             isFirstInIteration = false;
+            try {
+                mvnd = new MultivariateNormalDistribution(Generator.RANDOM, newM, C.scalarMultiply(sigma).getData());
+            } catch (Exception ex) {
+                return null;
+            }
         }
         //TODO: consider if not count also other evaluations so add lamba at begining of iteration
         counteval += 1;
@@ -137,7 +141,7 @@ public class CMAESLike extends Move {
         sigma = sigma * Math.exp((cs/damps)*((ps).getNorm()/chiN - 1));
 
         if (counteval - eigeneval > lambda/(c1+cmu)/dimension/10.0) {// otherwise MaxCountExceededException when sampling from multivariate
-             eigeneval = counteval;
+            eigeneval = counteval;
             for (int i = 0; i < C.getColumnDimension(); ++i) {
                 for (int j = i; j < C.getRowDimension(); ++j) {
                     C.setEntry(j, i, C.getEntry(i, j));
@@ -150,10 +154,6 @@ public class CMAESLike extends Move {
                 D.setEntry(i,i, Math.sqrt(D.getEntry(i,i)));
             }
             invsqrtC = B.multiply(MatrixUtils.inverse(D)).multiply(B.transpose());
-            /*
-            invsqrtC = B * diag(D. ^ -1) * B ';
-            end
-             */
         }
     }
 
