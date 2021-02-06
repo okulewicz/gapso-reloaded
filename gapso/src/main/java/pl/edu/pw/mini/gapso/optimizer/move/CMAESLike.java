@@ -69,6 +69,7 @@ public class CMAESLike extends Move {
                 mvnd = new MultivariateNormalDistribution(Generator.RANDOM, newM, C.scalarMultiply(sigma).getData());
             } catch (Exception ex) {
                 resetState(0);
+                setWeight(0.0);
                 return null;
             }
         }

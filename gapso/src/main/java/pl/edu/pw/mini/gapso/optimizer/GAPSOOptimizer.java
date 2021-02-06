@@ -137,6 +137,7 @@ public class GAPSOOptimizer extends SamplingOptimizer {
         _boundsManager.resetManager();
         _boundsManager.registerObjectsWithOptimizer(this);
         for (Move move : _availableMoves) {
+            move.resetWeight();
             move.resetState(particleCount);
             move.registerObjectsWithOptimizer(this);
         }
