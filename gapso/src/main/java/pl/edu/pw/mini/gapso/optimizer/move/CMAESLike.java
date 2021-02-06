@@ -1,9 +1,9 @@
 package pl.edu.pw.mini.gapso.optimizer.move;
 
 import org.apache.commons.math3.distribution.MultivariateNormalDistribution;
-import org.apache.commons.math3.linear.EigenDecomposition;
-import org.apache.commons.math3.linear.MatrixUtils;
-import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.distribution.NormalDistribution;
+import org.apache.commons.math3.exception.MaxCountExceededException;
+import org.apache.commons.math3.linear.*;
 import pl.edu.pw.mini.gapso.configuration.MoveConfiguration;
 import pl.edu.pw.mini.gapso.optimizer.Particle;
 import pl.edu.pw.mini.gapso.optimizer.SamplingOptimizer;
@@ -20,7 +20,6 @@ public class CMAESLike extends Move {
     private boolean isFirstInIteration;
     private double[] oldM;
     private double[] newM;
-    private MultivariateNormalDistribution mvnd;
     private boolean isInitialized;
     private int dimension;
     private int mu;
@@ -35,7 +34,7 @@ public class CMAESLike extends Move {
     private RealMatrix pc;
     private RealMatrix ps;
     private RealMatrix B;
-    private RealMatrix D;
+    private RealVector D;
     private RealMatrix C;
     private RealMatrix invsqrtC;
     private int eigeneval;
@@ -49,13 +48,13 @@ public class CMAESLike extends Move {
 
     @Override
     public double[] getNext(Particle currentParticle, List<Particle> particleList) {
+        final int length = currentParticle.getBest().getX().length;
+        final int lambda = particleList.size();
         if (isFirstInIteration) {
             try {
                 final List<Sample> samples = particleList.stream().map(Particle::getBest)
                         .sorted(Comparator.comparingDouble(Sample::getY)).collect(Collectors.toList());
                 if (!isInitialized) {
-                    final int length = currentParticle.getBest().getX().length;
-                    final int lambda = samples.size();
                     initializeParameters(length, lambda);
                 }
                 if (oldM == null) {
@@ -66,7 +65,7 @@ public class CMAESLike extends Move {
                 newM = computeMean(samples);
                 computeCovarianceMatrixAndUpdateSigma(samples);
                 isFirstInIteration = false;
-                mvnd = new MultivariateNormalDistribution(Generator.RANDOM, newM, C.scalarMultiply(sigma).getData());
+                //mvnd = new MultivariateNormalDistribution(Generator.RANDOM, newM, C.scalarMultiply(sigma).getData());
             } catch (Exception ex) {
                 resetState(0);
                 setWeight(0.0);
@@ -75,8 +74,11 @@ public class CMAESLike extends Move {
         }
         //TODO: consider if not count also other evaluations so add lamba at begining of iteration
         counteval += 1;
-        assert mvnd != null;
-        return mvnd.sample();
+        NormalDistribution nd = new NormalDistribution(Generator.RANDOM, 0, 1);
+        double[] normals = nd.sample(length);
+        return MatrixUtils.createRealVector(newM).add(
+                B.preMultiply(D.ebeMultiply(MatrixUtils.createRealVector(normals))).mapMultiply(sigma)
+        ).toArray();
     }
 
     public void initializeParameters(int length, int lambda) {
@@ -95,19 +97,24 @@ public class CMAESLike extends Move {
         cmu = Math.min(1.0 - c1, 2.0 * (mueff - 2.0 + 1.0 / mueff) / ((dimension + 2.0) * (dimension + 2.0) + mueff));
         damps = 1.0 + 2.0 * Math.max(0.0, Math.sqrt((mueff - 1.0) / (dimension + 1.0)) - 1.0) + cs;
         //dynamic parameters
-        pc = MatrixUtils.createRealMatrix(dimension, 1);
-        ps = MatrixUtils.createRealMatrix(dimension, 1);
-        B = MatrixUtils.createRealIdentityMatrix(dimension);
-        double[] diag = new double[dimension];
-        Arrays.fill(diag, 1.0);
-        D = MatrixUtils.createRealDiagonalMatrix(diag);
-        D = D.scalarAdd(1);
-        C = B.multiply(D.power(2)).multiply(B.transpose());
-        invsqrtC = B.multiply(MatrixUtils.inverse(D)).multiply(B.transpose());
-        eigeneval = 0;
+        initializeCovMatrix();
+
         chiN = Math.sqrt(dimension) * (1.0 - 1.0 / (4.0 * dimension) + 1 / (21.0 * dimension * dimension));
         counteval = 0;
         isInitialized = true;
+    }
+
+    public void initializeCovMatrix() {
+        pc = MatrixUtils.createRealMatrix(dimension, 1);
+        ps = MatrixUtils.createRealMatrix(dimension, 1);
+        sigma = 0.3;
+        double[] diag = new double[dimension];
+        Arrays.fill(diag, 1.0);
+        B = MatrixUtils.createRealIdentityMatrix(dimension);
+        D = MatrixUtils.createRealVector(diag);
+        C = B.multiply(MatrixUtils.createRealDiagonalMatrix(diag)).multiply(B.transpose());
+        invsqrtC = B.multiply(MatrixUtils.createRealDiagonalMatrix(diag)).multiply(B.transpose());
+        eigeneval = 0;
     }
 
     public void computeCovarianceMatrixAndUpdateSigma(List<Sample> samples) {
@@ -141,21 +148,36 @@ public class CMAESLike extends Move {
         C = oldCImpact.add(rankOneUpdate).add(rankMuUpdate);
 
         sigma = sigma * Math.exp((cs/damps)*((ps).getNorm()/chiN - 1));
+        if (Double.isInfinite(sigma)) {
+            initializeCovMatrix();
+        }
+        if (Double.isNaN(sigma)) {
+            initializeCovMatrix();
+        }
 
         if (counteval - eigeneval > lambda/(c1+cmu)/dimension/10.0) {// otherwise MaxCountExceededException when sampling from multivariate
             eigeneval = counteval;
             for (int i = 0; i < C.getColumnDimension(); ++i) {
-                for (int j = i; j < C.getRowDimension(); ++j) {
+                for (int j = i + 1; j < C.getRowDimension(); ++j) {
                     C.setEntry(j, i, C.getEntry(i, j));
                 }
             }
-            EigenDecomposition eg = new EigenDecomposition(C);
-            D = eg.getD(); //eigen values
-            B = eg.getV(); //eigen vectors
-            for (int i = 0; i < D.getRowDimension(); ++i) {
-                D.setEntry(i,i, Math.sqrt(D.getEntry(i,i)));
+            try {
+                EigenDecomposition eg = new EigenDecomposition(C);
+                D = MatrixUtils.createRealVector(eg.getRealEigenvalues()); //eigen values
+                RealVector OverD = MatrixUtils.createRealVector(eg.getRealEigenvalues());
+                B = eg.getV(); //eigen vectors
+                for (int i = 0; i < D.getDimension(); ++i) {
+                    D.setEntry(i, Math.sqrt(D.getEntry(i)));
+                    OverD.setEntry(i, 1.0 / D.getEntry(i));
+                }
+                invsqrtC = B.multiply(MatrixUtils.createRealDiagonalMatrix(OverD.toArray())).multiply(B.transpose());
+                if (D.getMaxValue() > 1e7 * D.getMinValue()) {
+                    initializeCovMatrix();
+                }
+            } catch (MaxCountExceededException ex) {
+                initializeCovMatrix();
             }
-            invsqrtC = B.multiply(MatrixUtils.inverse(D)).multiply(B.transpose());
         }
     }
 
@@ -184,7 +206,6 @@ public class CMAESLike extends Move {
     }
 
     public void computeOldMu(List<Sample> samples) {
-        sigma = 0.3;
         oldM = new double[dimension];
         for (int i = 0; i < dimension; ++i) {
             final int dim = i;
