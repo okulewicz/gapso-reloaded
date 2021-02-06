@@ -1,9 +1,11 @@
 package pl.edu.pw.mini.gapso.optimizer.move;
 
-import org.apache.commons.math3.distribution.MultivariateNormalDistribution;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.exception.MaxCountExceededException;
-import org.apache.commons.math3.linear.*;
+import org.apache.commons.math3.linear.EigenDecomposition;
+import org.apache.commons.math3.linear.MatrixUtils;
+import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.linear.RealVector;
 import pl.edu.pw.mini.gapso.configuration.MoveConfiguration;
 import pl.edu.pw.mini.gapso.optimizer.Particle;
 import pl.edu.pw.mini.gapso.optimizer.SamplingOptimizer;
@@ -85,7 +87,7 @@ public class CMAESLike extends Move {
         //selection
         dimension = length;
         isInitialized = true;
-        mu = (int) Math.round(lambda * 0.5);
+        mu = Math.min((4 + (int) Math.floor(3 * Math.log(dimension))) / 2, (int) Math.round(lambda * 0.5));
         weights = computeWeights();
         double weightssum = Arrays.stream(weights).sum();
         double sumweightssquare = Arrays.stream(weights).map(w -> w * w).sum();
