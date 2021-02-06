@@ -1,5 +1,6 @@
 package pl.edu.pw.mini.gapso.optimizer;
 
+import org.apache.commons.math3.linear.SingularMatrixException;
 import pl.edu.pw.mini.gapso.bounds.Bounds;
 import pl.edu.pw.mini.gapso.bounds.BoundsManager;
 import pl.edu.pw.mini.gapso.configuration.Configuration;
@@ -92,16 +93,23 @@ public class GAPSOOptimizer extends SamplingOptimizer {
                 List<Move> moves = _moveManager.generateMoveSequence(particles.size());
                 _moveManager.startNewIteration();
                 Iterator<Move> movesIterator = moves.iterator();
+                boolean exception = false;
                 for (Particle particle : particles) {
                     Move selectedMove = movesIterator.next();
-                    ParticleMoveResults result = particle.move(selectedMove);
-                    if (result.getPersonalImprovement() > 0) {
-                        successSamplers.forEach(s -> s.tryStoreSample(result.previousBest));
+                    try {
+                        ParticleMoveResults result = particle.move(selectedMove);
+                        if (result.getPersonalImprovement() > 0) {
+                            successSamplers.forEach(s -> s.tryStoreSample(result.previousBest));
+                        }
+                        _moveManager.registerPersonalImprovementByMove(selectedMove, result.getPersonalImprovement());
+                        _moveManager.registerGlobalImprovementByMove(selectedMove, result.getGlobalImprovement());
+                    } catch (SingularMatrixException sme) {
+                        exception = true;
+                        System.err.println(sme.getLocalizedMessage());
+                        break;
                     }
-                    _moveManager.registerPersonalImprovementByMove(selectedMove, result.getPersonalImprovement());
-                    _moveManager.registerGlobalImprovementByMove(selectedMove, result.getGlobalImprovement());
                 }
-                if (_restartManager.shouldBeRestarted(particles)) {
+                if (exception || _restartManager.shouldBeRestarted(particles)) {
                     //TODO: needs to be parameterized!
                     particleCount = (int) Math.round(_particlesCountMultiplier * particleCount);
                     particleCount = Math.min(particleCount, _maxParticlesPerDimension * function.getDimension());

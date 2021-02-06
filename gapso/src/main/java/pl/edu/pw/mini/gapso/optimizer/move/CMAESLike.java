@@ -50,6 +50,16 @@ public class CMAESLike extends Move {
     public RealMatrix computeCovarianceMatrix(int dimension, List<Sample> samples, int lambda, double[] w) {
         RealMatrix covMatrix = MatrixUtils.createRealMatrix(dimension, dimension);
         double[][] y = new double[lambda][];
+        double[] p = new double[dimension];
+        for (int dimIdx = 0; dimIdx < dimension; ++dimIdx) {
+            p[dimIdx] = newMu[dimIdx] - oldMu[dimIdx];
+        }
+        double rankWeight = 0.5;
+        RealMatrix pmatrix = MatrixUtils.createColumnRealMatrix(p);
+        covMatrix = covMatrix
+                .add(
+                        pmatrix
+                                .multiply(pmatrix.transpose()).scalarMultiply(1 - rankWeight));
         for (int sIdx = 0; sIdx < lambda; ++sIdx) {
             y[sIdx] = new double[dimension];
             for (int dimIdx = 0; dimIdx < dimension; ++dimIdx) {
@@ -59,7 +69,8 @@ public class CMAESLike extends Move {
             covMatrix = covMatrix
                     .add(
                             ymatrix
-                                    .multiply(ymatrix.transpose()).scalarMultiply(w[sIdx]));
+                                    .multiply(ymatrix.transpose()).scalarMultiply(w[sIdx])
+                                    .scalarMultiply(rankWeight));
         }
         return covMatrix;
     }
