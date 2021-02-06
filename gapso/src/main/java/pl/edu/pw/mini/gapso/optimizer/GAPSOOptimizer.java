@@ -99,7 +99,9 @@ public class GAPSOOptimizer extends SamplingOptimizer {
                     Move selectedMove = movesIterator.next();
                     ParticleMoveResults result = particle.move(selectedMove);
                     if (result == null) {
-                        moves = _moveManager.generateMoveSequence(particles.size() - pIdx);
+                        //generating more than enough - so no error appear
+                        //in better world - should regenerate just zeroed
+                        moves = _moveManager.generateMoveSequence(particles.size());
                         movesIterator = moves.iterator();
                         pIdx--;
                         continue;
