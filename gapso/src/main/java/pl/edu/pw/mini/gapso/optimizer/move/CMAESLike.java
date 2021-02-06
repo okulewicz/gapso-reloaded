@@ -50,26 +50,28 @@ public class CMAESLike extends Move {
     @Override
     public double[] getNext(Particle currentParticle, List<Particle> particleList) {
         if (isFirstInIteration) {
-            try {
-                final List<Sample> samples = particleList.stream().map(Particle::getBest)
-                        .sorted(Comparator.comparingDouble(Sample::getY)).collect(Collectors.toList());
-                if (!isInitialized) {
-                    final int length = currentParticle.getBest().getX().length;
-                    final int lambda = samples.size();
-                    initializeParameters(length, lambda);
+            while (true) {
+                try {
+                    final List<Sample> samples = particleList.stream().map(Particle::getBest)
+                            .sorted(Comparator.comparingDouble(Sample::getY)).collect(Collectors.toList());
+                    if (!isInitialized) {
+                        final int length = currentParticle.getBest().getX().length;
+                        final int lambda = samples.size();
+                        initializeParameters(length, lambda);
+                    }
+                    if (oldM == null) {
+                        computeOldMu(samples);
+                    } else {
+                        oldM = newM;
+                    }
+                    newM = computeMean(samples);
+                    computeCovarianceMatrixAndUpdateSigma(samples);
+                    isFirstInIteration = false;
+                    mvnd = new MultivariateNormalDistribution(Generator.RANDOM, newM, C.scalarMultiply(sigma).getData());
+                    break;
+                } catch (Exception ex) {
+                    resetState(0);
                 }
-                if (oldM == null) {
-                    computeOldMu(samples);
-                } else {
-                    oldM = newM;
-                }
-                newM = computeMean(samples);
-                computeCovarianceMatrixAndUpdateSigma(samples);
-                isFirstInIteration = false;
-                mvnd = new MultivariateNormalDistribution(Generator.RANDOM, newM, C.scalarMultiply(sigma).getData());
-            } catch (Exception ex) {
-                resetState(0);
-                return null;
             }
         }
         //TODO: consider if not count also other evaluations so add lamba at begining of iteration
