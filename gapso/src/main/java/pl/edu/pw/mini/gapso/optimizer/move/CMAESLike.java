@@ -68,6 +68,7 @@ public class CMAESLike extends Move {
                 isFirstInIteration = false;
                 mvnd = new MultivariateNormalDistribution(Generator.RANDOM, newM, C.scalarMultiply(sigma).getData());
             } catch (Exception ex) {
+                resetState(0);
                 return null;
             }
         }
@@ -197,6 +198,7 @@ public class CMAESLike extends Move {
 
     @Override
     public void resetState(int particleCount) {
+        oldM = null;
         isFirstInIteration = false;
         isInitialized = false;
     }
