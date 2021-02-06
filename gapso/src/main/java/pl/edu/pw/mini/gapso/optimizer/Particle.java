@@ -59,10 +59,11 @@ public class Particle {
     }
 
     public ParticleMoveResults move(Move availableMove) {
-        current = getSampleWithinFunctionBounds(availableMove);
-        if (current == null) {
+        Sample returned = getSampleWithinFunctionBounds(availableMove);
+        if (returned == null) {
             return null;
         }
+        current = returned;
         ParticleMoveResults pmr = new ParticleMoveResults(
                 _swarm.getGlobalBest().getY() - current.getY(),
                 best.getY() - current.getY(),
