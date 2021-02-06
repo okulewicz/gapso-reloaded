@@ -50,22 +50,22 @@ public class CMAESLike extends Move {
     @Override
     public double[] getNext(Particle currentParticle, List<Particle> particleList) {
         if (isFirstInIteration) {
-            final List<Sample> samples = particleList.stream().map(Particle::getBest)
-                    .sorted(Comparator.comparingDouble(Sample::getY)).collect(Collectors.toList());
-            if (!isInitialized) {
-                final int length = currentParticle.getBest().getX().length;
-                final int lambda = samples.size();
-                initializeParameters(length, lambda);
-            }
-            if (oldM == null) {
-                computeOldMu(samples);
-            } else {
-                oldM = newM;
-            }
-            newM = computeMean(samples);
-            computeCovarianceMatrixAndUpdateSigma(samples);
-            isFirstInIteration = false;
             try {
+                final List<Sample> samples = particleList.stream().map(Particle::getBest)
+                        .sorted(Comparator.comparingDouble(Sample::getY)).collect(Collectors.toList());
+                if (!isInitialized) {
+                    final int length = currentParticle.getBest().getX().length;
+                    final int lambda = samples.size();
+                    initializeParameters(length, lambda);
+                }
+                if (oldM == null) {
+                    computeOldMu(samples);
+                } else {
+                    oldM = newM;
+                }
+                newM = computeMean(samples);
+                computeCovarianceMatrixAndUpdateSigma(samples);
+                isFirstInIteration = false;
                 mvnd = new MultivariateNormalDistribution(Generator.RANDOM, newM, C.scalarMultiply(sigma).getData());
             } catch (Exception ex) {
                 return null;
