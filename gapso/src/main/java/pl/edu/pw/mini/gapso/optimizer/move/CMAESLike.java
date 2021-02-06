@@ -202,6 +202,7 @@ public class CMAESLike extends Move {
         oldM = null;
         isFirstInIteration = false;
         isInitialized = false;
+        resetWeight();
     }
 
     @Override

@@ -94,12 +94,16 @@ public class GAPSOOptimizer extends SamplingOptimizer {
                 _moveManager.startNewIteration();
                 Iterator<Move> movesIterator = moves.iterator();
                 boolean exception = false;
-                for (Particle particle : particles) {
+                for (int pIdx = 0; pIdx < particles.size(); ++pIdx) {
+                    Particle particle = particles.get(pIdx);
                     Move selectedMove = movesIterator.next();
                     ParticleMoveResults result = particle.move(selectedMove);
                     if (result == null) {
                         exception = true;
-                        break;
+                        moves = _moveManager.generateMoveSequence(particles.size() - pIdx);
+                        movesIterator = moves.iterator();
+                        pIdx--;
+                        continue;
                     }
                     if (result.getPersonalImprovement() > 0) {
                         successSamplers.forEach(s -> s.tryStoreSample(result.previousBest));
@@ -137,7 +141,6 @@ public class GAPSOOptimizer extends SamplingOptimizer {
         _boundsManager.resetManager();
         _boundsManager.registerObjectsWithOptimizer(this);
         for (Move move : _availableMoves) {
-            move.resetWeight();
             move.resetState(particleCount);
             move.registerObjectsWithOptimizer(this);
         }
