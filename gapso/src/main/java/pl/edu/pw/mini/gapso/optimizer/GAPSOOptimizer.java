@@ -1,5 +1,6 @@
 package pl.edu.pw.mini.gapso.optimizer;
 
+import org.apache.commons.math3.exception.MaxCountExceededException;
 import org.apache.commons.math3.linear.SingularMatrixException;
 import pl.edu.pw.mini.gapso.bounds.Bounds;
 import pl.edu.pw.mini.gapso.bounds.BoundsManager;
@@ -107,6 +108,10 @@ public class GAPSOOptimizer extends SamplingOptimizer {
                     } catch (SingularMatrixException sme) {
                         exception = true;
                         System.err.println(sme.getLocalizedMessage());
+                        break;
+                    } catch (MaxCountExceededException mcee) {
+                        exception = true;
+                        System.err.println(mcee.getLocalizedMessage());
                         break;
                     }
                 }

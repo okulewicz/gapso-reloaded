@@ -1,6 +1,7 @@
 package pl.edu.pw.mini.gapso.optimizer.move;
 
 import org.apache.commons.math3.distribution.MultivariateNormalDistribution;
+import org.apache.commons.math3.linear.EigenDecomposition;
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 import pl.edu.pw.mini.gapso.configuration.MoveConfiguration;
@@ -62,7 +63,7 @@ public class CMAESLike extends Move {
                 oldM = newM;
             }
             newM = computeMean(samples);
-            computeCovarianceMatrix(samples);
+            computeCovarianceMatrixAndUpdateSigma(samples);
             mvnd = new MultivariateNormalDistribution(Generator.RANDOM, newM, C.scalarMultiply(sigma).getData());
             //TODO: consider if not count also other evaluations so add lamba at begining of iteration
             counteval += 1;
@@ -103,7 +104,7 @@ public class CMAESLike extends Move {
         isInitialized = true;
     }
 
-    public void computeCovarianceMatrix(List<Sample> samples) {
+    public void computeCovarianceMatrixAndUpdateSigma(List<Sample> samples) {
         int lambda = samples.size();
         final RealMatrix xold = MatrixUtils.createColumnRealMatrix(oldM);
         final RealMatrix xmean = MatrixUtils.createColumnRealMatrix(newM);
@@ -125,13 +126,35 @@ public class CMAESLike extends Move {
                 y[sIdx][dimIdx] = samples.get(sIdx).getX()[dimIdx] - oldM[dimIdx];
             }
         }
-        final RealMatrix artmp = MatrixUtils.createRealMatrix(y).scalarMultiply(sigma);
+        final RealMatrix artmp = MatrixUtils.createRealMatrix(y).scalarMultiply(1.0 / sigma);
 
         final RealMatrix oldCImpact = C.scalarMultiply(1 - c1 - cmu);
         final RealMatrix rankOneUpdate = (pc.multiply(pc.transpose()).add(
                 C.scalarMultiply((1 - hsig) * cc * (2 - cc)))).scalarMultiply(c1);
-        final RealMatrix rankMuUpdate = artmp.multiply(MatrixUtils.createRealDiagonalMatrix(weights)).multiply(artmp.transpose()).scalarMultiply(cmu);
+        final RealMatrix rankMuUpdate = artmp.transpose().multiply(MatrixUtils.createRealDiagonalMatrix(weights)).multiply(artmp).scalarMultiply(cmu);
         C = oldCImpact.add(rankOneUpdate).add(rankMuUpdate);
+
+        sigma = sigma * Math.exp((cs/damps)*((ps).getNorm()/chiN - 1));
+
+        if (counteval - eigeneval > lambda/(c1+cmu)/dimension/10.0) {// otherwise MaxCountExceededException when sampling from multivariate
+             eigeneval = counteval;
+            for (int i = 0; i < C.getColumnDimension(); ++i) {
+                for (int j = i; j < C.getRowDimension(); ++j) {
+                    C.setEntry(j, i, C.getEntry(i, j));
+                }
+            }
+            EigenDecomposition eg = new EigenDecomposition(C);
+            D = eg.getD(); //eigen values
+            B = eg.getV(); //eigen vectors
+            for (int i = 0; i < D.getRowDimension(); ++i) {
+                D.setEntry(i,i, Math.sqrt(D.getEntry(i,i)));
+            }
+            invsqrtC = B.multiply(MatrixUtils.inverse(D)).multiply(B.transpose());
+            /*
+            invsqrtC = B * diag(D. ^ -1) * B ';
+            end
+             */
+        }
     }
 
     public double[] computeMean(List<Sample> samples) {
