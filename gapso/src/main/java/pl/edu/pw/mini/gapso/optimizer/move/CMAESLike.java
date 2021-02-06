@@ -31,7 +31,7 @@ public class CMAESLike extends Move {
         if (isFirstInIteration) {
             final List<Sample> samples = particleList.stream().map(Particle::getBest)
                     .sorted(Comparator.comparingDouble(Sample::getY)).collect(Collectors.toList());
-            final int lambda = samples.size();
+            final int lambda = (int) Math.round(samples.size() * 0.5);
             if (oldMu == null) {
                 computeOldMu(dimension, samples);
             } else {
