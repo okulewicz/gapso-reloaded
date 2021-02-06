@@ -65,10 +65,10 @@ public class CMAESLike extends Move {
             newM = computeMean(samples);
             computeCovarianceMatrixAndUpdateSigma(samples);
             mvnd = new MultivariateNormalDistribution(Generator.RANDOM, newM, C.scalarMultiply(sigma).getData());
-            //TODO: consider if not count also other evaluations so add lamba at begining of iteration
-            counteval += 1;
             isFirstInIteration = false;
         }
+        //TODO: consider if not count also other evaluations so add lamba at begining of iteration
+        counteval += 1;
         assert mvnd != null;
         return mvnd.sample();
     }
