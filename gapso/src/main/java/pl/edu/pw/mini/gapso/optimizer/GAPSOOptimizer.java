@@ -77,6 +77,7 @@ public class GAPSOOptimizer extends SamplingOptimizer {
     public Sample optimize(Function function) {
         totalGlobalBest = UpdatableSample.generateInitialSample(function.getDimension());
         _boundsManager.setInitialBounds(function.getBounds());
+        //TODO: CMAES:  particleCount = 4+floor(3*log(N));
         int particleCount = _particlesCountPerDimension * function.getDimension();
         resetAndConfigureBeforeOptimization(particleCount);
         bounds = function.getBounds();
