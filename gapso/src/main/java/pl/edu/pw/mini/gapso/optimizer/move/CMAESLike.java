@@ -51,6 +51,7 @@ public class CMAESLike extends Move {
     @Override
     public double[] getNext(Particle currentParticle, List<Particle> particleList) {
         final int length = currentParticle.getBest().getX().length;
+        //TODO: consider taking only particles produced by CMA-ES between iterations
         final int lambda = particleList.size();
         if (isFirstInIteration) {
             try {
