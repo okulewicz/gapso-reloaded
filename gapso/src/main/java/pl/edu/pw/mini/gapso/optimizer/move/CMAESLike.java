@@ -54,26 +54,22 @@ public class CMAESLike extends Move {
         //TODO: consider taking only particles produced by CMA-ES between iterations
         final int lambda = particleList.size();
         if (isFirstInIteration) {
-            try {
-                final List<Sample> samples = particleList.stream().map(Particle::getBest)
-                        .sorted(Comparator.comparingDouble(Sample::getY)).collect(Collectors.toList());
-                if (!isInitialized) {
-                    initializeParameters(length, lambda);
-                }
-                if (oldM == null) {
-                    computeOldMu(samples);
-                } else {
-                    oldM = newM;
-                }
-                newM = computeMean(samples);
-                computeCovarianceMatrixAndUpdateSigma(samples);
-                isFirstInIteration = false;
-                //mvnd = new MultivariateNormalDistribution(Generator.RANDOM, newM, C.scalarMultiply(sigma).getData());
-            } catch (Exception ex) {
-                resetState(0);
-                setWeight(0.0);
-                return null;
+
+            final List<Sample> samples = particleList.stream().map(Particle::getBest)
+                    .sorted(Comparator.comparingDouble(Sample::getY)).collect(Collectors.toList());
+            if (!isInitialized) {
+                initializeParameters(length, lambda);
             }
+            if (oldM == null) {
+                computeOldMu(samples);
+            } else {
+                oldM = newM;
+            }
+            newM = computeMean(samples);
+            computeCovarianceMatrixAndUpdateSigma(samples);
+            isFirstInIteration = false;
+            //mvnd = new MultivariateNormalDistribution(Generator.RANDOM, newM, C.scalarMultiply(sigma).getData());
+
         }
         //TODO: consider if not count also other evaluations so add lamba at begining of iteration
         counteval += 1;

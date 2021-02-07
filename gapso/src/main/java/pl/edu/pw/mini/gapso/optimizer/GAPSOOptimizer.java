@@ -93,19 +93,9 @@ public class GAPSOOptimizer extends SamplingOptimizer {
                 List<Move> moves = _moveManager.generateMoveSequence(particles.size());
                 _moveManager.startNewIteration();
                 Iterator<Move> movesIterator = moves.iterator();
-                boolean exception = false;
-                for (int pIdx = 0; pIdx < particles.size(); ++pIdx) {
-                    Particle particle = particles.get(pIdx);
+                for (Particle particle : particles) {
                     Move selectedMove = movesIterator.next();
                     ParticleMoveResults result = particle.move(selectedMove);
-                    if (result == null) {
-                        //generating more than enough - so no error appear
-                        //in better world - should regenerate just zeroed
-                        moves = _moveManager.generateMoveSequence(particles.size());
-                        movesIterator = moves.iterator();
-                        pIdx--;
-                        continue;
-                    }
                     if (result.getPersonalImprovement() > 0) {
                         successSamplers.forEach(s -> s.tryStoreSample(result.previousBest));
                     }
