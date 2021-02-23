@@ -5,10 +5,13 @@ import org.apache.commons.io.FileUtils;
 import pl.edu.pw.mini.gapso.function.Function;
 import pl.edu.pw.mini.gapso.optimizer.GAPSOOptimizer;
 import pl.edu.pw.mini.gapso.optimizer.Optimizer;
+import pl.edu.pw.mini.gapso.sample.Sample;
 import pso.coco.gapso.GAPSOFunctionProblemWrapper;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.List;
 
@@ -108,7 +111,8 @@ public class ExampleExperiment {
                     continue;
                 Function function = new GAPSOFunctionProblemWrapper(PROBLEM);
                 Optimizer optimizer = new GAPSOOptimizer();
-                optimizer.optimize(function);
+                Sample bestValue = optimizer.optimize(function);
+                printOptima(bestValue);
                 System.out.println(PROBLEM.getEvaluations());
 
                 /* Keep track of time */
@@ -122,6 +126,28 @@ public class ExampleExperiment {
 
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private static void printOptima(Sample bestValue) {
+        try (FileOutputStream fos = new FileOutputStream("best-values-" + PROBLEM.getDimension() + ".csv", true)) {
+            PrintStream ps = new PrintStream(fos);
+            ps.print(PROBLEM.getId());
+            ps.print(";");
+            ps.print(PROBLEM.getDimension());
+            ps.print(";");
+            ps.print(PROBLEM.getEvaluations());
+            ps.print(";");
+            ps.print(PROBLEM.isFinalTargetHit());
+            ps.print(";");
+            ps.print(bestValue.getY());
+            for (int i = 0; i < PROBLEM.getDimension(); ++i) {
+                ps.print(";");
+                ps.print(bestValue.getX()[i]);
+            }
+            ps.println();
+        } catch (IOException ex) {
+            //DO NOTHING
         }
     }
 
