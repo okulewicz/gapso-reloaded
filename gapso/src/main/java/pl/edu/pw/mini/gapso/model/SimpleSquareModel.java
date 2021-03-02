@@ -63,6 +63,7 @@ public class SimpleSquareModel extends Model {
                 x[i][j + dim] = xj * xj;
             }
         }
+        //TODO: can I do something so that heap space does not explode here?
         olslm.newSampleData(y, x);
         return olslm;
     }
