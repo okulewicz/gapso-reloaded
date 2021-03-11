@@ -103,6 +103,30 @@ public class CMAESLike extends Move {
         isInitialized = true;
     }
 
+    public static RealMatrix computeRankMuUpdate(int mu, int dimension, double[] weights, double cmu, double sigma, double[] oldM, List<Sample> samples) {
+        final RealMatrix artmp = computeArtMp(mu, dimension, sigma, oldM, samples);
+        return artmp.transpose().multiply(MatrixUtils.createRealDiagonalMatrix(weights)).multiply(artmp).scalarMultiply(cmu);
+    }
+
+    public static RealMatrix computeSQRTCInvert(RealMatrix B, RealVector D) {
+        RealVector OverD = MatrixUtils.createRealVector(new double[D.getDimension()]);
+        for (int i = 0; i < D.getDimension(); ++i) {
+            OverD.setEntry(i, 1.0 / D.getEntry(i));
+        }
+        return B.multiply(MatrixUtils.createRealDiagonalMatrix(OverD.toArray())).multiply(B.transpose());
+    }
+
+    public static RealMatrix computeArtMp(int mu, int dimension, double sigma, double[] oldM, List<Sample> samples) {
+        double[][] y = new double[mu][];
+        for (int sIdx = 0; sIdx < mu; ++sIdx) {
+            y[sIdx] = new double[dimension];
+            for (int dimIdx = 0; dimIdx < dimension; ++dimIdx) {
+                y[sIdx][dimIdx] = samples.get(sIdx).getX()[dimIdx] - oldM[dimIdx];
+            }
+        }
+        return MatrixUtils.createRealMatrix(y).scalarMultiply(1.0 / sigma);
+    }
+
     public void initializeCovMatrix() {
         pc = MatrixUtils.createRealMatrix(dimension, 1);
         ps = MatrixUtils.createRealMatrix(dimension, 1);
@@ -112,16 +136,8 @@ public class CMAESLike extends Move {
         B = MatrixUtils.createRealIdentityMatrix(dimension);
         D = MatrixUtils.createRealVector(diag);
         C = B.multiply(MatrixUtils.createRealDiagonalMatrix(diag)).multiply(B.transpose());
-        invsqrtC = B.multiply(MatrixUtils.createRealDiagonalMatrix(diag)).multiply(B.transpose());
+        invsqrtC = computeSQRTCInvert(B, D);
         eigeneval = 0;
-    }
-
-    public static RealMatrix computeSQRTCInvert(RealMatrix B, RealVector D) {
-        RealVector OverD = MatrixUtils.createRealVector(new double[D.getDimension()]);
-        for (int i = 0; i < D.getDimension(); ++i) {
-            OverD.setEntry(i, 1.0 / D.getEntry(i));
-        }
-        return B.multiply(MatrixUtils.createRealDiagonalMatrix(OverD.toArray())).multiply(B.transpose());
     }
 
     public void computeCovarianceMatrixAndUpdateSigma(List<Sample> samples) {
@@ -137,24 +153,17 @@ public class CMAESLike extends Move {
         pc = pc.scalarMultiply((1 - cc)).add(
                 normalizedMeanDiff.scalarMultiply(hsig * Math.sqrt(cc * (2 - cc) * mueff))
         );
-
-
-        double[][] y = new double[mu][];
-        for (int sIdx = 0; sIdx < mu; ++sIdx) {
-            y[sIdx] = new double[dimension];
-            for (int dimIdx = 0; dimIdx < dimension; ++dimIdx) {
-                y[sIdx][dimIdx] = samples.get(sIdx).getX()[dimIdx] - oldM[dimIdx];
-            }
-        }
-        final RealMatrix artmp = MatrixUtils.createRealMatrix(y).scalarMultiply(1.0 / sigma);
-
-        final RealMatrix oldCImpact = C.scalarMultiply(1 - c1 - cmu);
         final RealMatrix rankOneUpdate = (pc.multiply(pc.transpose()).add(
                 C.scalarMultiply((1 - hsig) * cc * (2 - cc)))).scalarMultiply(c1);
-        final RealMatrix rankMuUpdate = artmp.transpose().multiply(MatrixUtils.createRealDiagonalMatrix(weights)).multiply(artmp).scalarMultiply(cmu);
+
+
+        final RealMatrix rankMuUpdate = computeRankMuUpdate(mu, dimension, weights,
+                cmu, sigma, oldM, samples);
+
+        final RealMatrix oldCImpact = C.scalarMultiply(1 - c1 - cmu);
         C = oldCImpact.add(rankOneUpdate).add(rankMuUpdate);
 
-        sigma = sigma * Math.exp((cs/damps)*((ps).getNorm()/chiN - 1));
+        sigma = sigma * Math.exp((cs / damps) * ((ps).getNorm() / chiN - 1));
         if (Double.isInfinite(sigma)) {
             initializeCovMatrix();
         }
