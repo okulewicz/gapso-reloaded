@@ -116,6 +116,14 @@ public class CMAESLike extends Move {
         eigeneval = 0;
     }
 
+    public static RealMatrix computeSQRTCInvert(RealMatrix B, RealVector D) {
+        RealVector OverD = MatrixUtils.createRealVector(new double[D.getDimension()]);
+        for (int i = 0; i < D.getDimension(); ++i) {
+            OverD.setEntry(i, 1.0 / D.getEntry(i));
+        }
+        return B.multiply(MatrixUtils.createRealDiagonalMatrix(OverD.toArray())).multiply(B.transpose());
+    }
+
     public void computeCovarianceMatrixAndUpdateSigma(List<Sample> samples) {
         int lambda = samples.size();
         final RealMatrix xold = MatrixUtils.createColumnRealMatrix(oldM);
@@ -163,14 +171,13 @@ public class CMAESLike extends Move {
             }
             try {
                 EigenDecomposition eg = new EigenDecomposition(C);
-                D = MatrixUtils.createRealVector(eg.getRealEigenvalues()); //eigen values
-                RealVector OverD = MatrixUtils.createRealVector(eg.getRealEigenvalues());
+                final double[] eigenvalues = eg.getRealEigenvalues();
                 B = eg.getV(); //eigen vectors
+                D = MatrixUtils.createRealVector(eigenvalues); //eigen values
                 for (int i = 0; i < D.getDimension(); ++i) {
                     D.setEntry(i, Math.sqrt(D.getEntry(i)));
-                    OverD.setEntry(i, 1.0 / D.getEntry(i));
                 }
-                invsqrtC = B.multiply(MatrixUtils.createRealDiagonalMatrix(OverD.toArray())).multiply(B.transpose());
+                invsqrtC = computeSQRTCInvert(B, D);
                 if (D.getMaxValue() > 1e7 * D.getMinValue()) {
                     initializeCovMatrix();
                 }
