@@ -20,8 +20,8 @@ import java.util.stream.Collectors;
 public class CMAESLike extends Move {
     public static final String NAME = "CMA-ES-like";
     private boolean isFirstInIteration;
-    private double[] oldM;
-    private double[] newM;
+    private double[] xold;
+    private double[] xnew;
     private boolean isInitialized;
     private int dimension;
     private int mu;
@@ -48,40 +48,9 @@ public class CMAESLike extends Move {
         resetState(0);
     }
 
-    @Override
-    public double[] getNext(Particle currentParticle, List<Particle> particleList) {
-        final int length = currentParticle.getBest().getX().length;
-        //TODO: consider taking only particles produced by CMA-ES between iterations
-        final int lambda = particleList.size();
-        if (isFirstInIteration) {
-
-            final List<Sample> samples = particleList.stream().map(Particle::getCurrent)
-                    .sorted(Comparator.comparingDouble(Sample::getY)).collect(Collectors.toList());
-            if (!isInitialized) {
-                initializeParameters(length, lambda);
-            }
-            if (oldM == null) {
-                computeOldMu(samples);
-            } else {
-                oldM = newM;
-            }
-            newM = computeMean(samples);
-            try {
-                computeCovarianceMatrixAndUpdateSigma(samples);
-            } catch (Exception ex) {
-                return null;
-            }
-            isFirstInIteration = false;
-            //mvnd = new MultivariateNormalDistribution(Generator.RANDOM, newM, C.scalarMultiply(sigma).getData());
-
-        }
-        //TODO: consider if not count also other evaluations so add lamba at begining of iteration
-        counteval += 1;
-        NormalDistribution nd = new NormalDistribution(Generator.RANDOM, 0, 1);
-        double[] normals = nd.sample(length);
-        return MatrixUtils.createRealVector(newM).add(
-                B.preMultiply(D.ebeMultiply(MatrixUtils.createRealVector(normals))).mapMultiply(sigma)
-        ).toArray();
+    public static RealMatrix computeRankMuUpdate(int mu, int dimension, double[] weights, double cmu, double sigma, RealMatrix xold, List<Sample> samples) {
+        final RealMatrix artmp = computeArtMp(mu, dimension, sigma, xold, samples);
+        return artmp.transpose().multiply(MatrixUtils.createRealDiagonalMatrix(weights)).multiply(artmp).scalarMultiply(cmu);
     }
 
     public void initializeParameters(int length, int lambda) {
@@ -107,9 +76,15 @@ public class CMAESLike extends Move {
         isInitialized = true;
     }
 
-    public static RealMatrix computeRankMuUpdate(int mu, int dimension, double[] weights, double cmu, double sigma, double[] oldM, List<Sample> samples) {
-        final RealMatrix artmp = computeArtMp(mu, dimension, sigma, oldM, samples);
-        return artmp.transpose().multiply(MatrixUtils.createRealDiagonalMatrix(weights)).multiply(artmp).scalarMultiply(cmu);
+    public static RealMatrix computeArtMp(int mu, int dimension, double sigma, RealMatrix xold, List<Sample> samples) {
+        double[][] y = new double[mu][];
+        for (int sIdx = 0; sIdx < mu; ++sIdx) {
+            y[sIdx] = new double[dimension];
+            for (int dimIdx = 0; dimIdx < dimension; ++dimIdx) {
+                y[sIdx][dimIdx] = samples.get(sIdx).getX()[dimIdx] - xold.getEntry(0, dimIdx);
+            }
+        }
+        return MatrixUtils.createRealMatrix(y).scalarMultiply(1.0 / sigma);
     }
 
     public static RealMatrix computeSQRTCInvert(RealMatrix B, RealVector D) {
@@ -120,15 +95,16 @@ public class CMAESLike extends Move {
         return B.multiply(MatrixUtils.createRealDiagonalMatrix(OverD.toArray())).multiply(B.transpose());
     }
 
-    public static RealMatrix computeArtMp(int mu, int dimension, double sigma, double[] oldM, List<Sample> samples) {
-        double[][] y = new double[mu][];
-        for (int sIdx = 0; sIdx < mu; ++sIdx) {
-            y[sIdx] = new double[dimension];
-            for (int dimIdx = 0; dimIdx < dimension; ++dimIdx) {
-                y[sIdx][dimIdx] = samples.get(sIdx).getX()[dimIdx] - oldM[dimIdx];
-            }
-        }
-        return MatrixUtils.createRealMatrix(y).scalarMultiply(1.0 / sigma);
+    public static RealMatrix computeC(
+            List<Sample> samples, double hsig,
+            double cc, double c1, RealMatrix pc,
+            RealMatrix c, int mu, int dimension,
+            double[] weights, double cmu, double sigma, RealMatrix xold) {
+        final RealMatrix rankOneUpdate = computeRankOneUpdateWithCorrection(cc, c1, hsig, pc, c);
+        final RealMatrix rankMuUpdate = computeRankMuUpdate(mu, dimension, weights,
+                cmu, sigma, xold, samples);
+        final RealMatrix oldCImpact = c.scalarMultiply(1 - c1 - cmu);
+        return oldCImpact.add(rankOneUpdate).add(rankMuUpdate);
     }
 
     public void initializeCovMatrix() {
@@ -154,27 +130,67 @@ public class CMAESLike extends Move {
         );
     }
 
-    public void computeCovarianceMatrixAndUpdateSigma(List<Sample> samples) throws Exception {
-        int lambda = samples.size();
-        final RealMatrix xold = MatrixUtils.createColumnRealMatrix(oldM);
-        final RealMatrix xmean = MatrixUtils.createColumnRealMatrix(newM);
-        final RealMatrix normalizedMeanDiff = computeNormalizedDiff(sigma, xold, xmean);
-        ps = computePS(cs, mueff, invsqrtC, ps, normalizedMeanDiff);
-        boolean hsigb = ps.getNorm() / Math.sqrt(1.0 - Math.pow(1.0 - cs, 2.0 * counteval / lambda)) / chiN < (1.4 + 2.0 / (dimension + 1.0));
-        double hsig = hsigb ? 1.0 : 0.0;
-        pc = pc.scalarMultiply((1 - cc)).add(
+    public static RealMatrix computePC(RealMatrix normalizedMeanDiff, double hsig, RealMatrix pc, double cc, double mueff) {
+        return pc.scalarMultiply((1 - cc)).add(
                 normalizedMeanDiff.scalarMultiply(hsig * Math.sqrt(cc * (2 - cc) * mueff))
         );
-        final RealMatrix rankOneUpdate = (pc.multiply(pc.transpose()).add(
+    }
+
+    public static double computeHSig(int lambda, RealMatrix ps, double cs, int counteval, double chiN, int dimension) {
+        boolean hsigb = ps.getNorm() / Math.sqrt(1.0 - Math.pow(1.0 - cs, 2.0 * counteval / lambda)) / chiN < (1.4 + 2.0 / (dimension + 1.0));
+        return hsigb ? 1.0 : 0.0;
+    }
+
+    public static RealMatrix computeRankOneUpdateWithCorrection(double cc, double c1, double hsig, RealMatrix pc, RealMatrix C) {
+        return (pc.multiply(pc.transpose()).add(
                 C.scalarMultiply((1 - hsig) * cc * (2 - cc)))).scalarMultiply(c1);
+    }
 
+    @Override
+    public double[] getNext(Particle currentParticle, List<Particle> particleList) {
+        final int length = currentParticle.getBest().getX().length;
+        //TODO: consider taking only particles produced by CMA-ES between iterations
+        final int lambda = particleList.size();
+        if (isFirstInIteration) {
 
-        final RealMatrix rankMuUpdate = computeRankMuUpdate(mu, dimension, weights,
-                cmu, sigma, oldM, samples);
+            final List<Sample> samples = particleList.stream().map(Particle::getCurrent)
+                    .sorted(Comparator.comparingDouble(Sample::getY)).collect(Collectors.toList());
+            if (!isInitialized) {
+                initializeParameters(length, lambda);
+            }
+            if (xold == null) {
+                computeOldMu(samples);
+            } else {
+                xold = xnew;
+            }
+            xnew = computeMean(samples);
+            try {
+                computeCovarianceMatrixAndUpdateSigma(samples);
+            } catch (Exception ex) {
+                return null;
+            }
+            isFirstInIteration = false;
+            //mvnd = new MultivariateNormalDistribution(Generator.RANDOM, newM, C.scalarMultiply(sigma).getData());
 
-        final RealMatrix oldCImpact = C.scalarMultiply(1 - c1 - cmu);
-        C = oldCImpact.add(rankOneUpdate).add(rankMuUpdate);
+        }
+        //TODO: consider if not count also other evaluations so add lamba at begining of iteration
+        counteval += 1;
+        NormalDistribution nd = new NormalDistribution(Generator.RANDOM, 0, 1);
+        double[] normals = nd.sample(length);
+        return MatrixUtils.createRealVector(xnew).add(
+                B.preMultiply(D.ebeMultiply(MatrixUtils.createRealVector(normals))).mapMultiply(sigma)
+        ).toArray();
+    }
 
+    public void computeCovarianceMatrixAndUpdateSigma(List<Sample> samples) throws Exception {
+        int lambda = samples.size();
+        final RealMatrix xold = MatrixUtils.createColumnRealMatrix(this.xold);
+        final RealMatrix xmean = MatrixUtils.createColumnRealMatrix(xnew);
+        final RealMatrix normalizedMeanDiff = computeNormalizedDiff(sigma, xold, xmean);
+        ps = computePS(cs, mueff, invsqrtC, ps, normalizedMeanDiff);
+        double hsig = computeHSig(lambda, ps, cs, counteval, chiN, dimension);
+        pc = computePC(normalizedMeanDiff, hsig, pc, cc, mueff);
+        C = computeC(samples, hsig, cc, c1, pc, C, mu, dimension, weights, cmu, sigma, xold);
         sigma = sigma * Math.exp((cs / damps) * ((ps).getNorm() / chiN - 1));
         if (Double.isInfinite(sigma) || sigma > 10000) {
             throw new Exception();
@@ -233,10 +249,10 @@ public class CMAESLike extends Move {
     }
 
     public void computeOldMu(List<Sample> samples) {
-        oldM = new double[dimension];
+        xold = new double[dimension];
         for (int i = 0; i < dimension; ++i) {
             final int dim = i;
-            oldM[i] = samples.stream().mapToDouble(s -> s.getX()[dim]).average().orElse(0.0);
+            xold[i] = samples.stream().mapToDouble(s -> s.getX()[dim]).average().orElse(0.0);
         }
     }
 
@@ -247,7 +263,7 @@ public class CMAESLike extends Move {
 
     @Override
     public void resetState(int particleCount) {
-        oldM = null;
+        xold = null;
         isFirstInIteration = false;
         isInitialized = false;
         resetWeight();
