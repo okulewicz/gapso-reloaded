@@ -20,8 +20,8 @@ import java.util.stream.Collectors;
 public class CMAESLike extends Move {
     public static final String NAME = "CMA-ES-like";
     private boolean isFirstInIteration;
-    private double[] xold;
-    private double[] xnew;
+    private double[] xOldArray;
+    private double[] xNewArray;
     private boolean isInitialized;
     private int dimension;
     private int mu;
@@ -53,38 +53,27 @@ public class CMAESLike extends Move {
         return artmp.transpose().multiply(MatrixUtils.createRealDiagonalMatrix(weights)).multiply(artmp).scalarMultiply(cmu);
     }
 
-    public void initializeParameters(int length, int lambda) {
-        //selection
-        dimension = length;
-        isInitialized = true;
-        mu = Math.min((4 + (int) Math.floor(3 * Math.log(dimension))) / 2, (int) Math.round(lambda * 0.5));
-        weights = computeWeights();
-        double weightssum = Arrays.stream(weights).sum();
-        double sumweightssquare = Arrays.stream(weights).map(w -> w * w).sum();
-        mueff = weightssum * weightssum / sumweightssquare;
-        //adaptation
-        cc = (4.0 + mueff / dimension) / (dimension + 4.0 + 2.0 * mueff / dimension);
-        cs = (mueff + 2.0) / (dimension + mueff + 5.0);
-        c1 = 2.0 / ((dimension + 1.3) * (dimension + 1.3) + mueff);
-        cmu = Math.min(1.0 - c1, 2.0 * (mueff - 2.0 + 1.0 / mueff) / ((dimension + 2.0) * (dimension + 2.0) + mueff));
-        damps = 1.0 + 2.0 * Math.max(0.0, Math.sqrt((mueff - 1.0) / (dimension + 1.0)) - 1.0) + cs;
-        //dynamic parameters
-        initializeCovMatrix();
-
-        chiN = Math.sqrt(dimension) * (1.0 - 1.0 / (4.0 * dimension) + 1 / (21.0 * dimension * dimension));
-        counteval = 0;
-        isInitialized = true;
-    }
-
     public static RealMatrix computeArtMp(int mu, int dimension, double sigma, RealMatrix xold, List<Sample> samples) {
         double[][] y = new double[mu][];
         for (int sIdx = 0; sIdx < mu; ++sIdx) {
             y[sIdx] = new double[dimension];
             for (int dimIdx = 0; dimIdx < dimension; ++dimIdx) {
-                y[sIdx][dimIdx] = samples.get(sIdx).getX()[dimIdx] - xold.getEntry(0, dimIdx);
+                y[sIdx][dimIdx] = samples.get(sIdx).getX()[dimIdx] - xold.getEntry(dimIdx, 0);
             }
         }
         return MatrixUtils.createRealMatrix(y).scalarMultiply(1.0 / sigma);
+    }
+
+    public static EigenParts computeEigenDecomposition(RealMatrix C) {
+        EigenParts parts = new EigenParts();
+        EigenDecomposition eg = new EigenDecomposition(C);
+        final double[] eigenvalues = eg.getRealEigenvalues();
+        parts.B = eg.getV(); //eigen vectors
+        parts.D = MatrixUtils.createRealVector(eigenvalues); //eigen values
+        for (int i = 0; i < parts.D.getDimension(); ++i) {
+            parts.D.setEntry(i, Math.sqrt(parts.D.getEntry(i)));
+        }
+        return parts;
     }
 
     public static RealMatrix computeSQRTCInvert(RealMatrix B, RealVector D) {
@@ -146,6 +135,68 @@ public class CMAESLike extends Move {
                 C.scalarMultiply((1 - hsig) * cc * (2 - cc)))).scalarMultiply(c1);
     }
 
+    public static double[] computeWeightedMean(double[] weights, List<Sample> samples) {
+        assert samples.size() > 0;
+        final int dimension = samples.get(0).getX().length;
+        double[] mean = new double[dimension];
+        for (int sIdx = 0; sIdx < weights.length; ++sIdx) {
+            for (int dimIdx = 0; dimIdx < dimension; ++dimIdx) {
+                mean[dimIdx] += weights[sIdx] * samples.get(sIdx).getX()[dimIdx];
+            }
+        }
+        return mean;
+    }
+
+    public static double[] computeWeights(int mu) {
+        double[] w = new double[mu];
+        double basew = Math.log((double) mu + 0.5);
+        double sumw = 0.0;
+        for (int i = 0; i < mu; ++i) {
+            w[i] = basew - Math.log((double) i + 1);
+            sumw += w[i];
+        }
+        for (int i = 0; i < mu; ++i) {
+            w[i] /= sumw;
+        }
+        return w;
+    }
+
+    public static double[] computeAverageMean(List<Sample> samples) {
+        assert samples.size() > 0;
+        int dimension = samples.get(0).getX().length;
+        double[] meanArray = new double[dimension];
+        for (int i = 0; i < dimension; ++i) {
+            final int dim = i;
+            meanArray[i] = samples.stream().mapToDouble(s -> s.getX()[dim]).average().orElse(0.0);
+        }
+        return meanArray;
+    }
+
+    ;
+
+    public void initializeParameters(int length, int lambda) {
+        //selection
+        dimension = length;
+        isInitialized = true;
+        mu = Math.min((4 + (int) Math.floor(3 * Math.log(dimension))) / 2, (int) Math.round(lambda * 0.5));
+        weights = computeWeights(mu);
+        double weightssum = Arrays.stream(weights).sum();
+        double sumweightssquare = Arrays.stream(weights).map(w -> w * w).sum();
+        mueff = weightssum * weightssum / sumweightssquare;
+        //adaptation
+        cc = (4.0 + mueff / dimension) / (dimension + 4.0 + 2.0 * mueff / dimension);
+        cs = (mueff + 2.0) / (dimension + mueff + 5.0);
+        c1 = 2.0 / ((dimension + 1.3) * (dimension + 1.3) + mueff);
+        cmu = Math.min(1.0 - c1, 2.0 * (mueff - 2.0 + 1.0 / mueff) / ((dimension + 2.0) * (dimension + 2.0) + mueff));
+        damps = 1.0 + 2.0 * Math.max(0.0, Math.sqrt((mueff - 1.0) / (dimension + 1.0)) - 1.0) + cs;
+        //dynamic parameters
+        initializeCovMatrix();
+
+        chiN = Math.sqrt(dimension) * (1.0 - 1.0 / (4.0 * dimension) + 1 / (21.0 * dimension * dimension));
+        counteval = 0;
+        isInitialized = true;
+    }
+
     @Override
     public double[] getNext(Particle currentParticle, List<Particle> particleList) {
         final int length = currentParticle.getBest().getX().length;
@@ -158,12 +209,12 @@ public class CMAESLike extends Move {
             if (!isInitialized) {
                 initializeParameters(length, lambda);
             }
-            if (xold == null) {
-                computeOldMu(samples);
+            if (xOldArray == null) {
+                xOldArray = computeAverageMean(samples);
             } else {
-                xold = xnew;
+                xOldArray = xNewArray;
             }
-            xnew = computeMean(samples);
+            xNewArray = computeWeightedMean(weights, samples);
             try {
                 computeCovarianceMatrixAndUpdateSigma(samples);
             } catch (Exception ex) {
@@ -177,16 +228,16 @@ public class CMAESLike extends Move {
         counteval += 1;
         NormalDistribution nd = new NormalDistribution(Generator.RANDOM, 0, 1);
         double[] normals = nd.sample(length);
-        return MatrixUtils.createRealVector(xnew).add(
+        return MatrixUtils.createRealVector(xNewArray).add(
                 B.preMultiply(D.ebeMultiply(MatrixUtils.createRealVector(normals))).mapMultiply(sigma)
         ).toArray();
     }
 
     public void computeCovarianceMatrixAndUpdateSigma(List<Sample> samples) throws Exception {
         int lambda = samples.size();
-        final RealMatrix xold = MatrixUtils.createColumnRealMatrix(this.xold);
-        final RealMatrix xmean = MatrixUtils.createColumnRealMatrix(xnew);
-        final RealMatrix normalizedMeanDiff = computeNormalizedDiff(sigma, xold, xmean);
+        final RealMatrix xold = MatrixUtils.createColumnRealMatrix(this.xOldArray);
+        final RealMatrix xNew = MatrixUtils.createColumnRealMatrix(this.xNewArray);
+        final RealMatrix normalizedMeanDiff = computeNormalizedDiff(sigma, xold, xNew);
         ps = computePS(cs, mueff, invsqrtC, ps, normalizedMeanDiff);
         double hsig = computeHSig(lambda, ps, cs, counteval, chiN, dimension);
         pc = computePC(normalizedMeanDiff, hsig, pc, cc, mueff);
@@ -207,13 +258,9 @@ public class CMAESLike extends Move {
                 }
             }
             try {
-                EigenDecomposition eg = new EigenDecomposition(C);
-                final double[] eigenvalues = eg.getRealEigenvalues();
-                B = eg.getV(); //eigen vectors
-                D = MatrixUtils.createRealVector(eigenvalues); //eigen values
-                for (int i = 0; i < D.getDimension(); ++i) {
-                    D.setEntry(i, Math.sqrt(D.getEntry(i)));
-                }
+                EigenParts parts = computeEigenDecomposition(C);
+                B = parts.B;
+                D = parts.D;
                 invsqrtC = computeSQRTCInvert(B, D);
                 if (D.getMaxValue() > 1e7 * D.getMinValue()) {
                     throw new Exception();
@@ -224,36 +271,12 @@ public class CMAESLike extends Move {
         }
     }
 
-    public double[] computeMean(List<Sample> samples) {
-        double[] mean = new double[dimension];
-        for (int sIdx = 0; sIdx < mu; ++sIdx) {
-            for (int dimIdx = 0; dimIdx < dimension; ++dimIdx) {
-                mean[dimIdx] += weights[sIdx] * samples.get(sIdx).getX()[dimIdx];
-            }
-        }
-        return mean;
-    }
-
-    public double[] computeWeights() {
-        double[] w = new double[mu];
-        double basew = Math.log((double) mu + 0.5);
-        double sumw = 0.0;
-        for (int i = 0; i < mu; ++i) {
-            w[i] = basew - Math.log((double) i + 1);
-            sumw += w[i];
-        }
-        for (int i = 0; i < mu; ++i) {
-            w[i] /= sumw;
-        }
-        return w;
-    }
-
-    public void computeOldMu(List<Sample> samples) {
-        xold = new double[dimension];
-        for (int i = 0; i < dimension; ++i) {
-            final int dim = i;
-            xold[i] = samples.stream().mapToDouble(s -> s.getX()[dim]).average().orElse(0.0);
-        }
+    @Override
+    public void resetState(int particleCount) {
+        xOldArray = null;
+        isFirstInIteration = false;
+        isInitialized = false;
+        resetWeight();
     }
 
     @Override
@@ -261,12 +284,9 @@ public class CMAESLike extends Move {
 
     }
 
-    @Override
-    public void resetState(int particleCount) {
-        xold = null;
-        isFirstInIteration = false;
-        isInitialized = false;
-        resetWeight();
+    static class EigenParts {
+        public RealMatrix B;
+        public RealVector D;
     }
 
     @Override
