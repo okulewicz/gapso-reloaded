@@ -140,14 +140,22 @@ public class CMAESLike extends Move {
         eigeneval = 0;
     }
 
+    public static RealMatrix computeNormalizedDiff(double sigma, RealMatrix xold, RealMatrix xmean) {
+        return xmean.subtract(xold).scalarMultiply(1.0 / sigma);
+    }
+
+    public static RealMatrix computePS(double cs, double mueff, RealMatrix invsqrtC, RealMatrix ps, RealMatrix normalizedMeanDiff) {
+        return ps.scalarMultiply(1.0 - cs).add(
+                invsqrtC.multiply(normalizedMeanDiff).scalarMultiply(Math.sqrt(cs * (2.0 - cs) * mueff))
+        );
+    }
+
     public void computeCovarianceMatrixAndUpdateSigma(List<Sample> samples) {
         int lambda = samples.size();
         final RealMatrix xold = MatrixUtils.createColumnRealMatrix(oldM);
         final RealMatrix xmean = MatrixUtils.createColumnRealMatrix(newM);
-        final RealMatrix normalizedMeanDiff = xmean.subtract(xold).scalarMultiply(1.0 / sigma);
-        ps = ps.scalarMultiply(1.0 - cs).add(
-                invsqrtC.multiply(normalizedMeanDiff).scalarMultiply(Math.sqrt(cs * (2.0 - cs) * mueff))
-        );
+        final RealMatrix normalizedMeanDiff = computeNormalizedDiff(sigma, xold, xmean);
+        ps = computePS(cs, mueff, invsqrtC, ps, normalizedMeanDiff);
         boolean hsigb = ps.getNorm() / Math.sqrt(1.0 - Math.pow(1.0 - cs, 2.0 * counteval / lambda)) / chiN < (1.4 + 2.0 / (dimension + 1.0));
         double hsig = hsigb ? 1.0 : 0.0;
         pc = pc.scalarMultiply((1 - cc)).add(

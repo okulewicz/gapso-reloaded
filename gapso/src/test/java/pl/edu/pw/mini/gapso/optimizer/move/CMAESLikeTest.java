@@ -14,6 +14,24 @@ import java.util.List;
 public class CMAESLikeTest {
 
     public static final double eps = 1e-4;
+    public static final RealMatrix XOLD = MatrixUtils.createColumnRealMatrix(
+            new double[]{
+                    -0.114022057593862,
+                    -1.235226156556693
+            }
+    );
+    public static final RealMatrix XMEAN = MatrixUtils.createColumnRealMatrix(
+            new double[]{
+                    0.358491823316475,
+                    -1.219242878279915
+            }
+    );
+    public static final double CS = 0.4462;
+    public static final double MUEFF = 2.0286;
+    public static final double[] WEIGHTS = new double[]{0.6370, 0.2846, 0.0784};
+    public static final double CMU = 0.0579;
+    public static final int DIMENSION = 2;
+    public static final int MU = 3;
 
     @Test
     public void computeCInvert() {
@@ -33,16 +51,8 @@ public class CMAESLikeTest {
     }
 
     @Test
-    public void getArtMp() {
-        int mu = 3;
-        int dimension = 2;
-        double[] weights = new double[]{0.6370, 0.2846, 0.0784};
-        double cmu = 0.0579;
+    public void computeArtMp() {
         double sigma = 1.022732253709786;
-        double[] oldM = new double[]{
-                -0.114022057593862,
-                -1.235226156556693
-        };
         List<Sample> samples = Arrays.asList(new Sample[]{
                 new SingleSample(new double[]{0.356030369603726, -1.461074127538027}, 79.583239253897560),
                 new SingleSample(new double[]{0.596487058591412, -0.724192700829926}, 79.785269869538453),
@@ -51,8 +61,8 @@ public class CMAESLikeTest {
                 new SingleSample(new double[]{0.884924504496003, -0.202585206254164}, 80.790107261787725),
                 new SingleSample(new double[]{-1.201107832327802, -2.874105294920569}, 84.542985460866348)
         });
-        final RealMatrix artMp = CMAESLike.computeArtMp(mu, dimension,
-                sigma, oldM, samples);
+        final RealMatrix artMp = CMAESLike.computeArtMp(MU, DIMENSION,
+                sigma, XOLD.getColumn(0), samples);
 
         Assert.assertEquals(0.459604579294877, artMp.getEntry(0, 0), eps);
         Assert.assertEquals(0.694716641240191, artMp.getEntry(1, 0), eps);
@@ -60,5 +70,27 @@ public class CMAESLikeTest {
         Assert.assertEquals(-0.220828051684211, artMp.getEntry(0, 1), eps);
         Assert.assertEquals(0.499674723147804, artMp.getEntry(1, 1), eps);
         Assert.assertEquals(0.180033584703959, artMp.getEntry(2, 1), eps);
+    }
+
+    @Test
+    public void computePS() {
+        double sigma = 1.022732253709786;
+        RealMatrix invsqrtC = MatrixUtils.createRealMatrix(
+                new double[][]{
+                        {1.555265894630989, -0.184678521878679},
+                        {-0.184678521878679, 1.567864796108877}
+                }
+        );
+        RealMatrix ps = MatrixUtils.createRealMatrix(
+                new double[][]{
+                        {-0.145219813639669},
+                        {0.561336332018881}
+                }
+        );
+
+        RealMatrix normalizedMeanDiff = CMAESLike.computeNormalizedDiff(sigma, XOLD, XMEAN);
+        RealMatrix resultPs = CMAESLike.computePS(CS, MUEFF, invsqrtC, ps, normalizedMeanDiff);
+        Assert.assertEquals(0.768314451230276, resultPs.getEntry(0, 0), eps);
+        Assert.assertEquals(0.238735133838149, resultPs.getEntry(1, 0), eps);
     }
 }
