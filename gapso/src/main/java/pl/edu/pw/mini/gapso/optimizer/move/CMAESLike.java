@@ -66,7 +66,11 @@ public class CMAESLike extends Move {
                 oldM = newM;
             }
             newM = computeMean(samples);
-            computeCovarianceMatrixAndUpdateSigma(samples);
+            try {
+                computeCovarianceMatrixAndUpdateSigma(samples);
+            } catch (Exception ex) {
+                return null;
+            }
             isFirstInIteration = false;
             //mvnd = new MultivariateNormalDistribution(Generator.RANDOM, newM, C.scalarMultiply(sigma).getData());
 
@@ -150,7 +154,7 @@ public class CMAESLike extends Move {
         );
     }
 
-    public void computeCovarianceMatrixAndUpdateSigma(List<Sample> samples) {
+    public void computeCovarianceMatrixAndUpdateSigma(List<Sample> samples) throws Exception {
         int lambda = samples.size();
         final RealMatrix xold = MatrixUtils.createColumnRealMatrix(oldM);
         final RealMatrix xmean = MatrixUtils.createColumnRealMatrix(newM);
@@ -172,14 +176,14 @@ public class CMAESLike extends Move {
         C = oldCImpact.add(rankOneUpdate).add(rankMuUpdate);
 
         sigma = sigma * Math.exp((cs / damps) * ((ps).getNorm() / chiN - 1));
-        if (Double.isInfinite(sigma)) {
-            initializeCovMatrix();
+        if (Double.isInfinite(sigma) || sigma > 10000) {
+            throw new Exception();
         }
         if (Double.isNaN(sigma)) {
             initializeCovMatrix();
         }
 
-        if (counteval - eigeneval > lambda/(c1+cmu)/dimension/10.0) {// otherwise MaxCountExceededException when sampling from multivariate
+        if (counteval - eigeneval > lambda / (c1 + cmu) / dimension / 10.0) {// otherwise MaxCountExceededException when sampling from multivariate
             eigeneval = counteval;
             for (int i = 0; i < C.getColumnDimension(); ++i) {
                 for (int j = i + 1; j < C.getRowDimension(); ++j) {
@@ -196,10 +200,10 @@ public class CMAESLike extends Move {
                 }
                 invsqrtC = computeSQRTCInvert(B, D);
                 if (D.getMaxValue() > 1e7 * D.getMinValue()) {
-                    initializeCovMatrix();
+                    throw new Exception();
                 }
             } catch (MaxCountExceededException ex) {
-                initializeCovMatrix();
+                throw new Exception();
             }
         }
     }

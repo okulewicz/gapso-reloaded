@@ -112,7 +112,9 @@ public class ExampleExperiment {
                 Function function = new GAPSOFunctionProblemWrapper(PROBLEM);
                 Optimizer optimizer = new GAPSOOptimizer();
                 Sample bestValue = optimizer.optimize(function);
+                /*
                 printOptima(bestValue);
+                 */
                 System.out.println(PROBLEM.getEvaluations());
 
                 /* Keep track of time */
