@@ -55,7 +55,7 @@ public class CMAESLike extends Move {
         final int lambda = particleList.size();
         if (isFirstInIteration) {
 
-            final List<Sample> samples = particleList.stream().map(Particle::getBest)
+            final List<Sample> samples = particleList.stream().map(Particle::getCurrent)
                     .sorted(Comparator.comparingDouble(Sample::getY)).collect(Collectors.toList());
             if (!isInitialized) {
                 initializeParameters(length, lambda);

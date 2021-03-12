@@ -15,6 +15,11 @@ public class Particle {
     private final Swarm _swarm;
     private final Function _function;
     private final int index;
+
+    public Sample getCurrent() {
+        return current;
+    }
+
     private Sample current;
     private Sample best;
 
