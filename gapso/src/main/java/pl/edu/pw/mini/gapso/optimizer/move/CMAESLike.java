@@ -20,8 +20,6 @@ import java.util.stream.Collectors;
 public class CMAESLike extends Move {
     public static final String NAME = "CMA-ES-like";
     private boolean isFirstInIteration;
-    private double[] xOldArray;
-    private double[] xNewArray;
     private boolean isInitialized;
     private int dimension;
     private int mu;
@@ -42,6 +40,8 @@ public class CMAESLike extends Move {
     private int eigeneval;
     private double chiN;
     private int counteval;
+    private RealMatrix xOld;
+    private RealMatrix xNew;
 
     public CMAESLike(MoveConfiguration configuration) {
         super(configuration);
@@ -197,6 +197,12 @@ public class CMAESLike extends Move {
         isInitialized = true;
     }
 
+    public static double[] scaleAndRotateVector(double[] normals, RealMatrix xNew, RealMatrix b, RealVector d, double sigma) {
+        return xNew.getColumnVector(0).add(
+                b.preMultiply(d.ebeMultiply(MatrixUtils.createRealVector(normals))).mapMultiply(sigma)
+        ).toArray();
+    }
+
     @Override
     public double[] getNext(Particle currentParticle, List<Particle> particleList) {
         final int length = currentParticle.getBest().getX().length;
@@ -209,12 +215,12 @@ public class CMAESLike extends Move {
             if (!isInitialized) {
                 initializeParameters(length, lambda);
             }
-            if (xOldArray == null) {
-                xOldArray = computeAverageMean(samples);
+            if (xOld == null) {
+                xOld = MatrixUtils.createColumnRealMatrix(computeAverageMean(samples));
             } else {
-                xOldArray = xNewArray;
+                xOld = xNew;
             }
-            xNewArray = computeWeightedMean(weights, samples);
+            xNew = MatrixUtils.createColumnRealMatrix(computeWeightedMean(weights, samples));
             try {
                 computeCovarianceMatrixAndUpdateSigma(samples);
             } catch (Exception ex) {
@@ -228,20 +234,16 @@ public class CMAESLike extends Move {
         counteval += 1;
         NormalDistribution nd = new NormalDistribution(Generator.RANDOM, 0, 1);
         double[] normals = nd.sample(length);
-        return MatrixUtils.createRealVector(xNewArray).add(
-                B.preMultiply(D.ebeMultiply(MatrixUtils.createRealVector(normals))).mapMultiply(sigma)
-        ).toArray();
+        return scaleAndRotateVector(normals, xNew, B, D, sigma);
     }
 
     public void computeCovarianceMatrixAndUpdateSigma(List<Sample> samples) throws Exception {
         int lambda = samples.size();
-        final RealMatrix xold = MatrixUtils.createColumnRealMatrix(this.xOldArray);
-        final RealMatrix xNew = MatrixUtils.createColumnRealMatrix(this.xNewArray);
-        final RealMatrix normalizedMeanDiff = computeNormalizedDiff(sigma, xold, xNew);
+        final RealMatrix normalizedMeanDiff = computeNormalizedDiff(sigma, xOld, xNew);
         ps = computePS(cs, mueff, invsqrtC, ps, normalizedMeanDiff);
         double hsig = computeHSig(lambda, ps, cs, counteval, chiN, dimension);
         pc = computePC(normalizedMeanDiff, hsig, pc, cc, mueff);
-        C = computeC(samples, hsig, cc, c1, pc, C, mu, dimension, weights, cmu, sigma, xold);
+        C = computeC(samples, hsig, cc, c1, pc, C, mu, dimension, weights, cmu, sigma, xOld);
         sigma = sigma * Math.exp((cs / damps) * ((ps).getNorm() / chiN - 1));
         if (Double.isInfinite(sigma) || sigma > 10000) {
             throw new Exception();
@@ -273,7 +275,7 @@ public class CMAESLike extends Move {
 
     @Override
     public void resetState(int particleCount) {
-        xOldArray = null;
+        xOld = null;
         isFirstInIteration = false;
         isInitialized = false;
         resetWeight();
