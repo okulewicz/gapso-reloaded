@@ -5,6 +5,7 @@ import pl.edu.pw.mini.gapso.optimizer.restart.RestartManager;
 import pl.edu.pw.mini.gapso.optimizer.restart.composite.AndRestartManager;
 import pl.edu.pw.mini.gapso.optimizer.restart.composite.OrRestartManager;
 import pl.edu.pw.mini.gapso.optimizer.restart.counter.NoImprovementRestartManager;
+import pl.edu.pw.mini.gapso.optimizer.restart.threshold.CurrentFunctionValueSpreadRestartManager;
 import pl.edu.pw.mini.gapso.optimizer.restart.threshold.FunctionValueSpreadRestartManager;
 import pl.edu.pw.mini.gapso.optimizer.restart.threshold.LargestSpreadBelowThresholdRestartManager;
 import pl.edu.pw.mini.gapso.optimizer.restart.threshold.SmallestSpreadBelowThresholdRestartManager;
@@ -41,6 +42,9 @@ public class RestartConfiguration {
         }
         if (getName().equals(NoImprovementRestartManager.NAME)) {
             return new NoImprovementRestartManager(getParameters());
+        }
+        if (getName().equals(CurrentFunctionValueSpreadRestartManager.NAME)) {
+            return new CurrentFunctionValueSpreadRestartManager(getParameters());
         }
         throw new IllegalArgumentException("Restart manager " + getName() + " is not known");
 
