@@ -106,8 +106,9 @@ public class GAPSOOptimizer extends SamplingOptimizer {
                     particleCount = (int) Math.round(_particlesCountMultiplier * particleCount);
                     particleCount = Math.min(particleCount, _maxParticlesPerDimension * function.getDimension());
                     _boundsManager.registerOptimumLocation(swarm.getGlobalBest());
+                    final int size = swarm.getParticles().size();
                     swarm.getParticles().clear();
-                    resetAfterOptimizationRestart();
+                    resetAfterOptimizationRestart(size);
                     break;
                 }
             }
@@ -138,13 +139,17 @@ public class GAPSOOptimizer extends SamplingOptimizer {
         _moveManager.reset();
     }
 
-    private void resetAfterOptimizationRestart() {
+    private void resetAfterOptimizationRestart(int particleCount) {
         //TODO: this needs to be tested somehow
         samplers.clear();
         successSamplers.clear();
         _initializer.resetInitializer(true);
         _initializer.registerObjectsWithOptimizer(this);
         bounds = _boundsManager.getBounds();
+        for (Move move : _availableMoves) {
+            move.resetState(particleCount);
+            move.registerObjectsWithOptimizer(this);
+        }
         _restartManager.reset();
         _moveManager.maySwitchOffAdaptation();
     }
