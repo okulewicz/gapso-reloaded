@@ -87,6 +87,7 @@ public class Particle {
     private Sample getSampleWithinFunctionBounds(Move availableMove) {
         double[] sample = availableMove.getNext(this, _particles);
         if (sample == null) {
+            System.err.println("Reset because of CMA-ES");
             return null;
         }
         Bounds bounds = _function.getBounds();
@@ -100,6 +101,20 @@ public class Particle {
             }
         }
         double y = _function.getValue(sample);
+        /*
+        try (FileOutputStream fos = new FileOutputStream("values.csv", true)) {
+            PrintStream ps = new PrintStream(fos);
+            ps.print(y);
+            ps.print(';');
+            ps.print(sample[0]);
+            ps.print(';');
+            ps.println(sample[1]);
+        } catch (FileNotFoundException ex) {
+            System.err.println("No file");
+        } catch (IOException ex) {
+            System.err.println("Other IO problem");
+        }
+         */
         return new SingleSample(sample, y);
     }
 }
