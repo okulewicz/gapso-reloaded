@@ -2,10 +2,7 @@ package pl.edu.pw.mini.gapso.optimizer.move;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.exception.MaxCountExceededException;
-import org.apache.commons.math3.linear.EigenDecomposition;
-import org.apache.commons.math3.linear.MatrixUtils;
-import org.apache.commons.math3.linear.RealMatrix;
-import org.apache.commons.math3.linear.RealVector;
+import org.apache.commons.math3.linear.*;
 import pl.edu.pw.mini.gapso.configuration.MoveConfiguration;
 import pl.edu.pw.mini.gapso.optimizer.Particle;
 import pl.edu.pw.mini.gapso.optimizer.SamplingOptimizer;
@@ -67,6 +64,7 @@ public class CMAESLike extends Move {
     public static EigenParts computeEigenDecomposition(RealMatrix C) {
         EigenParts parts = new EigenParts();
         EigenDecomposition eg = new EigenDecomposition(C);
+        DecompositionSolver s = eg.getSolver();
         final double[] eigenvalues = eg.getRealEigenvalues();
         parts.B = eg.getV(); //eigen vectors
         parts.D = MatrixUtils.createRealVector(eigenvalues); //eigen values
