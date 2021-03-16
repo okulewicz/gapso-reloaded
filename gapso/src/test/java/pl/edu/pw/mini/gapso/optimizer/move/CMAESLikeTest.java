@@ -156,4 +156,23 @@ public class CMAESLikeTest {
         Assert.assertEquals(0.603405624921662, resultPc.getEntry(0, 0), EPS);
         Assert.assertEquals(0.201682607696034, resultPc.getEntry(1, 0), EPS);
     }
+
+    @Test
+    public void computeNewDistr() {
+        double[] normals = new double[]{-1.8339, 0.5377};
+        double[] xmean = new double[]{-1.3058, -1.5179};
+        double sigma = 3.2683;
+        double[][] barray = new double[][]{
+                {0.9171, 0.3988},
+                {0.3988, -0.9171}
+        };
+        double[] darray = new double[]{
+                1.1065, 0.8878,
+        };
+        double[] newx = CMAESLike.scaleAndRotateVector(normals, MatrixUtils.createColumnRealMatrix(xmean),
+                MatrixUtils.createRealMatrix(barray), MatrixUtils.createRealVector(darray),
+                sigma);
+        Assert.assertEquals(-6.7654, newx[0], 1e-3);
+        Assert.assertEquals(-5.5931, newx[1], 1e-3);
+    }
 }

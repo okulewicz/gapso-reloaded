@@ -96,17 +96,9 @@ public class CMAESLike extends Move {
         return oldCImpact.add(rankOneUpdate).add(rankMuUpdate);
     }
 
-    public void initializeCovMatrix() {
-        pc = MatrixUtils.createRealMatrix(dimension, 1);
-        ps = MatrixUtils.createRealMatrix(dimension, 1);
-        sigma = 0.3;
-        double[] diag = new double[dimension];
-        Arrays.fill(diag, 1.0);
-        B = MatrixUtils.createRealIdentityMatrix(dimension);
-        D = MatrixUtils.createRealVector(diag);
-        C = B.multiply(MatrixUtils.createRealDiagonalMatrix(diag)).multiply(B.transpose());
-        invsqrtC = computeSQRTCInvert(B, D);
-        eigeneval = 0;
+    public static double computeHSig(int lambda, RealMatrix ps, double cs, int counteval, double chiN, int dimension) {
+        boolean hsigb = ps.getFrobeniusNorm() / Math.sqrt(1.0 - Math.pow(1.0 - cs, 2.0 * counteval / lambda)) / chiN < (1.4 + 2.0 / (dimension + 1.0));
+        return hsigb ? 1.0 : 0.0;
     }
 
     public static RealMatrix computeNormalizedDiff(double sigma, RealMatrix xold, RealMatrix xmean) {
@@ -125,9 +117,26 @@ public class CMAESLike extends Move {
         );
     }
 
-    public static double computeHSig(int lambda, RealMatrix ps, double cs, int counteval, double chiN, int dimension) {
-        boolean hsigb = ps.getNorm() / Math.sqrt(1.0 - Math.pow(1.0 - cs, 2.0 * counteval / lambda)) / chiN < (1.4 + 2.0 / (dimension + 1.0));
-        return hsigb ? 1.0 : 0.0;
+    public void initializeCovMatrix(List<Sample> samples) {
+        pc = MatrixUtils.createRealMatrix(dimension, 1);
+        ps = MatrixUtils.createRealMatrix(dimension, 1);
+        double[] mean = computeAverageMean(samples);
+        double sigmaSum = 0.0;
+        for (int i = 0; i < mean.length; ++i) {
+            int finalI = i;
+            sigmaSum += Math.sqrt(samples.stream()
+                    .mapToDouble(s -> (s.getX()[finalI] - mean[finalI]) * (s.getX()[finalI] - mean[finalI]))
+                    .average().orElse(1.0));
+        }
+
+        sigma = sigmaSum / (double) mean.length;
+        double[] diag = new double[dimension];
+        Arrays.fill(diag, 1.0);
+        B = MatrixUtils.createRealIdentityMatrix(dimension);
+        D = MatrixUtils.createRealVector(diag);
+        C = B.multiply(MatrixUtils.createRealDiagonalMatrix(diag)).multiply(B.transpose());
+        invsqrtC = computeSQRTCInvert(B, D);
+        eigeneval = 0;
     }
 
     public static RealMatrix computeRankOneUpdateWithCorrection(double cc, double c1, double hsig, RealMatrix pc, RealMatrix C) {
@@ -174,7 +183,7 @@ public class CMAESLike extends Move {
 
     ;
 
-    public void initializeParameters(int length, int lambda) {
+    public void initializeParameters(int length, int lambda, List<Sample> samples) {
         //selection
         dimension = length;
         isInitialized = true;
@@ -190,7 +199,7 @@ public class CMAESLike extends Move {
         cmu = Math.min(1.0 - c1, 2.0 * (mueff - 2.0 + 1.0 / mueff) / ((dimension + 2.0) * (dimension + 2.0) + mueff));
         damps = 1.0 + 2.0 * Math.max(0.0, Math.sqrt((mueff - 1.0) / (dimension + 1.0)) - 1.0) + cs;
         //dynamic parameters
-        initializeCovMatrix();
+        initializeCovMatrix(samples);
 
         chiN = Math.sqrt(dimension) * (1.0 - 1.0 / (4.0 * dimension) + 1 / (21.0 * dimension * dimension));
         counteval = 0;
@@ -213,7 +222,7 @@ public class CMAESLike extends Move {
             final List<Sample> samples = particleList.stream().map(Particle::getCurrent)
                     .sorted(Comparator.comparingDouble(Sample::getY)).collect(Collectors.toList());
             if (!isInitialized) {
-                initializeParameters(length, lambda);
+                initializeParameters(length, lambda, samples);
             }
             if (xOld == null) {
                 xOld = MatrixUtils.createColumnRealMatrix(computeAverageMean(samples));
@@ -242,18 +251,21 @@ public class CMAESLike extends Move {
         final RealMatrix normalizedMeanDiff = computeNormalizedDiff(sigma, xOld, xNew);
         ps = computePS(cs, mueff, invsqrtC, ps, normalizedMeanDiff);
         double hsig = computeHSig(lambda, ps, cs, counteval, chiN, dimension);
+        hsig = 1.0;
         pc = computePC(normalizedMeanDiff, hsig, pc, cc, mueff);
         C = computeC(samples, hsig, cc, c1, pc, C, mu, dimension, weights, cmu, sigma, xOld);
-        sigma = sigma * Math.exp((cs / damps) * ((ps).getNorm() / chiN - 1));
+        sigma = sigma * Math.exp((cs / damps) * ((ps).getFrobeniusNorm() / chiN - 1));
         if (Double.isInfinite(sigma) || sigma > 10000) {
             throw new Exception();
         }
         if (Double.isNaN(sigma)) {
-            initializeCovMatrix();
+            throw new Exception();
         }
-
+/*
         if (counteval - eigeneval > lambda / (c1 + cmu) / dimension / 10.0) {// otherwise MaxCountExceededException when sampling from multivariate
             eigeneval = counteval;
+
+ */
             for (int i = 0; i < C.getColumnDimension(); ++i) {
                 for (int j = i + 1; j < C.getRowDimension(); ++j) {
                     C.setEntry(j, i, C.getEntry(i, j));
@@ -270,7 +282,9 @@ public class CMAESLike extends Move {
             } catch (MaxCountExceededException ex) {
                 throw new Exception();
             }
+            /*
         }
+             */
     }
 
     @Override

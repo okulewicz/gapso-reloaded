@@ -6,6 +6,10 @@ import pl.edu.pw.mini.gapso.optimizer.move.Move;
 import pl.edu.pw.mini.gapso.sample.Sample;
 import pl.edu.pw.mini.gapso.sample.SingleSample;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.List;
 
@@ -88,7 +92,7 @@ public class Particle {
     private Sample getSampleWithinFunctionBounds(Move availableMove) {
         double[] sample = availableMove.getNext(this, _particles);
         if (sample == null) {
-            System.err.println("Reset because of CMA-ES");
+            //System.err.println("Reset because of CMA-ES");
             return null;
         }
         Bounds bounds = _function.getBounds();
@@ -102,7 +106,6 @@ public class Particle {
             }
         }
         double y = _function.getValue(sample);
-        /*
         try (FileOutputStream fos = new FileOutputStream("values.csv", true)) {
             PrintStream ps = new PrintStream(fos);
             ps.print(y);
@@ -115,7 +118,6 @@ public class Particle {
         } catch (IOException ex) {
             System.err.println("Other IO problem");
         }
-         */
         return new SingleSample(sample, y);
     }
 }
