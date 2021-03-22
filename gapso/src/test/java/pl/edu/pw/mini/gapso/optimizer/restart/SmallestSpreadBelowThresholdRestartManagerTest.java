@@ -16,10 +16,11 @@ public class SmallestSpreadBelowThresholdRestartManagerTest {
                 true,
                 true,
                 false,
+                false,
                 false
         };
 
         RestartManager observer = new SmallestSpreadBelowThresholdRestartManager(RestartScheme.BORDERLINE_CASE_THRESHOLD);
-        RestartScheme.ValidateRestartManagerAgainstRestartsScheme(function, RestartScheme.samples, restarts, observer);
+        RestartScheme.ValidateRestartManagerAgainstRestartsScheme(function, RestartScheme.samplesForSpread, restarts, observer);
     }
 }

@@ -16,6 +16,7 @@ public class FunctionValueSpreadRestartManagerTest {
                 true,
                 true,
                 true,
+                true,
                 false
         };
 

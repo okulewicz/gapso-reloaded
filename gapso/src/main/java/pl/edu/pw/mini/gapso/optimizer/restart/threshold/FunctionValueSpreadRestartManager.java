@@ -30,6 +30,6 @@ public class FunctionValueSpreadRestartManager extends ThresholdRestartManager {
                         .summaryStatistics();
         double minOpt = statistics.getMin();
         double maxOpt = statistics.getMax();
-        return maxOpt - minOpt < _threshold;
+        return maxOpt - minOpt <= _threshold * Math.max(Math.abs(maxOpt), Math.abs(minOpt));
     }
 }

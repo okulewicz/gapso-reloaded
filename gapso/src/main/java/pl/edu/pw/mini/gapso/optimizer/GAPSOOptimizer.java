@@ -1,9 +1,9 @@
 package pl.edu.pw.mini.gapso.optimizer;
 
 import pl.edu.pw.mini.gapso.bounds.Bounds;
+import pl.edu.pw.mini.gapso.bounds.BoundsManager;
 import pl.edu.pw.mini.gapso.configuration.Configuration;
 import pl.edu.pw.mini.gapso.function.Function;
-import pl.edu.pw.mini.gapso.initializer.BoundsManager;
 import pl.edu.pw.mini.gapso.initializer.Initializer;
 import pl.edu.pw.mini.gapso.optimizer.move.Move;
 import pl.edu.pw.mini.gapso.optimizer.move.MoveManager;
@@ -29,6 +29,8 @@ public class GAPSOOptimizer extends SamplingOptimizer {
     private UpdatableSample totalGlobalBest;
     private MoveManager _moveManager;
     private Bounds bounds;
+    private double _particlesCountMultiplier;
+    private int _maxParticlesPerDimension;
 
     @Override
     public void registerSampler(Sampler sampler) {
@@ -40,8 +42,17 @@ public class GAPSOOptimizer extends SamplingOptimizer {
         successSamplers.add(sampler);
     }
 
-    public GAPSOOptimizer(int particlesCount, int evaluationsBudget, MoveManager moveManager, Initializer initializer, RestartManager restartManager, BoundsManager boundsManager) {
+    public GAPSOOptimizer(int particlesCount,
+                          double particlesCountMultiplier,
+                          int maxParticlesPerDimension,
+                          int evaluationsBudget,
+                          MoveManager moveManager,
+                          Initializer initializer,
+                          RestartManager restartManager,
+                          BoundsManager boundsManager) {
         _particlesCountPerDimension = particlesCount;
+        _particlesCountMultiplier = particlesCountMultiplier;
+        _maxParticlesPerDimension = maxParticlesPerDimension;
         _evaluationsBudgetPerDimension = evaluationsBudget;
         _availableMoves = moveManager.getMoves();
         _initializer = initializer;
@@ -52,6 +63,8 @@ public class GAPSOOptimizer extends SamplingOptimizer {
 
     public GAPSOOptimizer() {
         this(Configuration.getInstance().getParticlesCountPerDimension(),
+                Configuration.getInstance().getParticlesCountMultiplier(),
+                Configuration.getInstance().getMaxParticlesCountPerDimension(),
                 Configuration.getInstance().getEvaluationsBudgetPerDimension(),
                 Configuration.getInstance().getMoveManager(),
                 Configuration.getInstance().getInitializer(),
@@ -63,7 +76,7 @@ public class GAPSOOptimizer extends SamplingOptimizer {
     public Sample optimize(Function function) {
         totalGlobalBest = UpdatableSample.generateInitialSample(function.getDimension());
         _boundsManager.setInitialBounds(function.getBounds());
-        final int particleCount = _particlesCountPerDimension * function.getDimension();
+        int particleCount = _particlesCountPerDimension * function.getDimension();
         resetAndConfigureBeforeOptimization(particleCount);
         bounds = function.getBounds();
         while (isEnoughOptimizationBudgetLeftAndNeedsOptimization(function)) {
@@ -89,8 +102,13 @@ public class GAPSOOptimizer extends SamplingOptimizer {
                     _moveManager.registerGlobalImprovementByMove(selectedMove, result.getGlobalImprovement());
                 }
                 if (_restartManager.shouldBeRestarted(particles)) {
+                    //TODO: needs to be parameterized!
+                    particleCount = (int) Math.round(_particlesCountMultiplier * particleCount);
+                    particleCount = Math.max(Math.min(particleCount, _maxParticlesPerDimension * function.getDimension()), 4);
                     _boundsManager.registerOptimumLocation(swarm.getGlobalBest());
-                    resetAfterOptimizationRestart();
+                    final int size = swarm.getParticles().size();
+                    swarm.getParticles().clear();
+                    resetAfterOptimizationRestart(size);
                     break;
                 }
             }
@@ -121,13 +139,17 @@ public class GAPSOOptimizer extends SamplingOptimizer {
         _moveManager.reset();
     }
 
-    private void resetAfterOptimizationRestart() {
+    private void resetAfterOptimizationRestart(int particleCount) {
         //TODO: this needs to be tested somehow
         samplers.clear();
         successSamplers.clear();
         _initializer.resetInitializer(true);
         _initializer.registerObjectsWithOptimizer(this);
         bounds = _boundsManager.getBounds();
+        for (Move move : _availableMoves) {
+            move.resetState(particleCount);
+            move.registerObjectsWithOptimizer(this);
+        }
         _restartManager.reset();
         _moveManager.maySwitchOffAdaptation();
     }

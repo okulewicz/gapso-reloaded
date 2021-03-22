@@ -22,11 +22,18 @@ public class MoveManager {
     private boolean adaptMoves;
 
     public MoveManager(Move[] moves, MoveManagerConfiguration configuration) {
-        initiallyAdaptMoves = configuration.isAdaptMoves();
-        includeGlobalImprovements = configuration.isIncludeGlobalImprovements();
-        includePersonalImprovements = configuration.isIncludePersonalImprovements();
-        switchingAdaptationOffProbability = configuration.getSwitchingAdaptationOffProbability();
         maxHistorySize = configuration.getMaxHistorySize();
+        if (maxHistorySize > 0) {
+            initiallyAdaptMoves = configuration.isAdaptMoves();
+            includeGlobalImprovements = configuration.isIncludeGlobalImprovements();
+            includePersonalImprovements = configuration.isIncludePersonalImprovements();
+            switchingAdaptationOffProbability = configuration.getSwitchingAdaptationOffProbability();
+        } else {
+            initiallyAdaptMoves = false;
+            includePersonalImprovements = false;
+            includeGlobalImprovements = false;
+            switchingAdaptationOffProbability = -1.0;
+        }
         _moves = moves;
         reset();
         movesImprovementsDictionary = new HashMap<>();

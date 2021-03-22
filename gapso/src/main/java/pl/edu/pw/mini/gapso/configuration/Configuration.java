@@ -2,7 +2,7 @@ package pl.edu.pw.mini.gapso.configuration;
 
 import com.google.gson.Gson;
 import org.apache.commons.io.IOUtils;
-import pl.edu.pw.mini.gapso.initializer.BoundsManager;
+import pl.edu.pw.mini.gapso.bounds.BoundsManager;
 import pl.edu.pw.mini.gapso.initializer.Initializer;
 import pl.edu.pw.mini.gapso.optimizer.move.MoveManager;
 import pl.edu.pw.mini.gapso.optimizer.restart.RestartManager;
@@ -31,6 +31,8 @@ public class Configuration {
     private InitializerConfiguration initializerDefinition;
 
     private MoveManagerConfiguration moveManagerDefinition;
+    private double particlesCountMultiplier;
+    private int maxParticlesCountPerDimension;
 
     public int getEvaluationsBudgetPerDimension() {
         return evaluationsBudgetPerDimension;
@@ -71,6 +73,14 @@ public class Configuration {
         return particlesCountPerDimension;
     }
 
+    public double getParticlesCountMultiplier() {
+        return particlesCountMultiplier;
+    }
+
+    public int getMaxParticlesCountPerDimension() {
+        return maxParticlesCountPerDimension;
+    }
+
     public Initializer getInitializer() {
         return initializerDefinition.getInitializer();
     }
@@ -87,4 +97,6 @@ public class Configuration {
     public MoveManager getMoveManager() {
         return moveManagerDefinition.getMoveManager();
     }
+
+
 }

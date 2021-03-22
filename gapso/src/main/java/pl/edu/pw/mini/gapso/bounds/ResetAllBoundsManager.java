@@ -1,8 +1,7 @@
-package pl.edu.pw.mini.gapso.optimizer;
+package pl.edu.pw.mini.gapso.bounds;
 
-import pl.edu.pw.mini.gapso.bounds.Bounds;
 import pl.edu.pw.mini.gapso.configuration.BoundsManagerConfiguration;
-import pl.edu.pw.mini.gapso.initializer.BoundsManager;
+import pl.edu.pw.mini.gapso.optimizer.SamplingOptimizer;
 import pl.edu.pw.mini.gapso.sample.Sample;
 
 public class ResetAllBoundsManager extends BoundsManager {

@@ -1,9 +1,10 @@
 package pl.edu.pw.mini.gapso.configuration;
 
 import com.google.gson.JsonElement;
-import pl.edu.pw.mini.gapso.initializer.BoundsManager;
-import pl.edu.pw.mini.gapso.initializer.GlobalModelBoundsManager;
-import pl.edu.pw.mini.gapso.optimizer.ResetAllBoundsManager;
+import pl.edu.pw.mini.gapso.bounds.BoundsManager;
+import pl.edu.pw.mini.gapso.bounds.GlobalModelBoundsManager;
+import pl.edu.pw.mini.gapso.bounds.RandomRegionBoundsManager;
+import pl.edu.pw.mini.gapso.bounds.ResetAllBoundsManager;
 
 public class BoundsManagerConfiguration {
     String name;
@@ -28,6 +29,9 @@ public class BoundsManagerConfiguration {
         }
         if (getName().equals(ResetAllBoundsManager.NAME)) {
             return new ResetAllBoundsManager(this);
+        }
+        if (getName().equals(RandomRegionBoundsManager.NAME)) {
+            return new RandomRegionBoundsManager(this);
         }
         throw new IllegalArgumentException("Unknown initializer " + getName());
     }

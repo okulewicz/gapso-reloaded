@@ -10,10 +10,20 @@ public class RestartScheme {
 
     public static double[][] samples = new double[][]{
             {0.0, 0.0},
+            {-BORDERLINE_CASE_THRESHOLD / 10, BORDERLINE_CASE_THRESHOLD / 10},
             {BORDERLINE_CASE_THRESHOLD / 10, BORDERLINE_CASE_THRESHOLD / 10},
             {BORDERLINE_CASE_THRESHOLD, BORDERLINE_CASE_THRESHOLD / 10},
             {BORDERLINE_CASE_THRESHOLD, BORDERLINE_CASE_THRESHOLD},
             {BORDERLINE_CASE_THRESHOLD * 10, 4.0}
+    };
+
+    public static double[][] samplesForSpread = new double[][]{
+            {1.0, 1.0},
+            {1 - BORDERLINE_CASE_THRESHOLD / 10, BORDERLINE_CASE_THRESHOLD / 10},
+            {1 + BORDERLINE_CASE_THRESHOLD / 10, BORDERLINE_CASE_THRESHOLD / 10},
+            {1 + BORDERLINE_CASE_THRESHOLD, BORDERLINE_CASE_THRESHOLD / 10},
+            {1 + BORDERLINE_CASE_THRESHOLD, BORDERLINE_CASE_THRESHOLD},
+            {1 + BORDERLINE_CASE_THRESHOLD * 10, 4.0}
     };
 
     public static void ValidateRestartManagerAgainstRestartsScheme(Function function, double[][] samples, boolean[] restarts, RestartManager observer) {

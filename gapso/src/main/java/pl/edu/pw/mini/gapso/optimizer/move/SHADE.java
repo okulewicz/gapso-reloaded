@@ -17,6 +17,12 @@ import java.util.List;
 
 public class SHADE extends Move {
     public static final String NAME = "SHADE";
+    public static final int LOWER_F_BOUND = 0;
+    public static final double UPPER_F_BOUND = 1.0;
+    public static final int UPPER_CR_BOUND = 1;
+    public static final int LOWER_CR_BOUND = 0;
+    public static final double NORMAL_SD_FOR_CR = 0.1;
+    public static final double CAUCHY_SCALE_FOR_F = 0.1;
     private final double _scale;
     private final double _crossProb;
     private final int _slots;
@@ -31,6 +37,7 @@ public class SHADE extends Move {
     private List<Double> deltas;
     private List<Double> successfulCrossProb;
     private List<Double> successfulScales;
+    private int lastChoice;
 
     public SHADE(MoveConfiguration moveConfiguration) {
         super(moveConfiguration);
@@ -118,7 +125,7 @@ public class SHADE extends Move {
     }
 
     private int getPBestParticleIndex(List<Particle> particleList) {
-        final int worstPBest = Math.max(1, (int) (particleList.size() * _pBestRatio));
+        final int worstPBest = Math.max(1, (int) Math.round(particleList.size() * _pBestRatio));
         final int[] pBests = particleList
                 .stream()
                 .sorted(Comparator.comparingDouble(p -> p.getBest().getY()))
@@ -130,14 +137,22 @@ public class SHADE extends Move {
     }
 
     private double generateCrossProb() {
-        NormalDistribution cauchyDistribution = new NormalDistribution(Generator.RANDOM,
-                Math.max(0, _crossProbs[activeSlot]), 0.1);
-        return Math.max(0.25, cauchyDistribution.sample());
+        NormalDistribution normalDistribution = new NormalDistribution(Generator.RANDOM,
+                _crossProbs[lastChoice], NORMAL_SD_FOR_CR);
+        return
+                Math.max(LOWER_CR_BOUND,
+                        Math.min(UPPER_CR_BOUND,
+                                normalDistribution.sample()));
     }
 
     private double generateScale() {
-        CauchyDistribution cauchyDistribution = new CauchyDistribution(Generator.RANDOM, _scales[activeSlot], 0.1);
-        return Math.max(0, Math.min(cauchyDistribution.sample(), 0.9));
+        double sample = -1.0;
+        while (sample <= LOWER_F_BOUND) {
+            CauchyDistribution cauchyDistribution = new CauchyDistribution(Generator.RANDOM, _scales[lastChoice], CAUCHY_SCALE_FOR_F);
+            sample = cauchyDistribution.sample();
+            sample = Math.min(sample, UPPER_F_BOUND);
+        }
+        return sample;
     }
 
     @Override
@@ -154,7 +169,7 @@ public class SHADE extends Move {
         Arrays.fill(_scales, _scale);
         _crossProbs = new double[_slots];
         Arrays.fill(_crossProbs, _crossProb);
-        _archive = new LimitedCapacitySampler((int) (_archiveSizeFactor * particleCount));
+        _archive = new LimitedCapacitySampler((int) Math.max(1, Math.round(_archiveSizeFactor * particleCount)));
         activeSlot = 0;
         resetWeight();
     }
@@ -168,6 +183,7 @@ public class SHADE extends Move {
 
     @Override
     public void newIteration() {
+        lastChoice = Generator.RANDOM.nextInt(_slots);
         if (!deltas.isEmpty()) {
             _crossProbs[activeSlot] = computeMeanWL(deltas, successfulCrossProb);
             _scales[activeSlot] = computeMeanWL(deltas, successfulScales);

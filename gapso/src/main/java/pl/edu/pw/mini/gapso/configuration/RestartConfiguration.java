@@ -40,7 +40,7 @@ public class RestartConfiguration {
             return new OrRestartManager(getParameters());
         }
         if (getName().equals(NoImprovementRestartManager.NAME)) {
-            return new NoImprovementRestartManager();
+            return new NoImprovementRestartManager(getParameters());
         }
         throw new IllegalArgumentException("Restart manager " + getName() + " is not known");
 

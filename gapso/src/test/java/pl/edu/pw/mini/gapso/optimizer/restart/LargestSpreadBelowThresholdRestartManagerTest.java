@@ -15,6 +15,7 @@ public class LargestSpreadBelowThresholdRestartManagerTest {
         boolean[] restarts = new boolean[]{
                 false,
                 true,
+                true,
                 false,
                 false,
                 false
