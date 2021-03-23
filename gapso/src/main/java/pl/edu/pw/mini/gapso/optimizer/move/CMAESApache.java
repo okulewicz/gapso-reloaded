@@ -409,6 +409,9 @@ public class CMAESApache extends Move {
             final double[] pcCol = pc.getColumn(0);
             for (int i = 0; i < dimension; i++) {
                 if (sigma * FastMath.max(FastMath.abs(pcCol[i]), sqrtDiagC[i]) > stopTolX) {
+                    break;
+                }
+                if (i >= dimension - 1) {
                     throw new IllegalStateException();
                 }
             }
