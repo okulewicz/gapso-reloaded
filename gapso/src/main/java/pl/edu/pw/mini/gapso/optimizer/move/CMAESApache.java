@@ -83,6 +83,7 @@ import java.util.stream.Collectors;
  * @since 3.0
  */
 public class CMAESApache extends Move {
+    private static final int MAX_TRIES = 100;
     private final boolean followBest;
     private boolean isFirstInIteration;
 
@@ -482,6 +483,7 @@ public class CMAESApache extends Move {
         // Generate and evaluate lambda offspring
         boolean isWithinBounds = false;
         double[] x = new double[dimension];
+        int counter = MAX_TRIES * dimension;
         while (!isWithinBounds) {
             RealMatrix randVector = DoubleIndex.randn1(dimension, 1);
             arzAccumulator.setColumnMatrix(accumulatedLambda - 1, randVector);
@@ -495,6 +497,8 @@ public class CMAESApache extends Move {
             x = arxAccumulator.getColumn(accumulatedLambda - 1);
             if (currentParticle.getFunction().getBounds().contain(x)) {
                 isWithinBounds = true;
+            } else if (counter-- < 0) {
+                throw new IllegalStateException();
             }
         }
         return x;
