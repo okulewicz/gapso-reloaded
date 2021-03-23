@@ -77,6 +77,7 @@ import java.util.stream.Collectors;
  * @since 3.0
  */
 public class CMAESApache extends Move {
+    public static String NAME = "CMAESApache";
     // global search parameters
     /**
      * Covariance update mechanism, default is active CMA. isActiveCMA = true
