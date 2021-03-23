@@ -347,6 +347,17 @@ public class CMAESApache extends Move {
                 arx = DoubleIndex.zeros(dimension, lambda);
                 arz = DoubleIndex.zeros(dimension, lambda);
 
+                for (int l = 0; l < lambda; ++l) {
+                    final double[] x = currentSamples.get(l).getX();
+                    RealMatrix xCol = MatrixUtils.createColumnRealMatrix(x);
+                    arx.setColumnMatrix(l, xCol);
+                    double[] zvec = new double[dimension];
+                    for (int d = 0; d < dimension; ++d) {
+                        zvec[d] = (x[d] - guess[d]) / sigma;
+                    }
+                    arz.setColumn(l, zvec);
+                }
+
                 bestValue = currentSamples.stream().mapToDouble(Sample::getY).min().orElse(Double.POSITIVE_INFINITY);
                 isInitialized = true;
             } else {
