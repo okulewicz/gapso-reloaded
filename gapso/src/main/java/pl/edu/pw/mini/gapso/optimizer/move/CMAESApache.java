@@ -35,6 +35,7 @@ import pl.edu.pw.mini.gapso.optimizer.Particle;
 import pl.edu.pw.mini.gapso.optimizer.SamplingOptimizer;
 import pl.edu.pw.mini.gapso.sample.Sample;
 import pl.edu.pw.mini.gapso.utils.Generator;
+import pl.edu.pw.mini.gapso.utils.Util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -82,6 +83,9 @@ import java.util.stream.Collectors;
  * @since 3.0
  */
 public class CMAESApache extends Move {
+    private final boolean followCurrentBest;
+    private boolean isFirstInIteration;
+
     public static String NAME = "CMAESApache";
     // global search parameters
     /**
@@ -281,55 +285,20 @@ public class CMAESApache extends Move {
      */
     private int historySize;
     private boolean isInitialized;
-    private boolean firstInIteration;
+
+    public CMAESApache(MoveConfiguration configuration) {
+        super(configuration);
+        CMAESConfiguration cmaesConf = Util.GSON.fromJson(
+                configuration.getParameters(),
+                CMAESConfiguration.class);
+        followCurrentBest = cmaesConf.getFollowCurrentBest();
+    }
+
     private int accumulatedLambda;
     private double bestValue;
     private RealMatrix arxAccumulator;
     private RealMatrix arzAccumulator;
     private List<Double> fitnessList;
-
-    public CMAESApache(MoveConfiguration configuration) {
-        super(configuration);
-    }
-
-    /**
-     * Pushes the current best fitness value in a history queue.
-     *
-     * @param vals History queue.
-     * @param val  Current best fitness value.
-     */
-    private static void push(double[] vals, double val) {
-        if (vals.length - 1 >= 0) System.arraycopy(vals, 0, vals, 1, vals.length - 1);
-        vals[0] = val;
-    }
-
-    /**
-     * @return History of sigma values.
-     */
-    public List<Double> getStatisticsSigmaHistory() {
-        return statisticsSigmaHistory;
-    }
-
-    /**
-     * @return History of mean matrix.
-     */
-    public List<RealMatrix> getStatisticsMeanHistory() {
-        return statisticsMeanHistory;
-    }
-
-    /**
-     * @return History of fitness values.
-     */
-    public List<Double> getStatisticsFitnessHistory() {
-        return statisticsFitnessHistory;
-    }
-
-    /**
-     * @return History of D matrix.
-     */
-    public List<RealMatrix> getStatisticsDHistory() {
-        return statisticsDHistory;
-    }
 
     /**
      * {@inheritDoc}
@@ -338,7 +307,17 @@ public class CMAESApache extends Move {
     public double[] getNext(Particle currentParticle, List<Particle> particleList) throws IllegalStateException {
         RealMatrix arx;
         RealMatrix arz;
-        if (firstInIteration) {
+        if (isInitialized) {
+            if (followCurrentBest) {
+                int bestIdx = currentParticle.getGlobalBestIndex();
+                Sample xBestLocation = particleList.get(bestIdx).getBest();
+                double[] xMeanLocation = xmean.getColumn(0);
+                if (xBestLocation.getDistance(xMeanLocation) > 2 * sigma) {
+                    resetState(particleList.size());
+                }
+            }
+        }
+        if (isFirstInIteration) {
             final List<Sample> currentSamples = particleList.stream().map(Particle::getCurrent).collect(Collectors.toList());
             double[] fitness;
             // -------------------- Initialization --------------------------------
@@ -452,7 +431,7 @@ public class CMAESApache extends Move {
                 statisticsMeanHistory.add(xmean.transpose());
                 statisticsDHistory.add(diagD.transpose().scalarMultiply(1E5));
             }
-            firstInIteration = false;
+            isFirstInIteration = false;
         }
 
         // -------------------- Generation Loop --------------------------------
@@ -487,6 +466,51 @@ public class CMAESApache extends Move {
         return x;
     }
 
+    /**
+     * Pushes the current best fitness value in a history queue.
+     *
+     * @param vals History queue.
+     * @param val  Current best fitness value.
+     */
+    private static void push(double[] vals, double val) {
+        if (vals.length - 1 >= 0) System.arraycopy(vals, 0, vals, 1, vals.length - 1);
+        vals[0] = val;
+    }
+
+    /**
+     * @return History of sigma values.
+     */
+    public List<Double> getStatisticsSigmaHistory() {
+        return statisticsSigmaHistory;
+    }
+
+    /**
+     * @return History of mean matrix.
+     */
+    public List<RealMatrix> getStatisticsMeanHistory() {
+        return statisticsMeanHistory;
+    }
+
+    /**
+     * @return History of fitness values.
+     */
+    public List<Double> getStatisticsFitnessHistory() {
+        return statisticsFitnessHistory;
+    }
+
+    /**
+     * @return History of D matrix.
+     */
+    public List<RealMatrix> getStatisticsDHistory() {
+        return statisticsDHistory;
+    }
+
+    @Override
+    public void resetState(int particleCount) {
+        isInitialized = false;
+        isFirstInIteration = true;
+    }
+
     private double[] computeSigmas(double[] guess, List<Particle> particleList) {
         final int dimension = guess.length;
         double[] sigmas = new double[dimension];
@@ -506,8 +530,8 @@ public class CMAESApache extends Move {
     }
 
     @Override
-    public void resetState(int particleCount) {
-        isInitialized = false;
+    public void newIteration() {
+        isFirstInIteration = true;
     }
 
     @Override
@@ -515,9 +539,16 @@ public class CMAESApache extends Move {
 
     }
 
-    @Override
-    public void newIteration() {
-        firstInIteration = true;
+    public static class CMAESConfiguration {
+        private boolean followCurrentBest;
+
+        public boolean getFollowCurrentBest() {
+            return followCurrentBest;
+        }
+
+        public void setFollowCurrentBest(boolean followCurrentBest) {
+            this.followCurrentBest = followCurrentBest;
+        }
     }
 
     @Override
