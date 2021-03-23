@@ -377,9 +377,13 @@ public class CMAESApache extends Move {
                 fitness = new double[lambda];
                 for (int l = 0; l < lambda; ++l) {
                     double[] x = arx.getColumn(l);
-                    Sample matchingSample = currentSamples
+                    final List<Sample> mathingSamples = currentSamples
                             .stream().filter(s -> Arrays.equals(x, s.getX()))
-                            .collect(Collectors.toList()).get(0);
+                            .collect(Collectors.toList());
+                    if (mathingSamples.size() == 0) {
+                        throw new IllegalStateException();
+                    }
+                    Sample matchingSample = mathingSamples.get(0);
                     fitness[l] = matchingSample.getY();
                 }
             }
