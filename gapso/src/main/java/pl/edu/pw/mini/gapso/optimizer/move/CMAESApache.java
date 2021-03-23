@@ -277,9 +277,9 @@ public class CMAESApache extends Move {
     private boolean isInitialized;
     private boolean firstInIteration;
     private int accumulatedLambda;
-    private RealMatrix arx;
-    private RealMatrix arz;
     private double bestValue;
+    private RealMatrix arxAccumulator;
+    private RealMatrix arzAccumulator;
 
     public CMAESApache(MoveConfiguration configuration) {
         super(configuration);
@@ -329,8 +329,11 @@ public class CMAESApache extends Move {
      */
     @Override
     public double[] getNext(Particle currentParticle, List<Particle> particleList) throws IllegalStateException {
+        RealMatrix arx;
+        RealMatrix arz;
         if (firstInIteration) {
             final List<Sample> currentSamples = particleList.stream().map(Particle::getCurrent).collect(Collectors.toList());
+            double[] fitness;
             // -------------------- Initialization --------------------------------
             if (!isInitialized) {
                 isMinimize = true;
@@ -357,20 +360,22 @@ public class CMAESApache extends Move {
                     }
                     arz.setColumn(l, zvec);
                 }
+                fitness = currentSamples.stream().mapToDouble(Sample::getY).toArray();
 
                 bestValue = currentSamples.stream().mapToDouble(Sample::getY).min().orElse(Double.POSITIVE_INFINITY);
                 isInitialized = true;
             } else {
-                arx = null;
-                arz = null;
+                arx = arxAccumulator;
+                arz = arzAccumulator;
                 lambda = accumulatedLambda;
+                fitness = null;
+                //TODO: fitness to be taken from outside computations
+                //by matching locations in arx with samples
             }
+            arxAccumulator = null;
+            arzAccumulator = null;
             initializeLambdaDependentCoefficients();
             accumulatedLambda = 0;
-
-            //TODO: fitness to be taken from outside computations
-            //by matching locations in arx with samples
-            double[] fitness = currentSamples.stream().mapToDouble(Sample::getY).toArray();
 
             // Sort by fitness and compute weighted mean into xmean
             final int[] arindex = sortedIndices(fitness);
@@ -442,29 +447,32 @@ public class CMAESApache extends Move {
         // -------------------- Generation Loop --------------------------------
 
         accumulatedLambda += 1;
+        RealMatrix newArxAccumulator = MatrixUtils.createRealMatrix(dimension, accumulatedLambda);
+        RealMatrix newArzAccumulator = MatrixUtils.createRealMatrix(dimension, accumulatedLambda);
+        for (int l = 0; l < accumulatedLambda - 1; ++l) {
+            newArxAccumulator.setColumn(l, arxAccumulator.getColumn(l));
+            newArzAccumulator.setColumn(l, arzAccumulator.getColumn(l));
+        }
+        arxAccumulator = newArxAccumulator;
+        arzAccumulator = newArzAccumulator;
         // Generate and evaluate lambda offspring
-        if (arx == null) {
-            arx = DoubleIndex.zeros(dimension, 1);
-        } else {
-            //TODO: To be implemented with matrix concatenation
-        }
-        if (arz == null) {
-            arz = DoubleIndex.randn1(dimension, 1);
-        } else {
-            //TODO: To be implemented with matrix concatenation
-        }
+        boolean isWithinBounds = false;
         double[] x = new double[dimension];
-        // generate random offspring
-        //TODO: random offspring to be generated within bounds
-        //by matching locations in arx with samples
-        if (diagonalOnly <= 0) {
-            arx.setColumnMatrix(accumulatedLambda - 1, xmean.add(BD.multiply(arz.getColumnMatrix(accumulatedLambda - 1))
-                    .scalarMultiply(sigma))); // m + sig * Normal(0,C)
-        } else {
-            arx.setColumnMatrix(accumulatedLambda - 1, xmean.add(DoubleIndex.times(diagD, arz.getColumnMatrix(accumulatedLambda - 1))
-                    .scalarMultiply(sigma)));
+        while (!isWithinBounds) {
+            RealMatrix randVector = DoubleIndex.randn1(dimension, 1);
+            arzAccumulator.setColumnMatrix(accumulatedLambda - 1, randVector);
+            if (diagonalOnly <= 0) {
+                arxAccumulator.setColumnMatrix(accumulatedLambda - 1, xmean.add(BD.multiply(arzAccumulator.getColumnMatrix(accumulatedLambda - 1))
+                        .scalarMultiply(sigma))); // m + sig * Normal(0,C)
+            } else {
+                arxAccumulator.setColumnMatrix(accumulatedLambda - 1, xmean.add(DoubleIndex.times(diagD, arzAccumulator.getColumnMatrix(accumulatedLambda - 1))
+                        .scalarMultiply(sigma)));
+            }
+            x = arxAccumulator.getColumn(accumulatedLambda - 1);
+            if (currentParticle.getFunction().getBounds().contain(x)) {
+                isWithinBounds = true;
+            }
         }
-        //TODO: real X to be returned
         return x;
     }
 
