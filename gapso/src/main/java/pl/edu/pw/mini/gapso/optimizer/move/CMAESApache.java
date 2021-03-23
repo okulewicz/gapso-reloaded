@@ -288,6 +288,7 @@ public class CMAESApache extends Move {
     private final boolean followGlobalBest;
     private final int minIterationsBeforeFollow;
     private final double followToleranceFactor;
+    private final boolean takeXmeanFromAll;
 
     public CMAESApache(MoveConfiguration configuration) {
         super(configuration);
@@ -298,6 +299,7 @@ public class CMAESApache extends Move {
         followGlobalBest = cmaesConf.getFollowGlobalBest();
         minIterationsBeforeFollow = cmaesConf.getMinIterationsBeforeFollow();
         followToleranceFactor = cmaesConf.getFollowToleranceFactor();
+        takeXmeanFromAll = cmaesConf.getTakeXmeanFromAll();
     }
 
     private int accumulatedLambda;
@@ -386,7 +388,21 @@ public class CMAESApache extends Move {
             // Calculate new xmean, this is selection and recombination
             final RealMatrix xold = xmean; // for speed up of Eq. (2) and (3)
             final RealMatrix bestArx = DoubleIndex.selectColumns(arx, MathArrays.copyOf(arindex, mu));
-            xmean = bestArx.multiply(weights);
+            if (!takeXmeanFromAll) {
+                //Standard CMA-ES operation
+                xmean = bestArx.multiply(weights);
+            } else {
+                RealMatrix allX = DoubleIndex.zeros(dimension, lambda);
+                for (int l = 0; l < lambda; ++l) {
+                    final double[] x = currentSamples.get(l).getX();
+                    RealMatrix xCol = MatrixUtils.createColumnRealMatrix(x);
+                    allX.setColumnMatrix(l, xCol);
+                }
+                double[] allFitness = currentSamples.stream().mapToDouble(Sample::getY).toArray();
+                final int[] allIndex = sortedIndices(allFitness);
+                final RealMatrix bestAll = DoubleIndex.selectColumns(allX, MathArrays.copyOf(allIndex, mu));
+                xmean = bestAll.multiply(weights);
+            }
             final RealMatrix bestArz = DoubleIndex.selectColumns(arz, MathArrays.copyOf(arindex, mu));
             final RealMatrix zmean = bestArz.multiply(weights);
             final boolean hsig = updateEvolutionPaths(zmean, xold);
@@ -561,6 +577,7 @@ public class CMAESApache extends Move {
         private boolean followGlobalBest;
         private int minIterationsBeforeFollow;
         private double followToleranceFactor;
+        private boolean takeXmeanFromAll;
 
         public boolean getFollowCurrentBest() {
             return followCurrentBest;
@@ -592,6 +609,14 @@ public class CMAESApache extends Move {
 
         public void setFollowToleranceFactor(double followToleranceFactor) {
             this.followToleranceFactor = followToleranceFactor;
+        }
+
+        public boolean getTakeXmeanFromAll() {
+            return takeXmeanFromAll;
+        }
+
+        public void setTakeXmeanFromAll(boolean takeXmeanFromAll) {
+            this.takeXmeanFromAll = takeXmeanFromAll;
         }
     }
 
