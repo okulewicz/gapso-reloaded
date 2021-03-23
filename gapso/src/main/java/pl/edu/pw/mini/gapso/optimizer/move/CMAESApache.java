@@ -392,8 +392,8 @@ public class CMAESApache extends Move {
                 //Standard CMA-ES operation
                 xmean = bestArx.multiply(weights);
             } else {
-                RealMatrix allX = DoubleIndex.zeros(dimension, lambda);
-                for (int l = 0; l < lambda; ++l) {
+                RealMatrix allX = DoubleIndex.zeros(dimension, currentSamples.size());
+                for (int l = 0; l < currentSamples.size(); ++l) {
                     final double[] x = currentSamples.get(l).getX();
                     RealMatrix xCol = MatrixUtils.createColumnRealMatrix(x);
                     allX.setColumnMatrix(l, xCol);
