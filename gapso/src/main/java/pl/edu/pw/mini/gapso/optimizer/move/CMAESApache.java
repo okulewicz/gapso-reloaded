@@ -1,4 +1,9 @@
 /*
+ * This version of CMA-ES has been copied from
+ * http://commons.apache.org/proper/commons-math/javadocs/api-3.4/src-html/org/apache/commons/math3/optim/nonlinear/scalar/noderiv/CMAESOptimizer.html
+ * and modified to fit within the GAPSO optimization framework by Michał Okulewicz (m.okulewicz.phd at gmail.com)
+ * while doing research on optimization algorithms on Warsaw University of Technology
+ *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
