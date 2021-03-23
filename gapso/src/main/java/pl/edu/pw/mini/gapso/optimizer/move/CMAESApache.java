@@ -357,6 +357,8 @@ public class CMAESApache extends Move {
             initializeLambdaDependentCoefficients();
             accumulatedLambda = 0;
 
+            //TODO: fitness to be taken from outside computations
+            //by matching locations in arx with samples
             double[] fitness = currentSamples.stream().mapToDouble(Sample::getY).toArray();
 
             // Sort by fitness and compute weighted mean into xmean
@@ -442,6 +444,8 @@ public class CMAESApache extends Move {
         }
         double[] x = new double[dimension];
         // generate random offspring
+        //TODO: random offspring to be generated within bounds
+        //by matching locations in arx with samples
         if (diagonalOnly <= 0) {
             arx.setColumnMatrix(accumulatedLambda - 1, xmean.add(BD.multiply(arz.getColumnMatrix(accumulatedLambda - 1))
                     .scalarMultiply(sigma))); // m + sig * Normal(0,C)
@@ -449,6 +453,7 @@ public class CMAESApache extends Move {
             arx.setColumnMatrix(accumulatedLambda - 1, xmean.add(DoubleIndex.times(diagD, arz.getColumnMatrix(accumulatedLambda - 1))
                     .scalarMultiply(sigma)));
         }
+        //TODO: real X to be returned
         return x;
     }
 
