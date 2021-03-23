@@ -83,7 +83,7 @@ import java.util.stream.Collectors;
  * @since 3.0
  */
 public class CMAESApache extends Move {
-    private final boolean followCurrentBest;
+    private final boolean followBest;
     private boolean isFirstInIteration;
 
     public static String NAME = "CMAESApache";
@@ -285,13 +285,17 @@ public class CMAESApache extends Move {
      */
     private int historySize;
     private boolean isInitialized;
+    private final boolean followGlobalBest;
+    private final int minIterationsBeforeFollow;
 
     public CMAESApache(MoveConfiguration configuration) {
         super(configuration);
         CMAESConfiguration cmaesConf = Util.GSON.fromJson(
                 configuration.getParameters(),
                 CMAESConfiguration.class);
-        followCurrentBest = cmaesConf.getFollowCurrentBest();
+        followBest = cmaesConf.getFollowCurrentBest();
+        followGlobalBest = cmaesConf.getFollowGlobalBest();
+        minIterationsBeforeFollow = cmaesConf.getMinIterationsBeforeFollow();
     }
 
     private int accumulatedLambda;
@@ -308,17 +312,29 @@ public class CMAESApache extends Move {
         RealMatrix arx;
         RealMatrix arz;
         if (isFirstInIteration) {
+            final List<Sample> currentSamples = particleList.stream().map(Particle::getCurrent).collect(Collectors.toList());
             if (isInitialized) {
-                if (followCurrentBest) {
-                    int bestIdx = currentParticle.getGlobalBestIndex();
-                    Sample xBestLocation = particleList.get(bestIdx).getBest();
+                if (followBest && iterations > minIterationsBeforeFollow) {
+                    Sample xBestLocation;
+                    if (followGlobalBest) {
+                        int bestIdx = currentParticle.getGlobalBestIndex();
+                        xBestLocation = particleList.get(bestIdx).getBest();
+                    } else {
+                        double bestValue = Double.POSITIVE_INFINITY;
+                        xBestLocation = currentSamples.get(0);
+                        for (Sample sample : currentSamples) {
+                            if (sample.getY() < bestValue) {
+                                xBestLocation = sample;
+                                bestValue = sample.getY();
+                            }
+                        }
+                    }
                     double[] xMeanLocation = xmean.getColumn(0);
                     if (xBestLocation.getDistance(xMeanLocation) > 2 * sigma) {
                         resetState(particleList.size());
                     }
                 }
             }
-            final List<Sample> currentSamples = particleList.stream().map(Particle::getCurrent).collect(Collectors.toList());
             double[] fitness;
             // -------------------- Initialization --------------------------------
             if (!isInitialized) {
@@ -540,6 +556,8 @@ public class CMAESApache extends Move {
 
     public static class CMAESConfiguration {
         private boolean followCurrentBest;
+        private boolean followGlobalBest;
+        private int minIterationsBeforeFollow;
 
         public boolean getFollowCurrentBest() {
             return followCurrentBest;
@@ -547,6 +565,22 @@ public class CMAESApache extends Move {
 
         public void setFollowCurrentBest(boolean followCurrentBest) {
             this.followCurrentBest = followCurrentBest;
+        }
+
+        public boolean getFollowGlobalBest() {
+            return followGlobalBest;
+        }
+
+        public void setFollowGlobalBest(boolean followGlobalBest) {
+            this.followGlobalBest = followGlobalBest;
+        }
+
+        public int getMinIterationsBeforeFollow() {
+            return minIterationsBeforeFollow;
+        }
+
+        public void setMinIterationsBeforeFollow(int minIterationsBeforeFollow) {
+            this.minIterationsBeforeFollow = minIterationsBeforeFollow;
         }
     }
 
