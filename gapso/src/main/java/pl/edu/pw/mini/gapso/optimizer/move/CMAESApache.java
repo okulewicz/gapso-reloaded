@@ -307,17 +307,17 @@ public class CMAESApache extends Move {
     public double[] getNext(Particle currentParticle, List<Particle> particleList) throws IllegalStateException {
         RealMatrix arx;
         RealMatrix arz;
-        if (isInitialized) {
-            if (followCurrentBest) {
-                int bestIdx = currentParticle.getGlobalBestIndex();
-                Sample xBestLocation = particleList.get(bestIdx).getBest();
-                double[] xMeanLocation = xmean.getColumn(0);
-                if (xBestLocation.getDistance(xMeanLocation) > 2 * sigma) {
-                    resetState(particleList.size());
+        if (isFirstInIteration) {
+            if (isInitialized) {
+                if (followCurrentBest) {
+                    int bestIdx = currentParticle.getGlobalBestIndex();
+                    Sample xBestLocation = particleList.get(bestIdx).getBest();
+                    double[] xMeanLocation = xmean.getColumn(0);
+                    if (xBestLocation.getDistance(xMeanLocation) > 2 * sigma) {
+                        resetState(particleList.size());
+                    }
                 }
             }
-        }
-        if (isFirstInIteration) {
             final List<Sample> currentSamples = particleList.stream().map(Particle::getCurrent).collect(Collectors.toList());
             double[] fitness;
             // -------------------- Initialization --------------------------------
@@ -508,7 +508,6 @@ public class CMAESApache extends Move {
     @Override
     public void resetState(int particleCount) {
         isInitialized = false;
-        isFirstInIteration = true;
     }
 
     private double[] computeSigmas(double[] guess, List<Particle> particleList) {
