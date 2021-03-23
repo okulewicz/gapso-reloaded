@@ -368,9 +368,14 @@ public class CMAESApache extends Move {
                 arx = arxAccumulator;
                 arz = arzAccumulator;
                 lambda = accumulatedLambda;
-                fitness = null;
-                //TODO: fitness to be taken from outside computations
-                //by matching locations in arx with samples
+                fitness = new double[lambda];
+                for (int l = 0; l < lambda; ++l) {
+                    double[] x = arx.getColumn(l);
+                    Sample matchingSample = currentSamples
+                            .stream().filter(s -> Arrays.equals(x, s.getX()))
+                            .collect(Collectors.toList()).get(0);
+                    fitness[l] = matchingSample.getY();
+                }
             }
             arxAccumulator = null;
             arzAccumulator = null;
