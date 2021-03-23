@@ -91,4 +91,8 @@ public class Particle {
         double y = _function.getValue(sample);
         return new SingleSample(sample, y);
     }
+
+    public Sample getCurrent() {
+        return current;
+    }
 }
