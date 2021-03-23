@@ -286,6 +286,7 @@ public class CMAESApache extends Move {
     private double bestValue;
     private RealMatrix arxAccumulator;
     private RealMatrix arzAccumulator;
+    private List<Double> fitnessList;
 
     public CMAESApache(MoveConfiguration configuration) {
         super(configuration);
@@ -374,22 +375,12 @@ public class CMAESApache extends Move {
                 arx = arxAccumulator;
                 arz = arzAccumulator;
                 lambda = accumulatedLambda;
-                fitness = new double[lambda];
-                for (int l = 0; l < lambda; ++l) {
-                    double[] x = arx.getColumn(l);
-                    final List<Sample> mathingSamples = currentSamples
-                            .stream().filter(s -> Arrays.equals(x, s.getX()))
-                            .collect(Collectors.toList());
-                    if (mathingSamples.size() == 0) {
-                        throw new IllegalStateException();
-                    }
-                    Sample matchingSample = mathingSamples.get(0);
-                    fitness[l] = matchingSample.getY();
-                }
+                fitness = fitnessList.stream().mapToDouble(f -> f).toArray();
             }
             iterations++;
             arxAccumulator = null;
             arzAccumulator = null;
+            fitnessList = new ArrayList<>();
             initializeLambdaDependentCoefficients();
             accumulatedLambda = 0;
 
@@ -527,6 +518,11 @@ public class CMAESApache extends Move {
     @Override
     public void newIteration() {
         firstInIteration = true;
+    }
+
+    @Override
+    public void registerSamplingResult(double y) {
+        fitnessList.add(y);
     }
 
     private double[] computeMeanLocation(List<Particle> particleList) {

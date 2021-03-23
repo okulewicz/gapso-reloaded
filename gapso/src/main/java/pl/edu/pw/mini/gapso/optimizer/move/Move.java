@@ -53,4 +53,6 @@ public abstract class Move {
     public double getMinimalRatio() {
         return minimalRatio;
     }
+
+    public abstract void registerSamplingResult(double y);
 }

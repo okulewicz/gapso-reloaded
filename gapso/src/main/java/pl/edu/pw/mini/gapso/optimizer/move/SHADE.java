@@ -197,6 +197,11 @@ public class SHADE extends Move {
         }
     }
 
+    @Override
+    public void registerSamplingResult(double y) {
+        //DO NOTHING ON PURPOSE
+    }
+
     public static class SHADEConfiguration {
         private final double pBestRatio;
         private double scale;
