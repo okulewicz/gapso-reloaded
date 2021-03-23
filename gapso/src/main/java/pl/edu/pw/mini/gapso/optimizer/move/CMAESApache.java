@@ -287,6 +287,7 @@ public class CMAESApache extends Move {
     private boolean isInitialized;
     private final boolean followGlobalBest;
     private final int minIterationsBeforeFollow;
+    private final double followToleranceFactor;
 
     public CMAESApache(MoveConfiguration configuration) {
         super(configuration);
@@ -296,6 +297,7 @@ public class CMAESApache extends Move {
         followBest = cmaesConf.getFollowCurrentBest();
         followGlobalBest = cmaesConf.getFollowGlobalBest();
         minIterationsBeforeFollow = cmaesConf.getMinIterationsBeforeFollow();
+        followToleranceFactor = cmaesConf.getFollowToleranceFactor();
     }
 
     private int accumulatedLambda;
@@ -330,7 +332,7 @@ public class CMAESApache extends Move {
                         }
                     }
                     double[] xMeanLocation = xmean.getColumn(0);
-                    if (xBestLocation.getDistance(xMeanLocation) > 2 * sigma) {
+                    if (xBestLocation.getDistance(xMeanLocation) > followToleranceFactor * sigma) {
                         resetState(particleList.size());
                     }
                 }
@@ -558,6 +560,7 @@ public class CMAESApache extends Move {
         private boolean followCurrentBest;
         private boolean followGlobalBest;
         private int minIterationsBeforeFollow;
+        private double followToleranceFactor;
 
         public boolean getFollowCurrentBest() {
             return followCurrentBest;
@@ -581,6 +584,14 @@ public class CMAESApache extends Move {
 
         public void setMinIterationsBeforeFollow(int minIterationsBeforeFollow) {
             this.minIterationsBeforeFollow = minIterationsBeforeFollow;
+        }
+
+        public double getFollowToleranceFactor() {
+            return followToleranceFactor;
+        }
+
+        public void setFollowToleranceFactor(double followToleranceFactor) {
+            this.followToleranceFactor = followToleranceFactor;
         }
     }
 
