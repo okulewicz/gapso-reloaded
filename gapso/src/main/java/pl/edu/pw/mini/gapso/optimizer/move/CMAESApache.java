@@ -346,7 +346,6 @@ public class CMAESApache extends Move {
                 lambda = particleList.size();
                 initializeCMA(guess);
 
-                iterations = 0;
 
                 arx = DoubleIndex.zeros(dimension, lambda);
                 arz = DoubleIndex.zeros(dimension, lambda);
@@ -365,6 +364,7 @@ public class CMAESApache extends Move {
 
                 bestValue = currentSamples.stream().mapToDouble(Sample::getY).min().orElse(Double.POSITIVE_INFINITY);
                 isInitialized = true;
+                iterations = 0;
             } else {
                 arx = arxAccumulator;
                 arz = arzAccumulator;
@@ -378,6 +378,7 @@ public class CMAESApache extends Move {
                     fitness[l] = matchingSample.getY();
                 }
             }
+            iterations++;
             arxAccumulator = null;
             arzAccumulator = null;
             initializeLambdaDependentCoefficients();
@@ -448,6 +449,7 @@ public class CMAESApache extends Move {
                 statisticsMeanHistory.add(xmean.transpose());
                 statisticsDHistory.add(diagD.transpose().scalarMultiply(1E5));
             }
+            firstInIteration = false;
         }
 
         // -------------------- Generation Loop --------------------------------
