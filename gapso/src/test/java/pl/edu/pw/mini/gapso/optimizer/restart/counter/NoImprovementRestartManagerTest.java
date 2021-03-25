@@ -72,6 +72,11 @@ public class NoImprovementRestartManagerTest {
             public void newIteration() {
 
             }
+
+            @Override
+            public void registerSamplingResult(double y) {
+
+            }
         };
         conf = new Configuration(EVALUATIONS_PER_DIMENSION_LIMIT);
         manager = new NoImprovementRestartManager(conf);
