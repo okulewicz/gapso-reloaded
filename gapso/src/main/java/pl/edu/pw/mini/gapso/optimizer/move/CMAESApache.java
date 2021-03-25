@@ -290,6 +290,7 @@ public class CMAESApache extends Move {
     private final int minIterationsBeforeFollow;
     private final double followToleranceFactor;
     private final boolean takeXmeanFromAll;
+    private final boolean computeVectorFromAllSamples;
 
     public CMAESApache(MoveConfiguration configuration) {
         super(configuration);
@@ -301,6 +302,7 @@ public class CMAESApache extends Move {
         minIterationsBeforeFollow = cmaesConf.getMinIterationsBeforeFollow();
         followToleranceFactor = cmaesConf.getFollowToleranceFactor();
         takeXmeanFromAll = cmaesConf.getTakeXmeanFromAll();
+        computeVectorFromAllSamples = cmaesConf.getComputeVectorFromAllSamples();
     }
 
     private int accumulatedLambda;
@@ -372,10 +374,25 @@ public class CMAESApache extends Move {
                 isInitialized = true;
                 iterations = 0;
             } else {
-                arx = arxAccumulator;
-                arz = arzAccumulator;
-                lambda = accumulatedLambda;
-                fitness = fitnessList.stream().mapToDouble(f -> f).toArray();
+                if (computeVectorFromAllSamples) {
+                    RealMatrix invertedBD = MatrixUtils.inverse(BD);
+                    lambda = particleList.size();
+                    arx = DoubleIndex.zeros(dimension, lambda);
+                    arz = DoubleIndex.zeros(dimension, lambda);
+                    for (int l = 0; l < lambda; ++l) {
+                        final double[] x = currentSamples.get(l).getX();
+                        RealMatrix xCol = MatrixUtils.createColumnRealMatrix(x);
+                        arx.setColumnMatrix(l, xCol);
+                        RealMatrix resultZ = arx.getColumnMatrix(l).subtract(xmean).scalarMultiply(1 / sigma).preMultiply(invertedBD);
+                        arz.setColumnMatrix(l, resultZ);
+                    }
+                    fitness = currentSamples.stream().mapToDouble(Sample::getY).toArray();
+                } else {
+                    arx = arxAccumulator;
+                    arz = arzAccumulator;
+                    lambda = accumulatedLambda;
+                    fitness = fitnessList.stream().mapToDouble(f -> f).toArray();
+                }
             }
             iterations++;
             arxAccumulator = null;
@@ -582,6 +599,7 @@ public class CMAESApache extends Move {
         private int minIterationsBeforeFollow;
         private double followToleranceFactor;
         private boolean takeXmeanFromAll;
+        private boolean computeVectorFromAllSamples;
 
         public boolean getFollowCurrentBest() {
             return followCurrentBest;
@@ -621,6 +639,14 @@ public class CMAESApache extends Move {
 
         public void setTakeXmeanFromAll(boolean takeXmeanFromAll) {
             this.takeXmeanFromAll = takeXmeanFromAll;
+        }
+
+        public boolean getComputeVectorFromAllSamples() {
+            return computeVectorFromAllSamples;
+        }
+
+        public void setComputeVectorFromAllSamples(boolean computeVectorFromAllSamples) {
+            this.computeVectorFromAllSamples = computeVectorFromAllSamples;
         }
     }
 
