@@ -25,10 +25,16 @@ public class CMAESApacheTest {
         RealMatrix arxAccumulator = MatrixUtils.createRealMatrix(2, 1);
         arxAccumulator.setColumnMatrix(0, xmean.add(BD.multiply(arzAccumulator.getColumnMatrix(0))
                 .scalarMultiply(sigma))); // m + sig * Normal(0,C)
+        final double[] expectedArx = {-0.7549600135908514, 3.754324539870181};
         Assert.assertArrayEquals(
-                new double[]{-0.7549600135908514, 3.754324539870181},
+                expectedArx,
                 arxAccumulator.getColumn(0),
                 1e-4
         );
+
+        RealMatrix invertedBD = MatrixUtils.inverse(BD);
+        RealMatrix inputX = MatrixUtils.createColumnRealMatrix(expectedArx);
+        RealMatrix resultZ = inputX.subtract(xmean).scalarMultiply(1 / sigma).preMultiply(invertedBD);
+        Assert.assertArrayEquals(arzAccumulator.getColumn(0), resultZ.getColumn(0), 1e-4);
     }
 }
