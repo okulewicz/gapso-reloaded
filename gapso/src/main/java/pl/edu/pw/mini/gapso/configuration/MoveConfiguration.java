@@ -59,6 +59,9 @@ public class MoveConfiguration {
         if (getName().equals(SHADE.NAME)) {
             return new SHADE(this);
         }
+        if (getName().equals(CMAESApache.NAME)) {
+            return new CMAESApache(this);
+        }
         if (getName().equals(LocalBestModel.NAME)) {
             return new LocalBestModel(this);
         }

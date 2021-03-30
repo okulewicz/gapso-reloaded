@@ -90,6 +90,11 @@ public class DEBest1Bin extends Move {
         //DO NOTHING ON PURPOSE
     }
 
+    @Override
+    public void registerSamplingResult(double y) {
+        //DO NOTHING ON PURPOSE
+    }
+
     private double getValue(double parameter, boolean constantParameter) {
         double scale = parameter;
         if (!constantParameter) {

@@ -20,7 +20,7 @@ public abstract class Move {
         this.isAdaptable = configuration.isAdaptable();
     }
 
-    public abstract double[] getNext(Particle currentParticle, List<Particle> particleList);
+    public abstract double[] getNext(Particle currentParticle, List<Particle> particleList) throws IllegalStateException;
 
     public int getMinNumber() {
         return minNumber;
@@ -53,4 +53,6 @@ public abstract class Move {
     public double getMinimalRatio() {
         return minimalRatio;
     }
+
+    public abstract void registerSamplingResult(double y);
 }

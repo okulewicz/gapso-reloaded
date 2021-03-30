@@ -89,6 +89,11 @@ public class Particle {
             }
         }
         double y = _function.getValue(sample);
+        availableMove.registerSamplingResult(y);
         return new SingleSample(sample, y);
+    }
+
+    public Sample getCurrent() {
+        return current;
     }
 }

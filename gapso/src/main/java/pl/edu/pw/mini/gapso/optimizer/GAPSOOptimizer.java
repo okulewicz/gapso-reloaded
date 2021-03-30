@@ -92,16 +92,21 @@ public class GAPSOOptimizer extends SamplingOptimizer {
                 List<Move> moves = _moveManager.generateMoveSequence(particles.size());
                 _moveManager.startNewIteration();
                 Iterator<Move> movesIterator = moves.iterator();
-                for (Particle particle : particles) {
-                    Move selectedMove = movesIterator.next();
-                    ParticleMoveResults result = particle.move(selectedMove);
-                    if (result.getPersonalImprovement() > 0) {
-                        successSamplers.forEach(s -> s.tryStoreSample(result.previousBest));
+                boolean movedIntoBadState = false;
+                try {
+                    for (Particle particle : particles) {
+                        Move selectedMove = movesIterator.next();
+                        ParticleMoveResults result = particle.move(selectedMove);
+                        if (result.getPersonalImprovement() > 0) {
+                            successSamplers.forEach(s -> s.tryStoreSample(result.previousBest));
+                        }
+                        _moveManager.registerPersonalImprovementByMove(selectedMove, result.getPersonalImprovement());
+                        _moveManager.registerGlobalImprovementByMove(selectedMove, result.getGlobalImprovement());
                     }
-                    _moveManager.registerPersonalImprovementByMove(selectedMove, result.getPersonalImprovement());
-                    _moveManager.registerGlobalImprovementByMove(selectedMove, result.getGlobalImprovement());
+                } catch (IllegalStateException ex) {
+                    movedIntoBadState = true;
                 }
-                if (_restartManager.shouldBeRestarted(particles)) {
+                if (movedIntoBadState || _restartManager.shouldBeRestarted(particles)) {
                     //TODO: needs to be parameterized!
                     particleCount = (int) Math.round(_particlesCountMultiplier * particleCount);
                     particleCount = Math.max(Math.min(particleCount, _maxParticlesPerDimension * function.getDimension()), 4);

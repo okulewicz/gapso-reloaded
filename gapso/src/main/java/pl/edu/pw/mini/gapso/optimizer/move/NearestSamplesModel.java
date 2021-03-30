@@ -50,4 +50,9 @@ public class NearestSamplesModel extends ModelMove {
     public void newIteration() {
         //DO NOTHING ON PURPOSE
     }
+
+    @Override
+    public void registerSamplingResult(double y) {
+        //DO NOTHING ON PURPOSE
+    }
 }
