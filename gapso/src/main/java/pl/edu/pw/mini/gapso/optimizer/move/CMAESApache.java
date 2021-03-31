@@ -391,7 +391,6 @@ public class CMAESApache extends Move {
                     arx = arxAccumulator;
                     arz = arzAccumulator;
                     lambda = accumulatedLambda;
-                    //TODO: mu and weights are not recalculated - probably they should be
                     fitness = fitnessList.stream().mapToDouble(f -> f).toArray();
                 }
             }
@@ -399,7 +398,7 @@ public class CMAESApache extends Move {
             arxAccumulator = null;
             arzAccumulator = null;
             fitnessList = new ArrayList<>();
-            initializeLambdaDependentCoefficients();
+            setLambdaDependentCoefficients();
             accumulatedLambda = 0;
 
             // Sort by fitness and compute weighted mean into xmean
@@ -672,9 +671,6 @@ public class CMAESApache extends Move {
      * @param guess Initial guess for the arguments of the fitness function.
      */
     private void initializeCMA(double[] guess) {
-        if (lambda <= 0) {
-            throw new NotStrictlyPositiveException(lambda);
-        }
         // initialize sigma
         final double[][] sigmaArray = new double[guess.length][1];
         for (int i = 0; i < guess.length; i++) {
@@ -688,7 +684,7 @@ public class CMAESApache extends Move {
         stopTolX = 1e-11 * DoubleIndex.max(insigma);
         stopTolFun = 1e-12;
         stopTolHistFun = 1e-13;
-        initializeLambdaDependentCoefficients();
+        setLambdaDependentCoefficients();
 
         // intialize CMA internal values - updated each generation
         xmean = MatrixUtils.createColumnRealMatrix(guess); // objective variables
@@ -709,7 +705,10 @@ public class CMAESApache extends Move {
         }
     }
 
-    private void initializeLambdaDependentCoefficients() {
+    private void setLambdaDependentCoefficients() {
+        if (lambda <= 0) {
+            throw new NotStrictlyPositiveException(lambda);
+        }
         // initialize selection strategy parameters
         mu = lambda / 2; // number of parents/points for recombination
         logMu2 = FastMath.log(mu + 0.5);
