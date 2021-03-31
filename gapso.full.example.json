@@ -1,0 +1,148 @@
+{
+  "seed": 1,
+  "particlesCountPerDimension": 10,
+  "evaluationsBudgetPerDimension": 100000,
+  "boundsManagerDefinition": {
+    "name": "ResetAll"
+  },
+  "initializerDefinition": {
+    "name": "Sequence",
+    "parameters": {
+      "initializers": [
+        {
+          "name": "GlobalModel"
+        },
+        {
+          "name": "Model"
+        },
+        {
+          "name": "Random"
+        }
+      ]
+    }
+  },
+  "restartManagerDefinition": {
+    "name": "Or",
+    "parameters": {
+      "restartManagerDefinitions": [
+        {
+          "name": "FunctionValues",
+          "parameters": {
+            "threshold": 1e-8
+          }
+        }
+      ]
+    }
+  },
+  "moveManagerDefinition": {
+    "adaptMoves": true,
+    "maxHistorySize": 20,
+    "includePersonalImprovements": false,
+    "includeGlobalImprovements": true,
+    "switchingAdaptationOffProbability": 0.1,
+    "moves": [
+      {
+        "name": "SHADE",
+        "isAdaptable": true,
+        "initialWeight": 3000,
+        "minimalRatio": 0.2,
+        "minimalAmount": 1,
+        "parameters": {
+          "crossProb": 0.9,
+          "scale": 0.6,
+          "pBestRatio": 0.11,
+          "archiveSizeFactor": 2.0,
+          "slots": 6
+        }
+      },
+      {
+        "name": "DE/best/1/bin",
+        "isAdaptable": true,
+        "initialWeight": 1000,
+        "minimalAmount": 1,
+        "minimalRatio": 0.1,
+        "parameters": {
+          "crossProb": 0.9,
+          "scale": 1.2,
+          "constantCrossProb": true,
+          "constantScale": false
+        }
+      },
+      {
+        "name": "LocalBestModel",
+        "isAdaptable": false,
+        "initialWeight": 0,
+        "minimalAmount": 1,
+        "minimalRatio": 0.05,
+        "parameters": {
+          "models": [
+            {
+              "modelType": "FullSquare",
+              "modelUseFrequency": 1
+            },
+            {
+              "modelType": "SimpleSquare",
+              "modelUseFrequency": 1
+            }
+          ],
+          "clusteringType": "NONE"
+        }
+      },
+      {
+        "name": "GlobalModel",
+        "isAdaptable": false,
+        "initialWeight": 0,
+        "minimalAmount": 1,
+        "minimalRatio": 0.05,
+        "parameters": {
+          "models": [
+            {
+              "modelType": "FullSquare",
+              "modelUseFrequency": 5
+            },
+            {
+              "modelType": "SimpleSquare",
+              "modelUseFrequency": 1
+            }
+          ],
+          "clusteringType": "NONE"
+        }
+      },
+      {
+        "name": "NearestSamples",
+        "isAdaptable": false,
+        "initialWeight": 0,
+        "minimalAmount": 1,
+        "minimalRatio": 0.1,
+        "parameters": {
+          "models": [
+            {
+              "modelType": "FullSquare",
+              "modelUseFrequency": 5
+            },
+            {
+              "modelType": "SimpleSquare",
+              "modelUseFrequency": 1
+            }
+          ],
+          "clusteringType": "NONE"
+        }
+      },
+      {
+        "name": "CMAESApache",
+        "isAdaptable": true,
+        "initialWeight": 3000,
+        "minimalRatio": 0.2,
+        "minimalAmount": 4,
+        "parameters": {
+          "followCurrentBest": false,
+          "followGlobalBest": false,
+          "minIterationsBeforeFollow": 10,
+          "followToleranceFactor": 4.0,
+          "takeXMeanFromAll": false,
+          "computeVectorFromAllSamples": false
+        }
+      }
+    ]
+  }
+}
