@@ -174,8 +174,9 @@ made by particular moves
   }
 ```
 
-  * CMA-ES (copied from Apache Math packages and tailored to GAPSO framework)
-  
+  * CMAESApache - CMA-ES (copied from Apache Math packages and tailored to GAPSO framework)
+    the settings in parameters are attempts to get information in CMA-ES from other swarm
+    members - however they have been unsuccessful so far (resulting in sigma explosion)  
 ```json
 {
   "name": "CMAESApache",
@@ -187,7 +188,9 @@ made by particular moves
     "followCurrentBest": false,
     "followGlobalBest": false,
     "minIterationsBeforeFollow": 10,
-    "followToleranceFactor": 4.0
+    "followToleranceFactor": 4.0,
+    "takeXMeanFromAll": false,
+    "computeVectorFromAllSamples": false
   }
 }
 ```

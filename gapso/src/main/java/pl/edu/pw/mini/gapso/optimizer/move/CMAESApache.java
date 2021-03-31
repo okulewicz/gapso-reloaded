@@ -289,7 +289,7 @@ public class CMAESApache extends Move {
     private final boolean followGlobalBest;
     private final int minIterationsBeforeFollow;
     private final double followToleranceFactor;
-    private final boolean takeXmeanFromAll;
+    private final boolean takeXMeanFromAll;
     private final boolean computeVectorFromAllSamples;
 
     public CMAESApache(MoveConfiguration configuration) {
@@ -301,7 +301,7 @@ public class CMAESApache extends Move {
         followGlobalBest = cmaesConf.getFollowGlobalBest();
         minIterationsBeforeFollow = cmaesConf.getMinIterationsBeforeFollow();
         followToleranceFactor = cmaesConf.getFollowToleranceFactor();
-        takeXmeanFromAll = cmaesConf.getTakeXmeanFromAll();
+        takeXMeanFromAll = cmaesConf.getTakeXMeanFromAll();
         computeVectorFromAllSamples = cmaesConf.getComputeVectorFromAllSamples();
     }
 
@@ -391,6 +391,7 @@ public class CMAESApache extends Move {
                     arx = arxAccumulator;
                     arz = arzAccumulator;
                     lambda = accumulatedLambda;
+                    //TODO: mu and weights are not recalculated - probably they should be
                     fitness = fitnessList.stream().mapToDouble(f -> f).toArray();
                 }
             }
@@ -406,7 +407,7 @@ public class CMAESApache extends Move {
             // Calculate new xmean, this is selection and recombination
             final RealMatrix xold = xmean; // for speed up of Eq. (2) and (3)
             final RealMatrix bestArx = DoubleIndex.selectColumns(arx, MathArrays.copyOf(arindex, mu));
-            if (!takeXmeanFromAll) {
+            if (!takeXMeanFromAll) {
                 //Standard CMA-ES operation
                 xmean = bestArx.multiply(weights);
             } else {
@@ -598,7 +599,7 @@ public class CMAESApache extends Move {
         private boolean followGlobalBest;
         private int minIterationsBeforeFollow;
         private double followToleranceFactor;
-        private boolean takeXmeanFromAll;
+        private boolean takeXMeanFromAll;
         private boolean computeVectorFromAllSamples;
 
         public boolean getFollowCurrentBest() {
@@ -633,12 +634,12 @@ public class CMAESApache extends Move {
             this.followToleranceFactor = followToleranceFactor;
         }
 
-        public boolean getTakeXmeanFromAll() {
-            return takeXmeanFromAll;
+        public boolean getTakeXMeanFromAll() {
+            return takeXMeanFromAll;
         }
 
-        public void setTakeXmeanFromAll(boolean takeXmeanFromAll) {
-            this.takeXmeanFromAll = takeXmeanFromAll;
+        public void setTakeXMeanFromAll(boolean takeXMeanFromAll) {
+            this.takeXMeanFromAll = takeXMeanFromAll;
         }
 
         public boolean getComputeVectorFromAllSamples() {
