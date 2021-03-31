@@ -69,7 +69,8 @@ which consists of the following modules:
 ## Restart Managers
 
   * FunctionValues - restarts swarm when difference in function values
-  of best samples is less then threshold
+  of best samples is less then threshold times absolute value of the function
+  (taken from R-SHADE)
 ```json
 {
   "name": "FunctionValues",
@@ -78,8 +79,21 @@ which consists of the following modules:
   }
 }
 ```
-  * MinSpreadInDimensions
-  * MaxSpreadInDimensions 
+  * MinSpreadInDimensions - restarts swarm if difference of the best locations
+  in at least one direction is smaller than threshold times absolute value
+  of the location (taken from R-SHADE)
+  * MaxSpreadInDimensions - restarts swarm if difference of the best locations
+  in each of the directions is smaller than threshold 
+  * NoImprovement - restarts swarm if for a certain amount of evaluations (not iterations)
+  there was no improvement in the estimated global optimum value
+```json
+{
+  "name": "NoImprovement",
+  "parameters": {
+    "evaluationsPerDimensionLimit": 5000
+  }
+}
+```
   * Or - restarts when at least one rule is met
   ```json
 {
@@ -158,6 +172,24 @@ made by particular moves
       "slots": 6
     }
   }
+```
+
+  * CMA-ES (copied from Apache Math packages and tailored to GAPSO framework)
+  
+```json
+{
+  "name": "CMAESApache",
+  "isAdaptable": true,
+  "initialWeight": 3000,
+  "minimalRatio": 0.2,
+  "minimalAmount": 4,
+  "parameters": {
+    "followCurrentBest": false,
+    "followGlobalBest": false,
+    "minIterationsBeforeFollow": 10,
+    "followToleranceFactor": 4.0
+  }
+}
 ```
 
   * LocalBestModel - tries to apply the first model with enough samples and current availability
